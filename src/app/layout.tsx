@@ -4,6 +4,8 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import ThemeProvider from "~/providers/ThemeProvider";
+import ThemeToggle from "~/_components/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -21,8 +23,17 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable}`}>
-      <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+      <body className="bg-[--color-bg] text-[--color-text-primary]">
+        <TRPCReactProvider>
+          <ThemeProvider>
+            <div className="min-h-screen">
+              <header className="flex justify-end border-b border-[--color-border] p-3">
+                <ThemeToggle />
+              </header>
+              {children}
+            </div>
+          </ThemeProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );

@@ -1,8 +1,20 @@
 export default function Pricing() {
   const plans = [
-    { name: "Free", price: "$0", bullets: ["10 PDFs/month", "Basic templates"] },
-    { name: "Pro", price: "$15/mo", bullets: ["Unlimited PDFs", "Custom branding"] },
-    { name: "Teams", price: "$99/mo", bullets: ["SSO & teams", "Priority support"] },
+    {
+      name: "Free",
+      price: "$0",
+      bullets: ["10 PDFs/month", "Basic templates"],
+    },
+    {
+      name: "Pro",
+      price: "$15/mo",
+      bullets: ["Unlimited PDFs", "Custom branding"],
+    },
+    {
+      name: "Teams",
+      price: "$99/mo",
+      bullets: ["SSO & teams", "Priority support"],
+    },
   ];
 
   return (
@@ -14,7 +26,10 @@ export default function Pricing() {
 
       <div className="mt-8 grid gap-6 sm:grid-cols-3">
         {plans.map((p) => (
-          <div key={p.name} className="rounded-lg border p-6 text-center">
+          <div
+            key={p.name}
+            className="rounded-lg border border-[--color-border] bg-[--color-surface] p-6 text-center"
+          >
             <div className="text-sm font-semibold">{p.name}</div>
             <div className="mt-4 text-3xl font-bold">{p.price}</div>
             <ul className="mt-4 space-y-2 text-sm">
@@ -22,7 +37,7 @@ export default function Pricing() {
                 <li key={b}>{b}</li>
               ))}
             </ul>
-            <button className="mt-6 rounded-full bg-indigo-600 px-6 py-2 text-white">
+            <button className="mt-6 rounded-full bg-[--color-primary] px-6 py-2 text-[--color-bg]">
               Get {p.name}
             </button>
           </div>

@@ -5,19 +5,15 @@ import Pricing from "./_components/Pricing";
 import Footer from "./_components/Footer";
 
 export default async function Home() {
-  
-
   return (
     <HydrateClient>
-      <main className="min-h-screen text-slate-800">
+      <main className="min-h-screen bg-[--color-bg] text-[--color-text-primary]">
         <Hero />
 
-        <section className="bg-gradient-to-b from-white to-slate-50">
+        <section className="bg-[--color-surface]">
           <Features />
           <Pricing />
         </section>
-
-        
 
         <Footer />
       </main>
