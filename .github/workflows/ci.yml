@@ -2,33 +2,20 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL != '' && secrets.DATABASE_URL || 'postgresql://user:password@localhost:5432/db' }}
-      NODE_ENV: test
-
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NODE_ENV: production
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10.16.1
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: npx eslint .
-
-      - name: Run checks
-        run: pnpm run check
-
-      - name: Build
-        run: pnpm run build
+      - run: pnpm install --frozen-lockfile
+      - run: npx eslint .
+      - run: pnpm run check
+      - run: pnpm run build
