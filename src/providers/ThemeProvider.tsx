@@ -3,10 +3,10 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 const ThemeContext = createContext({
   theme: "light" as Theme,
-  setTheme: (_t: Theme) => {},
+
+  setTheme: (_t: Theme) => console.warn("setTheme called without a provider"),
 });
 
 export function useTheme() {
