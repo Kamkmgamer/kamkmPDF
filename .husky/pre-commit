@@ -1,2 +1,29 @@
-pnpm lint-staged
-pnpm run check
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Always run from the repository root
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo "[husky] pre-commit: validating staged changes..."
+
+# Ensure pnpm is available
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "[husky] pnpm is required but not found in PATH. Aborting commit." >&2
+  exit 1
+fi
+
+# Run lint-staged on staged files
+echo "[husky] Running lint-staged..."
+pnpm exec lint-staged
+
+# Decide whether to run full project checks (eslint + typecheck)
+STAGED_FILES=$(git diff --cached --name-only)
+if echo "$STAGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$|^package\.json$|^tsconfig\.json$|^eslint\.(js|cjs|mjs|ts)$' >/dev/null 2>&1; then
+  echo "[husky] Running project checks (pnpm run check)..."
+  pnpm run check
+else
+  echo "[husky] Skipping project checks (no relevant files staged)."
+fi
+
+echo "[husky] All checks passed or skipped. Proceeding with commit."
