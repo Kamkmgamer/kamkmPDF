@@ -11,6 +11,9 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "~/server/db";
+// Clerk server helpers
+import { getAuth } from "@clerk/nextjs/server";
+import type { NextRequest } from "next/server";
 
 /**
  * 1. CONTEXT
@@ -24,9 +27,26 @@ import { db } from "~/server/db";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { headers: Headers }) => {
+export const createTRPCContext = async (opts: {
+  headers: Headers;
+  req?: Request;
+}) => {
+  // Use Clerk to get the current user/session from the request headers if present.
+  // Note: When using Next.js API handlers, pass the incoming Request to this helper via opts.req.
+  let clerkUserId: string | null = null;
+  try {
+    // getAuth works with Next.js / Next API; it expects headers and cookies context. If this call
+    // doesn't apply in your environment, it will safely return null fields.
+    const auth = getAuth(opts.req as unknown as NextRequest);
+    if (auth?.userId) clerkUserId = auth.userId;
+  } catch {
+    // ignore parsing errors; auth stays null
+    clerkUserId = null;
+  }
+
   return {
     db,
+    clerkUserId,
     ...opts,
   };
 };
@@ -35,7 +55,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
  * 2. INITIALIZATION
  *
  * This is where the tRPC API is initialized, connecting the context and transformer. We also parse
- * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
+ * ZodErrors so that you can get typesafety on the frontend if your procedure fails due to validation
  * errors on the backend.
  */
 const t = initTRPC.context<typeof createTRPCContext>().create({
@@ -104,3 +124,17 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+
+/**
+ * Protected procedure middleware - requires a Clerk authenticated user
+ */
+const enforceAuth = t.middleware(async ({ ctx, next }) => {
+  if (!ctx?.clerkUserId) {
+    throw new Error("UNAUTHORIZED: user not authenticated");
+  }
+  return next({ ctx: { ...ctx, userId: ctx.clerkUserId } });
+});
+
+export const protectedProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(enforceAuth);
