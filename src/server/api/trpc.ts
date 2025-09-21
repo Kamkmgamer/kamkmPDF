@@ -6,7 +6,7 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -61,6 +61,32 @@ export const createTRPCContext = async (opts: {
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
+    // Handle authentication errors with better messages
+    if (error instanceof TRPCError) {
+      if (error.code === "UNAUTHORIZED") {
+        return {
+          ...shape,
+          message: "Please sign in to access this feature.",
+          data: {
+            ...shape.data,
+            zodError:
+              error.cause instanceof ZodError ? error.cause.flatten() : null,
+          },
+        };
+      }
+      if (error.code === "FORBIDDEN") {
+        return {
+          ...shape,
+          message: "You don't have permission to access this resource.",
+          data: {
+            ...shape.data,
+            zodError:
+              error.cause instanceof ZodError ? error.cause.flatten() : null,
+          },
+        };
+      }
+    }
+
     return {
       ...shape,
       data: {

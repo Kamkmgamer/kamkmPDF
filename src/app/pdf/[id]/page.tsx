@@ -1,21 +1,25 @@
-import React from "react";
+import { notFound } from "next/navigation";
+import { PDFViewerPage } from "~/app/pdf/[id]/_components/PDFViewerPage";
 
-export default async function PdfPage({
-  params,
-}: {
+interface PageProps {
   params: Promise<{ id: string }>;
-}) {
-  const resolvedParams = await params;
-  const id = resolvedParams?.id ?? "unknown";
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold">PDF Viewer</h1>
-      <p className="text-sm text-[--color-text-muted]">Viewing PDF job: {id}</p>
-      <div className="mt-4 flex h-[600px] items-center justify-center border border-[--color-border] bg-[--color-surface]">
-        <span className="text-[--color-text-muted]">
-          PDF viewer placeholder for {id}
-        </span>
-      </div>
-    </div>
-  );
+}
+
+export default async function PDFPage({ params }: PageProps) {
+  const { id } = await params;
+
+  if (!id) {
+    notFound();
+  }
+
+  return <PDFViewerPage jobId={id} />;
+}
+
+export async function generateMetadata({ params }: PageProps) {
+  const { id } = await params;
+
+  return {
+    title: `PDF Viewer - ${id}`,
+    description: "View and download your generated PDF",
+  };
 }

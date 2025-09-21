@@ -8,6 +8,13 @@
       "when": 1758192621842,
       "tag": "0000_high_annihilus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758478989755,
+      "tag": "0001_short_vermin",
+      "breakpoints": true
     }
   ]
 }

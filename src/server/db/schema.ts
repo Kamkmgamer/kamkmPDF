@@ -57,3 +57,15 @@ export const files = createTable("file", (d) => ({
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 }));
+
+// Share links table for temporary file sharing
+export const shareLinks = createTable("share_link", (d) => ({
+  id: d.text().primaryKey(),
+  fileId: d.text().references(() => files.id),
+  token: d.text().unique().notNull(),
+  expiresAt: d.timestamp({ withTimezone: true }).notNull(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+}));

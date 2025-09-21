@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { pathToFileURL } from "url";
 import { db } from "~/server/db";
 import { jobs, files } from "~/server/db/schema";
 import { randomUUID } from "crypto";
@@ -89,7 +90,17 @@ async function runLoop() {
   }
 }
 
-if (require.main === module) {
+// ESM-safe entrypoint check
+try {
+  const isEntry = import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
+  if (isEntry) {
+    runLoop().catch((e) => {
+      console.error(e);
+      process.exit(1);
+    });
+  }
+} catch {
+  // Fallback: always run
   runLoop().catch((e) => {
     console.error(e);
     process.exit(1);

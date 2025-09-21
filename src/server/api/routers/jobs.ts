@@ -8,6 +8,7 @@ import { db } from "~/server/db";
 import { jobs } from "~/server/db/schema";
 import { randomUUID } from "crypto";
 import { eq, desc } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 export const jobsRouter = createTRPCRouter({
   listRecent: publicProcedure
@@ -39,4 +40,44 @@ export const jobsRouter = createTRPCRouter({
     const res = await db.select().from(jobs).where(eq(jobs.id, input)).limit(1);
     return res[0] ?? null;
   }),
+
+  recreate: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      const existingJob = await db
+        .select()
+        .from(jobs)
+        .where(eq(jobs.id, input))
+        .limit(1);
+
+      if (!existingJob[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Job not found",
+        });
+      }
+
+      if (existingJob[0].userId !== ctx.userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You don't have permission to recreate this job",
+        });
+      }
+
+      const newId = randomUUID();
+      await db.insert(jobs).values({
+        id: newId,
+        prompt: existingJob[0].prompt,
+        userId: ctx.userId,
+        status: "queued",
+      });
+
+      const created = await db
+        .select()
+        .from(jobs)
+        .where(eq(jobs.id, newId))
+        .limit(1);
+
+      return created[0] ?? null;
+    }),
 });
