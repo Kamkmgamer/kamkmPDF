@@ -1,9 +1,11 @@
 # PDF Prompt Generator
+
 A Next.js application for generating structured prompts from PDFs, leveraging AI providers for intelligent content extraction and processing. Built with modern TypeScript tooling, tRPC for type-safe APIs, Drizzle ORM for database interactions, and Clerk for authentication.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and pnpm
 - PostgreSQL 14+ database
 - Redis for caching and queue management
@@ -11,18 +13,22 @@ A Next.js application for generating structured prompts from PDFs, leveraging AI
 - Clerk developer account for authentication
 
 ### Installation
+
 1. Clone the repository:
+
    ```bash
    git clone <your-repo-url>
    cd pdfprompt
    ```
 
 2. Install dependencies:
+
    ```bash
    pnpm install
    ```
 
 3. Set up environment variables (see `.env.example`):
+
    ```bash
    cp .env.example .env.local
    # Edit .env.local with your values
@@ -44,6 +50,7 @@ A Next.js application for generating structured prompts from PDFs, leveraging AI
 ## 🛠 Tech Stack
 
 ### Frontend
+
 - **Next.js 14**: App Router, Server Components, and React 18
 - **TypeScript**: Full type safety
 - **Tailwind CSS**: Utility-first styling
@@ -51,21 +58,26 @@ A Next.js application for generating structured prompts from PDFs, leveraging AI
 - **Clerk**: Authentication and user management
 
 ### Backend
+
 - **tRPC**: Server-side API routes
 - **Drizzle ORM**: Type-safe database queries with PostgreSQL
 - **Zod**: Schema validation for inputs and APIs
 
 ### AI Integration
+
 - **AI Router**: Dynamic routing to multiple providers (OpenAI, Anthropic, Grok, etc.)
 - **PDF Processing**: PDF.js for client-side parsing, server-side extraction via libraries
 - **Prompt Engineering**: Structured templates for PDF-to-prompt conversion
 
 ### Infrastructure
+
 - **Database**: PostgreSQL for user data, prompts, and processing history
 - **Cache/Queue**: Redis for session caching and job queuing
 - **Deployment**: Vercel for hosting, with preview deployments
+- **Storage**: UploadThing for persistent PDF storage (private by default)
 
 ### Development Tools
+
 - **ESLint & Prettier**: Code linting and formatting
 - **Husky**: Git hooks for pre-commit checks
 - **TypeScript**: Strict mode enabled
@@ -73,6 +85,7 @@ A Next.js application for generating structured prompts from PDFs, leveraging AI
 ## 🏗 Architecture
 
 ### High-Level Overview
+
 The app follows a microservices-inspired architecture within a monorepo:
 
 1. **Client Layer**: React components for PDF upload, prompt preview, and user interactions.
@@ -82,6 +95,7 @@ The app follows a microservices-inspired architecture within a monorepo:
 5. **Queue System**: Redis-backed queues for long-running PDF processing and AI inference to prevent timeouts.
 
 ### Key Flows
+
 - **PDF Upload & Processing**:
   1. User uploads PDF via Clerk-authenticated session.
   2. Client-side parsing extracts text; server validates and stores metadata.
@@ -98,13 +112,16 @@ The app follows a microservices-inspired architecture within a monorepo:
   - Server-side middleware verifies sessions for protected routes.
 
 ### Database Schema (Drizzle)
+
 Defined in `src/server/db/schema.ts`:
+
 - `users`: Clerk user integration (id, email, etc.)
 - `pdfs`: Uploaded PDFs (userId, fileUrl, metadata)
 - `prompts`: Generated prompts (pdfId, template, aiProvider, output)
 - `sessions`: Active processing sessions with Redis sync
 
 Example schema snippet:
+
 ```ts
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -145,7 +162,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/pdfprompt
 # Redis
 REDIS_URL=redis://localhost:6379
 
-# AI Providers (at least one required)
+# AI Providers (optional)
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=...
 # Add more as needed
@@ -154,6 +171,9 @@ ANTHROPIC_API_KEY=...
 NEXTAUTH_SECRET=your-secret
 NEXTAUTH_URL=http://localhost:3000
 
+# UploadThing (required for PDF storage)
+UPLOADTHING_TOKEN="ut7_..." # Get from UploadThing Dashboard (API Keys > V7)
+
 # Optional: Vercel
 VERCEL_ENV=development
 ```
@@ -161,18 +181,21 @@ VERCEL_ENV=development
 ## 🧪 Testing
 
 ### Unit Tests
+
 - Run with Vitest (configured in `package.json`):
   ```bash
   pnpm test
   ```
 
 ### E2E Tests
+
 - Using Playwright:
   ```bash
   pnpm e2e
   ```
 
 ### Linting & Formatting
+
 ```bash
 pnpm lint
 pnpm format
@@ -181,23 +204,28 @@ pnpm format
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
+
 1. Push to GitHub.
 2. Connect repo in Vercel dashboard.
 3. Add environment variables in Vercel project settings.
 4. Deploy automatically on push to main.
 
 Vercel handles:
+
 - Serverless functions for API routes.
 - Edge caching for static assets.
 - Preview branches for PRs.
 
 ### Custom Deployment
+
 - Build: `pnpm build`
 - Start: `pnpm start`
 - Ensure PostgreSQL and Redis are running (e.g., via Docker Compose).
 
 ### Docker (Optional)
+
 Add `Dockerfile` and `docker-compose.yml` for containerization:
+
 ```yaml
 # docker-compose.yml
 services:
@@ -249,4 +277,47 @@ This project is proprietary and not open source. All rights reserved.
 
 ---
 
-*Last updated: September 17, 2025*
+## 📦 UploadThing Integration
+
+This project stores generated PDFs in UploadThing instead of the local filesystem.
+
+What's implemented:
+
+- PDF generation produces an in-memory `Buffer` and is uploaded to UploadThing on the server using `UTApi`.
+- The database stores the `fileKey`, `fileUrl`, `userId`, `jobId`, and `size` for each PDF in the `files` table.
+- Access control ensures only the PDF's creator can view or download the file. Signed URLs from UploadThing are generated server-side per request.
+- The legacy local tmp-folder workflow has been removed from production paths.
+
+Setup steps:
+
+1. Create an UploadThing app and copy your V7 token from the dashboard.
+2. Set `UPLOADTHING_TOKEN` in your `.env.local`.
+3. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+4. Apply database changes (adds `fileKey`, `fileUrl`, `userId` to `files` table):
+   ```bash
+   pnpm db:generate
+   pnpm db:migrate
+   ```
+5. Start the worker and the app:
+   ```bash
+   pnpm worker:dev
+   pnpm dev
+   ```
+
+Usage notes:
+
+- Files are private by default; the app generates time-limited signed URLs with `UTApi.generateSignedURL`.
+- Sharing uses server-generated tokens stored in `share_links`. Shared downloads go through the server route to validate the token, then redirect to a signed URL.
+- No credentials are exposed to the client; uploads happen exclusively on the server.
+
+Troubleshooting:
+
+- If uploads fail, ensure `UPLOADTHING_TOKEN` is present and valid. As of UploadThing v7, `UPLOADTHING_SECRET` has been replaced by `UPLOADTHING_TOKEN`.
+- Ensure your database schema is migrated after pulling changes.
+
+---
+
+_Last updated: September 22, 2025_

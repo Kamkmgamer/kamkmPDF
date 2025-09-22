@@ -1,23 +1,17 @@
-import fs from "fs";
-import path from "path";
 import { pathToFileURL } from "url";
 import { db } from "~/server/db";
 import { jobs, files } from "~/server/db/schema";
 import { randomUUID } from "crypto";
 import { eq, lt, asc, and } from "drizzle-orm";
-import generatePdfToPath from "~/server/jobs/pdf";
+import { generatePdfBuffer } from "~/server/jobs/pdf";
 import type { InferSelectModel } from "drizzle-orm";
+import { UTFile } from "uploadthing/server";
+import { utapi } from "~/server/uploadthing";
 
 type Job = InferSelectModel<typeof jobs>;
 
 const POLL_INTERVAL_MS = Number(process.env.PDFPROMPT_POLL_MS ?? 2000);
-const TMP_DIR =
-  process.env.PDFPROMPT_TMP_DIR ?? path.join(process.cwd(), "tmp");
 const MAX_ATTEMPTS = 3;
-
-async function ensureTmp() {
-  await fs.promises.mkdir(TMP_DIR, { recursive: true });
-}
 
 async function pickNextJob() {
   const res = await db
@@ -38,23 +32,40 @@ async function processJob(job: Job) {
       .set({ status: "processing", attempts: job.attempts + 1 })
       .where(eq(jobs.id, job.id));
 
-    // real PDF generation using PDFKit
-    await ensureTmp();
     const fileId = randomUUID();
     const filename = `${fileId}.pdf`;
-    const filePath = path.join(TMP_DIR, filename);
 
-    await generatePdfToPath(filePath, {
+    // Generate PDF in-memory
+    const pdfBuffer = await generatePdfBuffer({
       jobId: job.id,
       prompt: job.prompt ?? "",
     });
 
-    const stat = await fs.promises.stat(filePath);
+    // Upload to UploadThing
+    const utFile = new UTFile([new Uint8Array(pdfBuffer)], filename, {
+      type: "application/pdf",
+      customId: fileId,
+    });
+    const uploadResArr = await utapi.uploadFiles([utFile]);
 
-    // insert file record
-    await db
-      .insert(files)
-      .values({ id: fileId, jobId: job.id, path: filename, size: stat.size });
+    const uploadRes = uploadResArr[0];
+    if (!uploadRes || uploadRes.error || !uploadRes.data) {
+      const message = uploadRes?.error?.message ?? "UploadThing upload failed";
+      throw new Error(message);
+    }
+
+    const { key, url, size } = uploadRes.data;
+
+    // insert file record only after successful upload
+    await db.insert(files).values({
+      id: fileId,
+      jobId: job.id,
+      userId: job.userId ?? null,
+      fileKey: key,
+      fileUrl: url,
+      mimeType: "application/pdf",
+      size: size ?? pdfBuffer.length,
+    });
 
     // update job
     await db

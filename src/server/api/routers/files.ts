@@ -8,8 +8,8 @@ import { db } from "~/server/db";
 import { files, jobs, shareLinks } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { generateSignedUrl } from "~/server/utils/signed-urls";
 import { generateShareToken, createShareUrl } from "~/server/utils/share-links";
+import { utapi } from "~/server/uploadthing";
 
 export const filesRouter = createTRPCRouter({
   getDownloadUrl: protectedProcedure
@@ -35,16 +35,23 @@ export const filesRouter = createTRPCRouter({
 
       const { file: _file, jobUserId } = fileWithJob[0];
 
-      // Check if user owns the file (jobUserId can be null if no job is associated)
-      if (jobUserId && jobUserId !== ctx.userId) {
+      // Determine owner from job or file record
+      const ownerId = jobUserId ?? _file.userId;
+      if (ownerId && ownerId !== ctx.userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have permission to access this file",
         });
       }
 
-      // Generate signed URL for secure file access
-      return generateSignedUrl(input.fileId, 3600); // 1 hour expiration
+      // Generate UploadThing signed URL for secure access
+      const { ufsUrl } = await utapi.generateSignedURL(_file.fileKey, {
+        expiresIn: 60 * 60, // 1 hour
+      });
+      return {
+        url: ufsUrl,
+        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
+      };
     }),
 
   createShareLink: protectedProcedure
@@ -75,8 +82,8 @@ export const filesRouter = createTRPCRouter({
 
       const { file: _file, jobUserId } = fileWithJob[0];
 
-      // Check if user owns the file (jobUserId can be null if no job is associated)
-      if (jobUserId && jobUserId !== ctx.userId) {
+      const ownerId = jobUserId ?? _file.userId;
+      if (ownerId && ownerId !== ctx.userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have permission to share this file",
@@ -141,7 +148,21 @@ export const filesRouter = createTRPCRouter({
         });
       }
 
-      // Generate signed URL for the shared file
-      return generateSignedUrl(input.fileId, 3600); // 1 hour for shared access
+      // Generate UploadThing signed URL for the shared file
+      const fileRows = await db
+        .select()
+        .from(files)
+        .where(eq(files.id, input.fileId))
+        .limit(1);
+      if (!fileRows[0]) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "File not found" });
+      }
+      const { ufsUrl } = await utapi.generateSignedURL(fileRows[0].fileKey, {
+        expiresIn: 60 * 60,
+      });
+      return {
+        url: ufsUrl,
+        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
+      };
     }),
 });

@@ -6,12 +6,11 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
-import { files as filesTable, jobs } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
-import { verifySignedUrl } from "~/server/utils/signed-urls";
-import fs from "fs";
-import path from "path";
-import generatePdfToPath from "~/server/jobs/pdf";
+import { files as filesTable, jobs, shareLinks } from "~/server/db/schema";
+import { and, eq } from "drizzle-orm";
+import { utapi } from "~/server/uploadthing";
+import { getAuth } from "@clerk/nextjs/server";
+import type { NextRequest } from "next/server";
 
 export async function GET(
   req: Request,
@@ -19,121 +18,49 @@ export async function GET(
 ) {
   try {
     const { searchParams } = new URL(req.url);
-    const token = searchParams.get("token");
-    const expires = searchParams.get("expires");
+    const token = searchParams.get("token"); // share link token (not HMAC)
     const { fileId } = await params;
 
-    if (!token || !expires) {
-      return NextResponse.json(
-        { error: "Missing token or expires" },
-        { status: 400 },
-      );
-    }
-
-    if (!verifySignedUrl(fileId, token, expires)) {
-      return NextResponse.json(
-        { error: "Invalid or expired token" },
-        { status: 401 },
-      );
-    }
-
-    const res = await db
-      .select()
+    // Load file and its owning user
+    const fileWithJob = await db
+      .select({ file: filesTable, jobUserId: jobs.userId })
       .from(filesTable)
+      .leftJoin(jobs, eq(filesTable.jobId, jobs.id))
       .where(eq(filesTable.id, fileId))
       .limit(1);
-    const file = res[0];
-    if (!file?.path) {
+    if (!fileWithJob[0]) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
+    const { file, jobUserId } = fileWithJob[0];
+    const ownerId = jobUserId ?? file.userId;
 
-    const TMP_DIR =
-      process.env.PDFPROMPT_TMP_DIR ??
-      (process.env.VERCEL ? "/tmp" : path.join(process.cwd(), "tmp"));
-    const filePath = path.join(TMP_DIR, file.path);
-
-    console.log("[download] Attempting to access file:", {
-      filePath,
-      TMP_DIR,
-      filePathExists: false,
-    });
-
-    try {
-      const stat = await fs.promises.stat(filePath);
-      const data = await fs.promises.readFile(filePath);
-      console.log("[download] File found and served:", {
-        filePath,
-        size: stat.size,
-      });
-      return new NextResponse(new Uint8Array(data), {
-        status: 200,
-        headers: new Headers({
-          "Content-Type": file.mimeType ?? "application/pdf",
-          "Content-Length": String(stat.size),
-          "Content-Disposition": `inline; filename="${file.path}"`,
-          "Cache-Control": "private, max-age=0, must-revalidate",
-        }),
-      });
-    } catch (fileErr) {
-      console.log(
-        "[download] File not found, attempting on-demand generation:",
-        { filePath, error: fileErr },
-      );
-      // On Vercel or first access, the file might not exist locally. Generate on-demand.
-      try {
-        // Fetch the job to get the prompt
-        const jobId = file.jobId;
-        let prompt = "";
-        if (jobId) {
-          const jobRows = await db
-            .select()
-            .from(jobs)
-            .where(eq(jobs.id, jobId))
-            .limit(1);
-          prompt = jobRows[0]?.prompt ?? "";
-          console.log("[download] Retrieved job prompt:", {
-            jobId,
-            promptLength: prompt.length,
-          });
-        }
-
-        await fs.promises.mkdir(TMP_DIR, { recursive: true });
-        console.log("[download] Generating PDF to path:", {
-          filePath,
-          jobId,
-          promptLength: prompt.length,
-        });
-        await generatePdfToPath(filePath, {
-          jobId: jobId ?? "unknown",
-          prompt,
-        });
-
-        const stat2 = await fs.promises.stat(filePath);
-        const data2 = await fs.promises.readFile(filePath);
-        console.log("[download] PDF generated successfully:", {
-          filePath,
-          size: stat2.size,
-        });
-        return new NextResponse(new Uint8Array(data2), {
-          status: 200,
-          headers: new Headers({
-            "Content-Type": "application/pdf",
-            "Content-Length": String(stat2.size),
-            "Content-Disposition": `inline; filename="${file.path}"`,
-            "Cache-Control": "private, max-age=0, must-revalidate",
-          }),
-        });
-      } catch (genErr) {
-        console.error("[download] on-demand generation failed:", genErr);
+    // If share token is present, verify it
+    if (token) {
+      const rows = await db
+        .select()
+        .from(shareLinks)
+        .where(and(eq(shareLinks.fileId, fileId), eq(shareLinks.token, token)))
+        .limit(1);
+      const link = rows[0];
+      if (!link || new Date() > link.expiresAt) {
         return NextResponse.json(
-          {
-            error: "File missing and regeneration failed",
-            details: genErr instanceof Error ? genErr.message : String(genErr),
-          },
-          { status: 500 },
+          { error: "Invalid or expired share link" },
+          { status: 401 },
         );
       }
+    } else {
+      // Otherwise, require authenticated owner
+      const auth = getAuth(req as unknown as NextRequest);
+      if (!auth?.userId || (ownerId && auth.userId !== ownerId)) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
+
+    // Generate UploadThing signed URL and redirect
+    const { ufsUrl } = await utapi.generateSignedURL(file.fileKey, {
+      expiresIn: 60 * 60, // 1 hour
+    });
+    return NextResponse.redirect(ufsUrl, { status: 302 });
   } catch (err) {
     console.error("[download] error", err);
     return NextResponse.json(

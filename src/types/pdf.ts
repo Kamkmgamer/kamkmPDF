@@ -15,7 +15,9 @@ export interface Job {
 export interface File {
   id: string;
   jobId: string | null;
-  path: string | null;
+  userId: string | null;
+  fileKey: string;
+  fileUrl: string;
   mimeType: string;
   size: number;
   createdAt: string;

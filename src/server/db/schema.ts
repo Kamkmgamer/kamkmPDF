@@ -49,7 +49,9 @@ export const jobs = createTable("job", (d) => ({
 export const files = createTable("file", (d) => ({
   id: d.text().primaryKey(),
   jobId: d.text().references(() => jobs.id),
-  path: d.text(),
+  userId: d.text(),
+  fileKey: d.text().notNull(),
+  fileUrl: d.text().notNull(),
   mimeType: d.varchar({ length: 128 }).default("application/pdf"),
   size: d.integer().default(0),
   createdAt: d

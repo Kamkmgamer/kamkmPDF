@@ -85,3 +85,77 @@ export default async function htmlToPdfToPath(
     if (browser) await browser.close();
   }
 }
+
+export async function htmlToPdfToBuffer(
+  html: string,
+  opts: HtmlToPdfOptions = {},
+): Promise<Buffer> {
+  // Launch browser depending on environment
+  let browser: Browser | null = null;
+  if (process.env.VERCEL) {
+    const [{ default: chromium }, { default: puppeteer }] = await Promise.all([
+      import("@sparticuz/chromium"),
+      import("puppeteer-core"),
+    ]);
+    const executablePath = await chromium.executablePath();
+    const normalizedHeadless: boolean | "shell" =
+      typeof chromium.headless === "string"
+        ? chromium.headless === "shell"
+          ? "shell"
+          : true
+        : (chromium.headless ?? true);
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: executablePath || undefined,
+      headless: normalizedHeadless,
+    });
+  } else {
+    try {
+      const { default: puppeteer } = await import("puppeteer");
+      browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--font-render-hinting=medium",
+        ],
+      });
+    } catch {
+      const [{ default: puppeteer }, { default: chromium }] = await Promise.all(
+        [import("puppeteer-core"), import("@sparticuz/chromium")],
+      );
+      const executablePath =
+        process.env.PUPPETEER_EXECUTABLE_PATH ??
+        (await chromium.executablePath());
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: executablePath || undefined,
+        headless: true,
+      });
+    }
+  }
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, {
+      waitUntil: ["domcontentloaded", "networkidle0"],
+    });
+    await page.emulateMediaType("screen");
+
+    const pdfBuffer = (await page.pdf({
+      format: opts.format ?? "A4",
+      printBackground: opts.printBackground ?? true,
+      margin: {
+        top: opts.margin?.top ?? "20mm",
+        right: opts.margin?.right ?? "15mm",
+        bottom: opts.margin?.bottom ?? "20mm",
+        left: opts.margin?.left ?? "15mm",
+      },
+    })) as Buffer;
+
+    return pdfBuffer;
+  } finally {
+    if (browser) await browser.close();
+  }
+}

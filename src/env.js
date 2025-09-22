@@ -12,6 +12,8 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     CLERK_SECRET_KEY: z.string().min(1),
+    // UploadThing (required for external storage)
+    UPLOADTHING_TOKEN: z.string().min(1),
     // OpenRouter (optional). When not provided, the system falls back to PDFKit-only generation.
     OPENROUTER_API_KEY: z.string().optional(),
     OPENROUTER_MODEL: z.string().optional(),
@@ -37,6 +39,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+    UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     OPENROUTER_MODEL: process.env.OPENROUTER_MODEL,
     OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL,
