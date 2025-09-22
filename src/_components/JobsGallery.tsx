@@ -72,7 +72,7 @@ export default function JobsGallery() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as Status)}
-            className="rounded-md border border-[--color-border] bg-[--color-surface] px-2 py-1 text-sm"
+            className="rounded-md border border-[--color-border] bg-[--color-surface] px-2 py-1 text-sm dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:[color-scheme:dark]"
           >
             <option value="all">All</option>
             <option value="completed">Completed</option>
