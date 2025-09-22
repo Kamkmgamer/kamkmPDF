@@ -11,43 +11,41 @@ export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
 
-  const isHome = pathname === "/";
-  const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
+  const isDashboard =
+    pathname?.startsWith("/dashboard") ?? pathname?.startsWith("/pdf/");
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[--color-border] bg-white/70 shadow-sm backdrop-blur-md dark:bg-[--color-surface]/80">
+    <header className="sticky top-0 z-50 border-b border-black/10 bg-white/80 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-neutral-900/80">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <Link href="/" className="font-semibold">
+          <Link
+            href={isSignedIn ? "/dashboard" : "/"}
+            className="font-semibold"
+          >
             Prompt‑to‑PDF
           </Link>
-          <nav className="hidden items-center gap-6 text-sm md:flex">
-            <Link
-              href={anchor("features")}
-              className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary]"
-            >
-              Features
-            </Link>
-            <Link
-              href={anchor("pricing")}
-              className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary]"
-            >
-              Pricing
-            </Link>
-            <Link
-              href={anchor("testimonials")}
-              className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary]"
-            >
-              Testimonials
-            </Link>
-            <Link
-              href={anchor("cta")}
-              className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary]"
-            >
-              Get started
-            </Link>
-          </nav>
+          {/* Focused navigation: only useful links */}
+          {isLoaded && isSignedIn && (
+            <nav className="hidden items-center gap-4 text-sm md:flex">
+              <Link
+                href="/dashboard"
+                className={`rounded-md px-2 py-1 transition-colors ${
+                  isDashboard
+                    ? "text-neutral-800 dark:text-white"
+                    : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-white"
+                }`}
+              >
+                My Documents
+              </Link>
+              <Link
+                href="/dashboard/new"
+                className="rounded-md border border-neutral-200 px-3 py-1 text-neutral-800 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-white dark:hover:bg-neutral-800"
+              >
+                New PDF
+              </Link>
+            </nav>
+          )}
         </div>
 
         {/* Right actions */}
@@ -57,12 +55,6 @@ export default function Header() {
             <>
               {isSignedIn ? (
                 <>
-                  <Link
-                    href="/dashboard"
-                    className="hidden rounded-md border border-[--color-border] px-3 py-1 text-sm text-[--color-text-primary] transition-colors hover:bg-[--color-surface] sm:inline-block"
-                  >
-                    Dashboard
-                  </Link>
                   <UserButton
                     appearance={{
                       elements: {
@@ -79,8 +71,8 @@ export default function Header() {
                     </button>
                   </SignInButton>
                   <SignUpButton mode="modal">
-                    <button className="rounded-md bg-[--color-primary] px-3 py-1 text-sm text-white transition-colors hover:bg-[--color-primary]/90">
-                      Sign Up
+                    <button className="rounded-md bg-[color:var(--color-primary,#2563eb)] px-3 py-1 text-sm text-white transition-colors hover:opacity-90">
+                      Get Started
                     </button>
                   </SignUpButton>
                 </div>
@@ -89,7 +81,7 @@ export default function Header() {
           )}
           {/* Mobile menu toggle */}
           <button
-            className="rounded-md border border-[--color-border] bg-white/60 p-2 backdrop-blur transition-colors hover:bg-white/80 md:hidden dark:bg-transparent"
+            className="rounded-md border border-neutral-200 bg-white/70 p-2 backdrop-blur transition-colors hover:bg-white/90 md:hidden dark:border-white/10 dark:bg-neutral-800/60 dark:hover:bg-neutral-800/80"
             aria-label="Toggle menu"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -114,59 +106,39 @@ export default function Header() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="border-t border-[--color-border] bg-white/90 backdrop-blur md:hidden dark:bg-[--color-surface]">
+        <div className="border-t border-neutral-200 bg-white/90 backdrop-blur md:hidden dark:border-white/10 dark:bg-neutral-900/90">
           <div className="mx-auto max-w-7xl space-y-2 px-4 py-3">
-            <Link
-              href={anchor("features")}
-              className="block py-1 text-[--color-text-primary]"
-              onClick={() => setOpen(false)}
-            >
-              Features
-            </Link>
-            <Link
-              href={anchor("pricing")}
-              className="block py-1 text-[--color-text-primary]"
-              onClick={() => setOpen(false)}
-            >
-              Pricing
-            </Link>
-            <Link
-              href={anchor("testimonials")}
-              className="block py-1 text-[--color-text-primary]"
-              onClick={() => setOpen(false)}
-            >
-              Testimonials
-            </Link>
-            <Link
-              href={anchor("cta")}
-              className="block py-1 text-[--color-text-primary]"
-              onClick={() => setOpen(false)}
-            >
-              Get started
-            </Link>
-            {isLoaded &&
-              (isSignedIn ? (
+            {isLoaded && isSignedIn ? (
+              <>
                 <Link
                   href="/dashboard"
-                  className="block py-1 text-[--color-text-primary]"
+                  className="block py-1 text-neutral-800 dark:text-white"
                   onClick={() => setOpen(false)}
                 >
-                  Dashboard
+                  My Documents
                 </Link>
-              ) : (
-                <div className="flex gap-2 pt-2">
-                  <SignInButton mode="modal">
-                    <button className="flex-1 rounded-md border border-[--color-border] bg-white/60 px-3 py-2 text-sm text-[--color-text-primary] transition-colors hover:bg-white/80 dark:bg-transparent">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <button className="flex-1 rounded-md bg-[--color-primary] px-3 py-2 text-sm text-white">
-                      Sign Up
-                    </button>
-                  </SignUpButton>
-                </div>
-              ))}
+                <Link
+                  href="/dashboard/new"
+                  className="block py-1 text-neutral-800 dark:text-white"
+                  onClick={() => setOpen(false)}
+                >
+                  New PDF
+                </Link>
+              </>
+            ) : (
+              <div className="flex gap-2 pt-2">
+                <SignInButton mode="modal">
+                  <button className="flex-1 rounded-md border border-neutral-200 bg-white/70 px-3 py-2 text-sm text-neutral-800 transition-colors hover:bg-white/90 dark:border-white/10 dark:bg-neutral-800/60 dark:text-white dark:hover:bg-neutral-800/80">
+                    Sign In
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="flex-1 rounded-md bg-[color:var(--color-primary,#2563eb)] px-3 py-2 text-sm text-white hover:opacity-90">
+                    Get Started
+                  </button>
+                </SignUpButton>
+              </div>
+            )}
           </div>
         </div>
       )}
