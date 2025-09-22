@@ -11,8 +11,14 @@ export default function CTASection() {
   return (
     <section
       id="cta"
-      className="scroll-mt-24 bg-gradient-to-r from-blue-500 to-blue-700 py-20 text-white"
+      className="relative scroll-mt-24 overflow-hidden bg-gradient-to-r from-sky-500 to-cyan-600 py-20 text-white"
     >
+      {/* Decorative orbs */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-20 left-10 h-56 w-56 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25),transparent_60%)] blur-2xl" />
+        <div className="absolute right-16 -bottom-24 h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.18),transparent_60%)] blur-2xl" />
+      </div>
+
       <div className="container mx-auto px-4 text-center">
         <motion.h2
           className="mb-6 text-4xl font-bold"
@@ -44,14 +50,14 @@ export default function CTASection() {
           {isSignedIn ? (
             <Link
               href="/dashboard"
-              className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-[--color-primary] transition-colors hover:bg-gray-100"
+              className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-[--color-primary] shadow-sm transition-colors hover:bg-gray-100 hover:shadow-md"
             >
               Go to Dashboard
             </Link>
           ) : (
             <Link
               href="/dashboard"
-              className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-[--color-primary] transition-colors hover:bg-gray-100"
+              className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-[--color-primary] shadow-sm transition-colors hover:bg-gray-100 hover:shadow-md"
             >
               Start Free Trial
             </Link>
@@ -59,7 +65,7 @@ export default function CTASection() {
 
           <Link
             href="/dashboard/new"
-            className="rounded-lg border-2 border-white px-8 py-4 text-lg font-semibold transition-colors hover:bg-white hover:text-[--color-primary]"
+            className="rounded-lg border-2 border-white px-8 py-4 text-lg font-semibold shadow-sm transition-colors hover:bg-white hover:text-[--color-primary] hover:shadow-md"
           >
             Try Demo
           </Link>

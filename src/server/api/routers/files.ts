@@ -35,8 +35,8 @@ export const filesRouter = createTRPCRouter({
 
       const { file: _file, jobUserId } = fileWithJob[0];
 
-      // Check if user owns the file
-      if (jobUserId !== ctx.userId) {
+      // Check if user owns the file (jobUserId can be null if no job is associated)
+      if (jobUserId && jobUserId !== ctx.userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have permission to access this file",
@@ -75,8 +75,8 @@ export const filesRouter = createTRPCRouter({
 
       const { file: _file, jobUserId } = fileWithJob[0];
 
-      // Check if user owns the file
-      if (jobUserId !== ctx.userId) {
+      // Check if user owns the file (jobUserId can be null if no job is associated)
+      if (jobUserId && jobUserId !== ctx.userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have permission to share this file",

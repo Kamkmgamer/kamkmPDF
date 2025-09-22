@@ -52,9 +52,19 @@ export async function GET(
       (process.env.VERCEL ? "/tmp" : path.join(process.cwd(), "tmp"));
     const filePath = path.join(TMP_DIR, file.path);
 
+    console.log("[download] Attempting to access file:", {
+      filePath,
+      TMP_DIR,
+      filePathExists: false,
+    });
+
     try {
       const stat = await fs.promises.stat(filePath);
       const data = await fs.promises.readFile(filePath);
+      console.log("[download] File found and served:", {
+        filePath,
+        size: stat.size,
+      });
       return new NextResponse(new Uint8Array(data), {
         status: 200,
         headers: new Headers({
@@ -64,7 +74,11 @@ export async function GET(
           "Cache-Control": "private, max-age=0, must-revalidate",
         }),
       });
-    } catch {
+    } catch (fileErr) {
+      console.log(
+        "[download] File not found, attempting on-demand generation:",
+        { filePath, error: fileErr },
+      );
       // On Vercel or first access, the file might not exist locally. Generate on-demand.
       try {
         // Fetch the job to get the prompt
@@ -77,9 +91,18 @@ export async function GET(
             .where(eq(jobs.id, jobId))
             .limit(1);
           prompt = jobRows[0]?.prompt ?? "";
+          console.log("[download] Retrieved job prompt:", {
+            jobId,
+            promptLength: prompt.length,
+          });
         }
 
         await fs.promises.mkdir(TMP_DIR, { recursive: true });
+        console.log("[download] Generating PDF to path:", {
+          filePath,
+          jobId,
+          promptLength: prompt.length,
+        });
         await generatePdfToPath(filePath, {
           jobId: jobId ?? "unknown",
           prompt,
@@ -87,6 +110,10 @@ export async function GET(
 
         const stat2 = await fs.promises.stat(filePath);
         const data2 = await fs.promises.readFile(filePath);
+        console.log("[download] PDF generated successfully:", {
+          filePath,
+          size: stat2.size,
+        });
         return new NextResponse(new Uint8Array(data2), {
           status: 200,
           headers: new Headers({
@@ -97,9 +124,12 @@ export async function GET(
           }),
         });
       } catch (genErr) {
-        console.error("[download] on-demand generation failed", genErr);
+        console.error("[download] on-demand generation failed:", genErr);
         return NextResponse.json(
-          { error: "File missing and regeneration failed" },
+          {
+            error: "File missing and regeneration failed",
+            details: genErr instanceof Error ? genErr.message : String(genErr),
+          },
           { status: 500 },
         );
       }
@@ -107,7 +137,10 @@ export async function GET(
   } catch (err) {
     console.error("[download] error", err);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        details: err instanceof Error ? err.message : String(err),
+      },
       { status: 500 },
     );
   }

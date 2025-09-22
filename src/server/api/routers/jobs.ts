@@ -36,9 +36,25 @@ export const jobsRouter = createTRPCRouter({
       return created[0] ?? null;
     }),
 
-  get: publicProcedure.input(z.string()).query(async ({ input }) => {
+  get: protectedProcedure.input(z.string()).query(async ({ input, ctx }) => {
     const res = await db.select().from(jobs).where(eq(jobs.id, input)).limit(1);
-    return res[0] ?? null;
+
+    if (!res[0]) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Job not found",
+      });
+    }
+
+    // Check if user owns the job
+    if (res[0].userId !== ctx.userId) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "You don't have permission to access this job",
+      });
+    }
+
+    return res[0];
   }),
 
   recreate: protectedProcedure

@@ -1,12 +1,14 @@
+import { env } from "~/env";
+
 export interface GenerateHtmlOptions {
   prompt: string;
   model?: string;
   brandName?: string;
 }
 
-const DEFAULT_MODEL = process.env.OPENROUTER_MODEL ?? "x-ai/grok-4-fast:free";
+const DEFAULT_MODEL = env.OPENROUTER_MODEL ?? "x-ai/grok-4-fast:free";
 const OPENROUTER_BASE =
-  process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
+  env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
 
 function extractHtmlFromContent(content: string): string {
   // If content contains a fenced html block, extract it
@@ -63,7 +65,7 @@ export async function generateHtmlFromPrompt({
   model,
   brandName,
 }: GenerateHtmlOptions): Promise<string> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = env.OPENROUTER_API_KEY;
   if (!apiKey) {
     throw new Error("OPENROUTER_API_KEY is not set");
   }
@@ -79,8 +81,8 @@ export async function generateHtmlFromPrompt({
     "Content-Type": "application/json",
     Authorization: `Bearer ${apiKey}`,
   };
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    headers["HTTP-Referer"] = String(process.env.NEXT_PUBLIC_APP_URL);
+  if (env.NEXT_PUBLIC_APP_URL) {
+    headers["HTTP-Referer"] = String(env.NEXT_PUBLIC_APP_URL);
   }
   if (brandName) {
     const asciiOnly = brandName.replace(/[^\x00-\x7F]/g, "-");

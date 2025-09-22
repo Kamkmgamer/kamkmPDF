@@ -47,3 +47,5 @@ yarn-error.log*
 
 # tooling caches
 .cache/
+
+/tmp/

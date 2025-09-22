@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Tailwind v4: drive `dark:` utilities by the `.dark` class */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   html {
@@ -6,6 +8,8 @@
     background-color: var(--color-bg);
     color: var(--color-text-primary);
     scroll-behavior: smooth;
+    /* Allow native UI to match current theme (light default, dark when active) */
+    color-scheme: light dark;
   }
 
   body {
@@ -41,14 +45,18 @@
   --font-sans:
     var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --color-bg: #ffffff;
-  --color-surface: #f8fafc;
-  --color-text-primary: #0f172a;
-  --color-text-muted: #6b7280;
-  --color-primary: #0ea5e9;
-  --color-primary-700: #0284c7;
-  --color-accent: #4f46e5;
-  --color-border: #e6eef8;
+  /* Subtle, higher-contrast light palette */
+  --color-bg: #ffffff; /* page background */
+  --color-surface: #f7fafc; /* slightly brighter surface */
+  --color-text-primary: #0f172a; /* slate-900 */
+  --color-text-muted: #475569; /* slate-600 for clearer light contrast */
+  --color-primary: #0ea5e9; /* sky-500 */
+  --color-primary-700: #0284c7; /* sky-600/700 for hover/active */
+  --color-accent: #4f46e5; /* indigo-600 */
+  --color-border: #e6eaf0; /* softer neutral border */
+  /* Optional shadows tuned for light mode */
+  --shadow-sm: 0 1px 2px rgba(2, 6, 23, 0.06), 0 1px 1px rgba(2, 6, 23, 0.04);
+  --shadow-md: 0 6px 20px rgba(2, 6, 23, 0.06), 0 2px 8px rgba(2, 6, 23, 0.05);
 }
 
 /* Dark theme overrides */

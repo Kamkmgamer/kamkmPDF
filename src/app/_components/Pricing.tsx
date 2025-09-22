@@ -4,9 +4,12 @@ import React from "react";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { motion } from "framer-motion";
+import { useTheme } from "~/providers/ThemeProvider";
 
 export default function Pricing() {
   const { isSignedIn } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const plans = [
     {
@@ -60,12 +63,22 @@ export default function Pricing() {
   return (
     <section
       id="pricing"
-      className="scroll-mt-24 bg-gradient-to-br from-blue-50 to-blue-100 py-20 dark:from-blue-950 dark:to-blue-900"
+      className={`relative scroll-mt-24 overflow-hidden py-20 ${
+        isDark
+          ? "bg-gradient-to-br from-blue-950 to-blue-900"
+          : "bg-[--color-bg]"
+      }`}
     >
+      {/* Decorative accents for light mode */}
+      <div className="pointer-events-none absolute inset-0 dark:hidden">
+        <div className="absolute -top-28 left-10 h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.2),transparent_60%)] blur-2xl" />
+        <div className="absolute right-16 -bottom-24 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.18),transparent_60%)] blur-2xl" />
+      </div>
+
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
           <motion.h2
-            className="mb-4 text-4xl font-bold"
+            className="mb-4 text-4xl font-bold tracking-tight"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.6 }}
@@ -101,11 +114,11 @@ export default function Pricing() {
           {plans.map((plan, index) => (
             <motion.div
               key={index}
-              className={`relative rounded-2xl border-2 bg-white p-8 transition-all duration-300 hover:shadow-xl dark:bg-slate-800 ${
+              className={`relative rounded-2xl border p-8 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
                 plan.popular
                   ? "scale-105 border-[--color-primary] shadow-lg"
                   : "border-[--color-border] hover:border-[--color-primary]/50"
-              }`}
+              } ${isDark ? "bg-slate-800" : "bg-[--color-surface]"}`}
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 },
@@ -113,7 +126,7 @@ export default function Pricing() {
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                  <div className="flex items-center rounded-full bg-gradient-to-r from-blue-500 to-blue-700 px-4 py-2 text-sm font-semibold text-white shadow">
+                  <div className="flex items-center rounded-full bg-gradient-to-r from-sky-500 to-cyan-600 px-4 py-2 text-sm font-semibold text-white shadow-md">
                     <span className="mr-1">⭐</span>
                     Most Popular
                   </div>
@@ -146,8 +159,8 @@ export default function Pricing() {
                 href={isSignedIn ? "/dashboard" : "/dashboard"}
                 className={`block w-full rounded-xl px-6 py-3 text-center font-semibold transition-all duration-200 ${
                   plan.popular
-                    ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white hover:from-blue-600 hover:to-blue-800"
-                    : "bg-[--color-primary] text-white hover:bg-[--color-primary]/90"
+                    ? "bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-sm hover:from-sky-600 hover:to-cyan-700 hover:shadow-md"
+                    : "bg-[--color-primary] text-white shadow-sm hover:bg-[--color-primary]/90 hover:shadow-md"
                 }`}
               >
                 {plan.cta}

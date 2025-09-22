@@ -2,14 +2,32 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { api } from "~/trpc/react";
-import { PDFViewer } from "./PDFViewer";
 import { Toolbar } from "./Toolbar";
 import { LoadingStates } from "./LoadingStates";
 import { ErrorBoundary, ErrorBoundaryWrapper } from "./ErrorBoundary";
 import { ThumbnailsSidebar } from "./ThumbnailsSidebar";
 import { ShareModal } from "./ShareModal";
 import { ConfirmModal } from "./ConfirmModal";
+
+// Dynamically import PDFViewer with SSR disabled to prevent DOMMatrix issues
+const PDFViewer = dynamic(
+  () => import("./PDFViewer").then((mod) => ({ default: mod.PDFViewer })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading PDF viewer...
+          </p>
+        </div>
+      </div>
+    ),
+  },
+);
 
 interface PDFViewerPageProps {
   jobId: string;

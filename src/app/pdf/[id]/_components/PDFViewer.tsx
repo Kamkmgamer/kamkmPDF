@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import { api } from "~/trpc/react";
 import type { Job } from "~/types/pdf";
 

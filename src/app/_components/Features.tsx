@@ -34,12 +34,14 @@ export default function Features() {
   return (
     <section
       id="features"
-      className="scroll-mt-24 bg-white py-20 dark:bg-slate-900"
+      className="relative scroll-mt-24 overflow-hidden bg-[--color-bg] py-20"
     >
+      {/* Decorative subtle grid for light mode */}
+      <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(2,6,23,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(2,6,23,0.05)_1px,transparent_1px)] [background-size:16px_16px] opacity-30 dark:hidden" />
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
           <motion.h2
-            className="mb-4 text-4xl font-bold"
+            className="mb-4 text-4xl font-bold tracking-tight"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.6 }}
@@ -72,18 +74,20 @@ export default function Features() {
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              className="group relative rounded-2xl border border-[--color-border] bg-gradient-to-br from-slate-50 to-white p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:from-slate-800 dark:to-slate-900"
+              className="group relative rounded-2xl border border-[--color-border] bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-[--color-primary]/40 hover:shadow-xl dark:border-white/10 dark:bg-slate-800"
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 },
               }}
             >
               <div
-                className={`inline-flex h-16 w-16 items-center justify-center bg-gradient-to-r ${feature.color} mb-6 rounded-2xl text-2xl transition-transform duration-300 group-hover:scale-110`}
+                className={`inline-flex h-16 w-16 items-center justify-center bg-gradient-to-r ${feature.color} mb-6 rounded-2xl text-2xl text-white shadow-md transition-transform duration-300 group-hover:scale-110`}
               >
                 {feature.icon}
               </div>
-              <h3 className="mb-4 text-xl font-semibold">{feature.title}</h3>
+              <h3 className="mb-3 text-xl font-semibold tracking-tight text-[--color-text-primary]">
+                {feature.title}
+              </h3>
               <p className="leading-relaxed text-[--color-text-muted]">
                 {feature.desc}
               </p>

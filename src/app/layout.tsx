@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import Script from "next/script";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { TRPCReactProvider } from "~/trpc/react";
@@ -25,8 +26,31 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${geist.variable}`}>
-        <body className="bg-[--color-bg] text-[--color-text-primary]">
+      <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
+        <head>
+          {/* Pre-hydration theme setter to avoid FOUC and ensure correct theme on first paint */}
+          <Script id="theme-setter" strategy="beforeInteractive">
+            {`
+              try {
+                var saved = localStorage.getItem('theme');
+                var theme = saved || 'light';
+                var root = document.documentElement;
+                root.setAttribute('data-theme', theme);
+                try { root.style.colorScheme = theme; } catch (e) {}
+                // Ensure Tailwind dark: variants activate via the class strategy
+                var isDark = theme === 'dark';
+                try {
+                  root.classList.toggle('dark', isDark);
+                  if (document.body) document.body.classList.toggle('dark', isDark);
+                } catch (e) {}
+              } catch (e) {}
+            `}
+          </Script>
+        </head>
+        <body
+          suppressHydrationWarning
+          className="bg-[--color-bg] text-[--color-text-primary]"
+        >
           {/* Skip to content for keyboard users */}
           <a
             href="#content"

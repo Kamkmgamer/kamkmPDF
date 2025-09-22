@@ -117,14 +117,18 @@ export function LoadingStates({
                     aria-label={`PDF page ${i} placeholder`}
                   >
                     <div className="space-y-3">
-                      {[1, 2, 3, 4, 5, 6].map((line) => (
-                        <div
-                          key={line}
-                          className="h-3 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
-                          style={{ width: `${Math.random() * 40 + 60}%` }}
-                          aria-hidden="true"
-                        ></div>
-                      ))}
+                      {[1, 2, 3, 4, 5, 6].map((line) => {
+                        // Deterministic width between 60% and 100% based on indices
+                        const widthPercent = ((i * 37 + line * 53) % 41) + 60;
+                        return (
+                          <div
+                            key={line}
+                            className="h-3 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+                            style={{ width: `${widthPercent}%` }}
+                            aria-hidden="true"
+                          ></div>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
