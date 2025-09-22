@@ -35,6 +35,7 @@
     "@uploadthing/react": "^7.3.3",
     "drizzle-orm": "^0.41.0",
     "framer-motion": "^12.23.16",
+    "lucide-react": "^0.544.0",
     "next": "^15.2.3",
     "node-fetch": "^3.3.2",
     "pdfjs-dist": "^5.4.149",
