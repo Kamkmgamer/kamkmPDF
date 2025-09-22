@@ -1,8 +1,8 @@
 import { pathToFileURL } from "url";
-import { db } from "~/server/db";
+import { db, pg } from "~/server/db";
 import { jobs, files } from "~/server/db/schema";
 import { randomUUID } from "crypto";
-import { eq, lt, asc, and } from "drizzle-orm";
+import { eq, lt, asc, and, inArray } from "drizzle-orm";
 import { generatePdfBuffer } from "~/server/jobs/pdf";
 import type { InferSelectModel } from "drizzle-orm";
 import { UTFile } from "uploadthing/server";
@@ -23,14 +23,40 @@ async function pickNextJob() {
   return res[0] ?? null;
 }
 
-async function processJob(job: Job) {
+// Atomically claim up to `limit` jobs using a single statement with SKIP LOCKED.
+// Returns the claimed job IDs. This requires PostgreSQL and is safe to call concurrently.
+async function claimNextJobsBatch(limit: number): Promise<string[]> {
+  // One-statement claim using a CTE with SKIP LOCKED
+  const rows = (await pg`with claimed as (
+       select id
+       from "pdfprompt_job"
+       where status = 'queued' and attempts < ${MAX_ATTEMPTS}
+       for update skip locked
+       limit ${limit}
+     )
+     update "pdfprompt_job" as j
+     set status = 'processing', attempts = j.attempts + 1
+     from claimed c
+     where j.id = c.id
+     returning j.id`) as unknown as Array<{ id: string }>;
+  return rows.map((r) => r.id);
+}
+
+async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
   console.log(`[worker] processing job ${job.id}`);
   try {
-    // mark processing
-    await db
-      .update(jobs)
-      .set({ status: "processing", attempts: job.attempts + 1 })
-      .where(eq(jobs.id, job.id));
+    if (!opts?.alreadyClaimed) {
+      // Atomically claim the job: transition queued -> processing
+      const claimed = await db
+        .update(jobs)
+        .set({ status: "processing", attempts: job.attempts + 1 })
+        .where(and(eq(jobs.id, job.id), eq(jobs.status, "queued")))
+        .returning({ id: jobs.id });
+      if (claimed.length === 0) {
+        console.log(`[worker] skipped job ${job.id} (already claimed)`);
+        return;
+      }
+    }
 
     const fileId = randomUUID();
     const filename = `${fileId}.pdf`;
@@ -41,8 +67,10 @@ async function processJob(job: Job) {
       prompt: job.prompt ?? "",
     });
 
-    // Upload to UploadThing
-    const utFile = new UTFile([new Uint8Array(pdfBuffer)], filename, {
+    // Upload to UploadThing: construct BlobPart as a plain ArrayBuffer to satisfy TS
+    const ab = new ArrayBuffer(pdfBuffer.length);
+    new Uint8Array(ab).set(pdfBuffer);
+    const utFile = new UTFile([ab], filename, {
       type: "application/pdf",
       customId: fileId,
     });
@@ -83,6 +111,35 @@ async function processJob(job: Job) {
   }
 }
 
+export async function drain(
+  options: { maxJobs?: number; maxMs?: number } = {},
+) {
+  const maxJobs =
+    options.maxJobs ??
+    Number(process.env.PDFPROMPT_MAX_JOBS_PER_INVOCATION ?? 5);
+  const maxMs =
+    options.maxMs ??
+    Number(process.env.PDFPROMPT_MAX_MS_PER_INVOCATION ?? 55_000);
+  const start = Date.now();
+  let processed = 0;
+  const defaultBatch = Number(process.env.PDFPROMPT_BATCH_SIZE ?? 5);
+  while (processed < maxJobs && Date.now() - start < maxMs) {
+    const toClaim = Math.max(1, Math.min(defaultBatch, maxJobs - processed));
+    const ids = await claimNextJobsBatch(toClaim);
+    if (ids.length === 0) break;
+    const rows = await db.select().from(jobs).where(inArray(jobs.id, ids));
+    for (const job of rows) {
+      if (processed >= maxJobs || Date.now() - start >= maxMs) break;
+      await processJob(job, { alreadyClaimed: true });
+      processed++;
+      // short pause to yield between jobs
+      await new Promise((r) => setTimeout(r, 50));
+    }
+  }
+  const tookMs = Date.now() - start;
+  return { processed, tookMs, timedOut: tookMs >= maxMs };
+}
+
 async function runLoop() {
   console.log(`[worker] starting loop (poll ${POLL_INTERVAL_MS}ms)`);
   while (true) {
@@ -102,20 +159,18 @@ async function runLoop() {
 }
 
 // ESM-safe entrypoint check
-try {
-  const isEntry = import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
+if (
+  typeof process !== "undefined" &&
+  Array.isArray(process.argv) &&
+  process.argv[1]
+) {
+  const isEntry = import.meta.url === pathToFileURL(process.argv[1]).href;
   if (isEntry) {
     runLoop().catch((e) => {
       console.error(e);
       process.exit(1);
     });
   }
-} catch {
-  // Fallback: always run
-  runLoop().catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });
 }
 
 export { runLoop, processJob };

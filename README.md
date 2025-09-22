@@ -72,7 +72,7 @@ A Next.js application for generating structured prompts from PDFs, leveraging AI
 ### Infrastructure
 
 - **Database**: PostgreSQL for user data, prompts, and processing history
-- **Cache/Queue**: Redis for session caching and job queuing
+- **Queue**: DB-backed job queue (no persistent worker required on Vercel)
 - **Deployment**: Vercel for hosting, with preview deployments
 - **Storage**: UploadThing for persistent PDF storage (private by default)
 
@@ -92,14 +92,14 @@ The app follows a microservices-inspired architecture within a monorepo:
 2. **API Layer**: tRPC routers handle requests, validate inputs, and orchestrate AI calls.
 3. **AI Service Layer**: Router selects optimal AI provider based on availability, cost, and capabilities. Processes PDF text extraction and generates structured prompts.
 4. **Data Layer**: Drizzle ORM manages schema for users, sessions, PDFs, and generated prompts.
-5. **Queue System**: Redis-backed queues for long-running PDF processing and AI inference to prevent timeouts.
+5. **Queue System**: DB-backed job queue for long-running PDF processing and AI inference to prevent timeouts.
 
 ### Key Flows
 
 - **PDF Upload & Processing**:
   1. User uploads PDF via Clerk-authenticated session.
   2. Client-side parsing extracts text; server validates and stores metadata.
-  3. Job queued in Redis; worker extracts full content and routes to AI.
+  3. Job queued in DB; worker drains queue on Vercel via Cron.
   4. AI generates structured prompt (e.g., JSON schema for analysis tasks).
 
 - **Prompt Generation**:
@@ -208,11 +208,13 @@ pnpm format
 1. Push to GitHub.
 2. Connect repo in Vercel dashboard.
 3. Add environment variables in Vercel project settings.
-4. Deploy automatically on push to main.
+4. Ensure `vercel.json` is present to configure a Cron for the worker drain.
+5. Deploy automatically on push to main.
 
 Vercel handles:
 
 - Serverless functions for API routes.
+- Scheduled Cron hits to `/api/worker/drain` to process queued jobs.
 - Edge caching for static assets.
 - Preview branches for PRs.
 
@@ -221,6 +223,34 @@ Vercel handles:
 - Build: `pnpm build`
 - Start: `pnpm start`
 - Ensure PostgreSQL and Redis are running (e.g., via Docker Compose).
+
+### Background Worker on Vercel
+
+This project runs background processing on Vercel by exposing a serverless route `src/app/api/worker/drain/route.ts` that drains a bounded number of jobs per invocation.
+
+- Endpoint: `/api/worker/drain`
+- Defaults: up to `PDFPROMPT_MAX_JOBS_PER_INVOCATION` jobs or `PDFPROMPT_MAX_MS_PER_INVOCATION` milliseconds (see `.env.example`).
+- Optional protection: set `PDFPROMPT_WORKER_SECRET` and call with header `x-worker-secret` or query `?key=`.
+
+Automatic scheduling:
+
+- `vercel.json` includes a Cron entry that runs the drain every minute:
+
+  ```json
+  {
+    "crons": [{ "path": "/api/worker/drain", "schedule": "*/1 * * * *" }]
+  }
+  ```
+
+On-demand kick-off:
+
+- When a job is created (`src/server/api/routers/jobs.ts`), the app best-effort pings `/api/worker/drain` so processing starts immediately on Vercel.
+
+Local development tips:
+
+- Start Next.js: `pnpm dev`
+- Manually drain: open `http://localhost:3000/api/worker/drain?maxJobs=5`
+- Or run the persistent loop for load testing: `pnpm worker:dev`
 
 ### Docker (Optional)
 
@@ -301,10 +331,13 @@ Setup steps:
    pnpm db:generate
    pnpm db:migrate
    ```
-5. Start the worker and the app:
+5. Start the app and (optionally) the worker locally:
    ```bash
-   pnpm worker:dev
    pnpm dev
+   # Option A: hit the drain endpoint manually when you queue jobs
+   #   http://localhost:3000/api/worker/drain?maxJobs=5
+   # Option B: run the standalone worker loop (useful for local stress testing)
+   pnpm worker:dev
    ```
 
 Usage notes:

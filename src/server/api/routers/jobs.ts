@@ -9,6 +9,7 @@ import { jobs } from "~/server/db/schema";
 import { randomUUID } from "crypto";
 import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { env } from "~/env";
 
 export const jobsRouter = createTRPCRouter({
   listRecent: publicProcedure
@@ -33,6 +34,21 @@ export const jobsRouter = createTRPCRouter({
         .from(jobs)
         .where(eq(jobs.id, id))
         .limit(1);
+
+      // Best-effort ping the worker drain route so processing starts ASAP on Vercel
+      try {
+        const base = env.NEXT_PUBLIC_APP_URL;
+        // Ensure no duplicate slashes
+        const url = new URL("/api/worker/drain", base).toString();
+        // Fire-and-forget; do not await
+        const headers: Record<string, string> = {};
+        if (process.env.PDFPROMPT_WORKER_SECRET) {
+          headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+        }
+        void fetch(url, { headers }).catch(() => undefined);
+      } catch {
+        // ignore
+      }
       return created[0] ?? null;
     }),
 

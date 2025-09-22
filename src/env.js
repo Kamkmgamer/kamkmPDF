@@ -18,6 +18,11 @@ export const env = createEnv({
     OPENROUTER_API_KEY: z.string().optional(),
     OPENROUTER_MODEL: z.string().optional(),
     OPENROUTER_BASE_URL: z.string().url().optional(),
+    // Worker/cron coordination (optional)
+    PDFPROMPT_WORKER_SECRET: z.string().optional(),
+    PDFPROMPT_MAX_JOBS_PER_INVOCATION: z.string().optional(),
+    PDFPROMPT_MAX_MS_PER_INVOCATION: z.string().optional(),
+    PDFPROMPT_BATCH_SIZE: z.string().optional(),
   },
 
   /**
@@ -43,6 +48,12 @@ export const env = createEnv({
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     OPENROUTER_MODEL: process.env.OPENROUTER_MODEL,
     OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL,
+    PDFPROMPT_WORKER_SECRET: process.env.PDFPROMPT_WORKER_SECRET,
+    PDFPROMPT_MAX_JOBS_PER_INVOCATION:
+      process.env.PDFPROMPT_MAX_JOBS_PER_INVOCATION,
+    PDFPROMPT_MAX_MS_PER_INVOCATION:
+      process.env.PDFPROMPT_MAX_MS_PER_INVOCATION,
+    PDFPROMPT_BATCH_SIZE: process.env.PDFPROMPT_BATCH_SIZE,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
