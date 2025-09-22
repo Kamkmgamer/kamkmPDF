@@ -17,7 +17,12 @@ export default async function htmlToPdfToPath(
 
   // Launch browser depending on environment
   let browser: Browser | null = null;
-  if (process.env.VERCEL) {
+  // Treat common serverless platforms (Vercel, Netlify, AWS Lambda) the same
+  const isServerless =
+    !!process.env.VERCEL ||
+    !!process.env.NETLIFY ||
+    !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+  if (isServerless) {
     // Vercel/Serverless: use puppeteer-core + @sparticuz/chromium
     const [{ default: chromium }, { default: puppeteer }] = await Promise.all([
       import("@sparticuz/chromium"),
@@ -92,7 +97,11 @@ export async function htmlToPdfToBuffer(
 ): Promise<Buffer> {
   // Launch browser depending on environment
   let browser: Browser | null = null;
-  if (process.env.VERCEL) {
+  const isServerless =
+    !!process.env.VERCEL ||
+    !!process.env.NETLIFY ||
+    !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+  if (isServerless) {
     const [{ default: chromium }, { default: puppeteer }] = await Promise.all([
       import("@sparticuz/chromium"),
       import("puppeteer-core"),
