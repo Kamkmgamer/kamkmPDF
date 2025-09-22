@@ -43,7 +43,7 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://x.com/kamkmgamer"
                 className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary] dark:text-gray-400 dark:hover:text-white"
               >
                 <span className="sr-only">Twitter</span>
@@ -56,7 +56,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://github.com/Kamkmgamer"
                 className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary] dark:text-gray-400 dark:hover:text-white"
               >
                 <span className="sr-only">GitHub</span>
@@ -69,7 +69,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.linkedin.com/in/kamkm-gamer/"
                 className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary] dark:text-gray-400 dark:hover:text-white"
               >
                 <span className="sr-only">LinkedIn</span>
