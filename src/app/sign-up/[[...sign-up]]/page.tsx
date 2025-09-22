@@ -13,6 +13,7 @@ export default function SignUpPage() {
           </p>
         </div>
         <SignUp
+          afterSignUpUrl="/dashboard"
           appearance={{
             baseTheme: undefined,
             variables: {
