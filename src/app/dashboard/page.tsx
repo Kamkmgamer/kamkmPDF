@@ -40,7 +40,7 @@ export default function DashboardPage() {
           </h1>
           <Link
             href="/dashboard/new"
-            className="rounded-md bg-[--color-primary] px-4 py-2 text-sm text-white hover:opacity-90"
+            className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm text-white hover:opacity-90"
           >
             New PDF
           </Link>
@@ -56,7 +56,7 @@ export default function DashboardPage() {
               className="group rounded-xl border border-[--color-border] bg-[--color-surface] p-5 transition-all hover:shadow-md"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[--color-primary]/10 text-[--color-primary]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
                   ＋
                 </div>
                 <div>

@@ -61,7 +61,7 @@ export default function JobsGallery() {
           />
           <button
             onClick={() => refetch()}
-            className="rounded-md bg-[--color-primary] px-3 py-1.5 text-sm text-white hover:opacity-90"
+            className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-sm text-white hover:opacity-90"
           >
             {isRefetching ? "Searching..." : "Search"}
           </button>
@@ -126,7 +126,7 @@ export default function JobsGallery() {
                   </button>
                   <Link
                     href={`/pdf/${item.fileId}`}
-                    className="rounded-md bg-[--color-primary] px-2 py-1 text-xs text-white hover:opacity-90"
+                    className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-sm text-white hover:opacity-90"
                   >
                     View
                   </Link>
@@ -153,8 +153,8 @@ function GallerySkeleton() {
           key={i}
           className="animate-pulse rounded-xl border border-[--color-border] bg-[--color-surface] p-4"
         >
-          <div className="mb-4 h-48 rounded-md bg-[--color-base]" />
-          <div className="h-4 w-3/4 rounded bg-[--color-base]" />
+          <div className="mb-4 h-48 rounded-md bg-[var(--color-base)]" />
+          <div className="h-4 w-3/4 rounded bg-[var(--color-base)]" />
         </li>
       ))}
     </ul>
@@ -164,7 +164,7 @@ function GallerySkeleton() {
 function EmptyState() {
   return (
     <div className="rounded-xl border border-dashed border-[--color-border] p-10 text-center">
-      <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[--color-primary]/10 text-[--color-primary]">
+      <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
         📄
       </div>
       <h3 className="text-lg font-medium">No documents yet</h3>
@@ -174,7 +174,7 @@ function EmptyState() {
       </p>
       <Link
         href="/dashboard/new"
-        className="mt-4 inline-flex rounded-md bg-[--color-primary] px-4 py-2 text-sm text-white hover:opacity-90"
+        className="mt-4 inline-flex rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm text-white hover:opacity-90"
       >
         Create New
       </Link>

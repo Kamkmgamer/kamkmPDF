@@ -150,7 +150,7 @@ export default function NewPromptPage() {
                     disabled={createJob.isPending || tooShort || tooLong}
                     aria-disabled={createJob.isPending || tooShort || tooLong}
                     aria-busy={createJob.isPending}
-                    className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--color-primary,#2563eb)] px-5 py-2.5 text-sm font-medium text-[color:var(--color-on-primary,#ffffff)] shadow-sm transition hover:opacity-95 focus:ring-2 focus:ring-[--color-primary] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-[var(--color-on-primary)] shadow-sm transition hover:opacity-95 focus:ring-2 focus:ring-[--color-primary] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                     title="Convert (Ctrl/Cmd + Enter)"
                   >
                     {createJob.isPending && (
@@ -183,13 +183,13 @@ export default function NewPromptPage() {
                   <button
                     type="button"
                     onClick={() => setPrompt("")}
-                    className="rounded-md border border-[--color-border] px-4 py-2 text-sm hover:bg-[--color-base]"
+                    className="rounded-md border border-[--color-border] px-4 py-2 text-sm hover:bg-[var(--color-base)]"
                   >
                     Clear
                   </button>
                   <a
                     href="/dashboard"
-                    className="rounded-md border border-[--color-border] px-4 py-2 text-sm hover:bg-[--color-base]"
+                    className="rounded-md border border-[--color-border] px-4 py-2 text-sm hover:bg-[var(--color-base)]"
                   >
                     Cancel
                   </a>
@@ -217,7 +217,7 @@ export default function NewPromptPage() {
                       <button
                         type="button"
                         onClick={() => setPrompt(t.text)}
-                        className="block w-full rounded-lg border border-[--color-border] bg-[--color-base] p-3 text-left transition hover:border-[--color-primary] hover:bg-[--color-surface]"
+                        className="block w-full rounded-lg border border-[--color-border] bg-[var(--color-base)] p-3 text-left transition hover:border-[--color-primary] hover:bg-[var(--color-surface)]"
                         title="Apply template"
                       >
                         <div className="font-medium">{t.title}</div>

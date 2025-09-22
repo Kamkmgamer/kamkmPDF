@@ -63,11 +63,8 @@ export default function Pricing() {
   return (
     <section
       id="pricing"
-      className={`relative scroll-mt-24 overflow-hidden py-20 ${
-        isDark
-          ? "bg-gradient-to-br from-blue-950 to-blue-900"
-          : "bg-[--color-bg]"
-      }`}
+      className={`relative scroll-mt-24 overflow-hidden py-20 ${isDark ? "bg-gradient-to-br from-blue-950 to-blue-900" : "bg-white"}`}
+      suppressHydrationWarning={true}
     >
       {/* Decorative accents for light mode */}
       <div className="pointer-events-none absolute inset-0 dark:hidden">
@@ -114,7 +111,7 @@ export default function Pricing() {
           {plans.map((plan, index) => (
             <motion.div
               key={index}
-              className={`relative rounded-2xl border p-8 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
+              className={`relative flex flex-col rounded-2xl border p-8 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
                 plan.popular
                   ? "scale-105 border-[--color-primary] shadow-lg"
                   : "border-[--color-border] hover:border-[--color-primary]/50"
@@ -155,16 +152,18 @@ export default function Pricing() {
                 ))}
               </ul>
 
-              <Link
-                href={isSignedIn ? "/dashboard" : "/dashboard"}
-                className={`block w-full rounded-xl px-6 py-3 text-center font-semibold transition-all duration-200 ${
-                  plan.popular
-                    ? "bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-sm hover:from-sky-600 hover:to-cyan-700 hover:shadow-md"
-                    : "bg-[--color-primary] text-white shadow-sm hover:bg-[--color-primary]/90 hover:shadow-md"
-                }`}
-              >
-                {plan.cta}
-              </Link>
+              <div className="mt-auto">
+                <Link
+                  href={isSignedIn ? "/dashboard" : "/dashboard"}
+                  className={`block w-full rounded-xl px-6 py-3 text-center font-semibold transition-all duration-200 ${
+                    plan.popular
+                      ? "bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-sm hover:from-sky-600 hover:to-cyan-700 hover:shadow-md"
+                      : "bg-blue-500/80 text-white shadow-sm hover:bg-blue-400 hover:shadow-md"
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
+              </div>
             </motion.div>
           ))}
         </motion.div>

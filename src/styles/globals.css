@@ -48,10 +48,12 @@
   /* Subtle, higher-contrast light palette */
   --color-bg: #ffffff; /* page background */
   --color-surface: #f7fafc; /* slightly brighter surface */
+  --color-base: #f1f5f9; /* base background color */
   --color-text-primary: #0f172a; /* slate-900 */
   --color-text-muted: #475569; /* slate-600 for clearer light contrast */
   --color-primary: #0ea5e9; /* sky-500 */
   --color-primary-700: #0284c7; /* sky-600/700 for hover/active */
+  --color-on-primary: #ffffff; /* text color on primary elements */
   --color-accent: #4f46e5; /* indigo-600 */
   --color-border: #e6eaf0; /* softer neutral border */
   /* Optional shadows tuned for light mode */
@@ -67,10 +69,12 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --color-bg: #0f172a;
   --color-surface: #0b1220;
+  --color-base: #1e293b;
   --color-text-primary: #e6eef8;
   --color-text-muted: #9aa3b2;
   --color-primary: #38bdf8;
   --color-primary-700: #0369a1;
+  --color-on-primary: #ffffff;
   --color-accent: #6366f1;
   --color-border: #0b1220;
 }

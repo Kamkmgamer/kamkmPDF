@@ -31,11 +31,8 @@ export default function Hero() {
 
   return (
     <section
-      className={`relative overflow-hidden text-[--color-text-primary] ${
-        isDark
-          ? "bg-gradient-to-br from-blue-950 via-blue-900 to-blue-700"
-          : "bg-[--color-bg]"
-      }`}
+      className={`relative overflow-hidden text-[--color-text-primary] ${isDark ? "bg-gradient-to-br from-blue-950 via-blue-900 to-blue-700" : "bg-white"}`}
+      suppressHydrationWarning={true}
     >
       {/* Background decoration */}
       <div className="pointer-events-none absolute inset-0">
@@ -119,7 +116,7 @@ export default function Hero() {
 
             <Link
               href="/dashboard/new"
-              className="rounded-xl border-2 border-[--color-border] bg-white/80 px-8 py-4 text-lg font-semibold text-[--color-text-primary] transition-all duration-200 hover:bg-white dark:border-white/30 dark:bg-transparent dark:hover:bg-white/10"
+              className="rounded-xl border-2 border-[--color-border] bg-white/80 px-8 py-4 text-lg font-semibold text-[--color-text-primary] transition-all duration-200 hover:bg-white hover:shadow-lg dark:border-white/30 dark:bg-transparent dark:hover:bg-white/20 dark:hover:shadow-xl"
               style={{ boxShadow: "var(--shadow-sm)" }}
             >
               Try Demo
@@ -150,7 +147,7 @@ export default function Hero() {
                   visible: { opacity: 1, y: 0 },
                 }}
               >
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-surface] shadow-sm dark:bg-white/10">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-surface)] shadow-sm dark:bg-white/10">
                   <span className="text-2xl">{feature.icon}</span>
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-[--color-text-primary] dark:text-white">

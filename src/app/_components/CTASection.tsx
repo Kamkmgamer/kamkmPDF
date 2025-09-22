@@ -47,27 +47,25 @@ export default function CTASection() {
           viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 0.45, delay: 0.2, ease: "easeOut" }}
         >
-          {isSignedIn ? (
-            <Link
-              href="/dashboard"
-              className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-[--color-primary] shadow-sm transition-colors hover:bg-gray-100 hover:shadow-md"
-            >
-              Go to Dashboard
-            </Link>
-          ) : (
-            <Link
-              href="/dashboard"
-              className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-[--color-primary] shadow-sm transition-colors hover:bg-gray-100 hover:shadow-md"
-            >
-              Start Free Trial
-            </Link>
-          )}
+          <Link
+            href="/dashboard"
+            className="group flex items-center rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:from-sky-600 hover:to-cyan-700"
+          >
+            {isSignedIn ? "Go to Dashboard" : "Start Free Trial"}
+            <span className="ml-2 transition-transform group-hover:translate-x-1">
+              →
+            </span>
+          </Link>
 
           <Link
             href="/dashboard/new"
-            className="rounded-lg border-2 border-white px-8 py-4 text-lg font-semibold shadow-sm transition-colors hover:bg-white hover:text-[--color-primary] hover:shadow-md"
+            className="group flex items-center rounded-xl border-2 border-[--color-border] bg-blue-500/80 px-8 py-4 text-lg font-semibold text-[--color-text-primary] shadow-sm transition-all duration-200 hover:bg-blue-400 hover:shadow-lg dark:border-white/30 dark:bg-transparent dark:hover:bg-blue-100/20 dark:hover:shadow-xl"
+            style={{ boxShadow: "var(--shadow-sm)" }}
           >
             Try Demo
+            <span className="ml-2 transition-transform group-hover:translate-x-1">
+              →
+            </span>
           </Link>
         </motion.div>
 
