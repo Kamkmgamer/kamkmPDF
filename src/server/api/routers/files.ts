@@ -12,6 +12,79 @@ import { generateShareToken, createShareUrl } from "~/server/utils/share-links";
 import { utapi } from "~/server/uploadthing";
 
 export const filesRouter = createTRPCRouter({
+  listMine: protectedProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().min(1).max(100).optional().default(24),
+          cursor: z.string().optional(), // for future pagination (createdAt iso string)
+          status: z
+            .enum(["all", "completed", "processing", "failed"])
+            .optional()
+            .default("all"),
+          search: z.string().optional().default(""),
+        })
+        .optional()
+        .default({ limit: 24, status: "all", search: "" }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, status, search } = input;
+      // Build base query: join files with jobs to get prompt/status/createdAt
+      // Owner is derived from jobs.userId when present, else files.userId
+      const rows = await db
+        .select({
+          fileId: files.id,
+          fileKey: files.fileKey,
+          fileUrl: files.fileUrl,
+          size: files.size,
+          mimeType: files.mimeType,
+          createdAt: files.createdAt,
+          jobId: jobs.id,
+          prompt: jobs.prompt,
+          jobStatus: jobs.status,
+          jobCreatedAt: jobs.createdAt,
+          jobUserId: jobs.userId,
+          fileUserId: files.userId,
+        })
+        .from(files)
+        .leftJoin(jobs, eq(files.jobId, jobs.id))
+        .where(eq(jobs.userId, ctx.userId))
+        .limit(limit)
+        .orderBy(jobs.createdAt ? jobs.createdAt : files.createdAt);
+
+      // Filter client-side for search/status to keep query simple and portable
+      const filtered = rows
+        .filter((r) => {
+          // Ownership check redundancy (safety)
+          const ownerId = r.jobUserId ?? r.fileUserId;
+          if (ownerId && ownerId !== ctx.userId) return false;
+          if (status && status !== "all") {
+            if (!r.jobStatus || r.jobStatus !== status) return false;
+          }
+          if (search) {
+            const hay = `${r.prompt ?? ""}`.toLowerCase();
+            if (!hay.includes(search.toLowerCase())) return false;
+          }
+          return true;
+        })
+        .sort((a, b) => {
+          const ad = a.jobCreatedAt ?? a.createdAt;
+          const bd = b.jobCreatedAt ?? b.createdAt;
+          return bd.getTime() - ad.getTime();
+        });
+
+      return filtered.map((r) => ({
+        fileId: r.fileId,
+        jobId: r.jobId,
+        prompt: r.prompt ?? "Untitled",
+        status: r.jobStatus ?? "completed",
+        createdAt: (r.jobCreatedAt ?? r.createdAt).toISOString(),
+        size: r.size ?? 0,
+        mimeType: r.mimeType,
+        // We return fileUrl (public UploadThing URL) for preview; downloads should still go through our download route.
+        fileUrl: r.fileUrl,
+      }));
+    }),
   getDownloadUrl: protectedProcedure
     .input(z.object({ fileId: z.string() }))
     .query(async ({ input, ctx }) => {

@@ -4,7 +4,7 @@ import React from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "../../_components/DashboardLayout";
-import RecentJobs from "../../_components/RecentJobs";
+import JobsGallery from "../../_components/JobsGallery";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -34,7 +34,17 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="space-y-8 p-2 sm:p-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Your Documents
+          </h1>
+          <Link
+            href="/dashboard/new"
+            className="rounded-md bg-[--color-primary] px-4 py-2 text-sm text-white hover:opacity-90"
+          >
+            New PDF
+          </Link>
+        </div>
 
         <section aria-labelledby="quick-actions">
           <h2 id="quick-actions" className="sr-only">
@@ -63,11 +73,11 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section aria-labelledby="recent-jobs">
-          <h2 id="recent-jobs" className="text-lg font-medium">
-            Recent Jobs
+        <section aria-labelledby="your-files">
+          <h2 id="your-files" className="sr-only">
+            Your Files
           </h2>
-          <RecentJobs />
+          <JobsGallery />
         </section>
       </div>
     </DashboardLayout>
