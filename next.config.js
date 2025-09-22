@@ -5,6 +5,15 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  webpack: (cfg, { isServer }) => {
+    if (isServer) {
+      // Avoid bundling pdfkit (which expects AFM font assets) into serverless functions
+      cfg.externals = Array.isArray(cfg.externals) ? cfg.externals : [];
+      cfg.externals.push("pdfkit");
+    }
+    return cfg;
+  },
+};
 
 export default config;
