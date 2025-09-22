@@ -201,7 +201,36 @@ pnpm lint
 pnpm format
 ```
 
-## 🚀 Deployment
+## 🔐 GitHub Repository Secrets (for CI/CD)
+
+To enable automated builds and deployments, add these secrets to your GitHub repository settings:
+
+**Required Secrets:**
+
+- `DATABASE_URL` - PostgreSQL connection string
+- `CLERK_SECRET_KEY` - Clerk authentication secret key
+- `UPLOADTHING_TOKEN` - UploadThing API token (v7 format)
+- `NEXT_PUBLIC_APP_URL` - Your production application URL
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
+
+**Optional Secrets (for AI features):**
+
+- `OPENROUTER_API_KEY` - OpenRouter API key for AI processing
+- `OPENROUTER_MODEL` - Default AI model to use
+- `OPENROUTER_BASE_URL` - Custom OpenRouter base URL (if needed)
+- `PDFPROMPT_WORKER_SECRET` - Secret for protecting worker endpoints
+- `PDFPROMPT_MAX_JOBS_PER_INVOCATION` - Max jobs to process per worker run (default: 10)
+- `PDFPROMPT_MAX_MS_PER_INVOCATION` - Max milliseconds per worker run (default: 30000)
+- `PDFPROMPT_BATCH_SIZE` - Batch size for job processing (default: 5)
+
+**How to add secrets:**
+
+1. Go to your GitHub repository → Settings → Secrets and variables → Actions
+2. Click "New repository secret"
+3. Add each secret with the exact name shown above
+4. The CI workflow will automatically use these secrets during builds
+
+## � Deployment
 
 ### Vercel (Recommended)
 
