@@ -65,12 +65,22 @@ export default function Header() {
                 </>
               ) : (
                 <div className="hidden items-center gap-2 sm:flex">
-                  <SignInButton mode="modal">
+                  <SignInButton
+                    mode="modal"
+                    // Ensure successful auth returns to dashboard
+                    forceRedirectUrl="/dashboard"
+                    fallbackRedirectUrl="/dashboard"
+                  >
                     <button className="rounded-md border border-[--color-border] px-3 py-1 text-sm text-[--color-text-primary] transition-colors hover:bg-[--color-surface]">
                       Sign In
                     </button>
                   </SignInButton>
-                  <SignUpButton mode="modal">
+                  <SignUpButton
+                    mode="modal"
+                    // Ensure successful auth returns to dashboard
+                    forceRedirectUrl="/dashboard"
+                    fallbackRedirectUrl="/dashboard"
+                  >
                     <button className="rounded-md bg-[color:var(--color-primary,#2563eb)] px-3 py-1 text-sm text-white transition-colors hover:opacity-90">
                       Get Started
                     </button>
@@ -127,12 +137,20 @@ export default function Header() {
               </>
             ) : (
               <div className="flex gap-2 pt-2">
-                <SignInButton mode="modal">
+                <SignInButton
+                  mode="modal"
+                  forceRedirectUrl="/dashboard"
+                  fallbackRedirectUrl="/dashboard"
+                >
                   <button className="flex-1 rounded-md border border-[--color-border] bg-[--color-surface]/60 px-3 py-2 text-sm text-[--color-text-primary] transition-colors hover:bg-[--color-surface]/80">
                     Sign In
                   </button>
                 </SignInButton>
-                <SignUpButton mode="modal">
+                <SignUpButton
+                  mode="modal"
+                  forceRedirectUrl="/dashboard"
+                  fallbackRedirectUrl="/dashboard"
+                >
                   <button className="flex-1 rounded-md bg-[color:var(--color-primary,#2563eb)] px-3 py-2 text-sm text-white hover:opacity-90">
                     Get Started
                   </button>

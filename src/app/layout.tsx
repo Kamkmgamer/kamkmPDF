@@ -25,7 +25,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      afterSignInUrl="/dashboard"
+      afterSignUpUrl="/dashboard"
+    >
       <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
         <head>
           {/* Pre-hydration theme setter to avoid FOUC and ensure correct theme on first paint */}

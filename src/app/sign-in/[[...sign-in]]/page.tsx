@@ -1,6 +1,16 @@
 import { SignIn } from "@clerk/nextjs";
 
-export default function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect_url?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const rawRedirect = resolvedSearchParams?.redirect_url;
+  const redirectUrl =
+    typeof rawRedirect === "string" && rawRedirect.length > 0
+      ? decodeURIComponent(rawRedirect)
+      : "/dashboard";
   return (
     <div className="flex min-h-screen items-center justify-center bg-[--color-bg] px-4">
       <div className="w-full max-w-md">
@@ -13,6 +23,8 @@ export default function SignInPage() {
           </p>
         </div>
         <SignIn
+          forceRedirectUrl={redirectUrl}
+          fallbackRedirectUrl="/dashboard"
           appearance={{
             baseTheme: undefined,
             variables: {
