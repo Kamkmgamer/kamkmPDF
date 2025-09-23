@@ -66,16 +66,16 @@ export function ThumbnailsSidebar({
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out md:static dark:border-gray-700 dark:bg-gray-800 ${isOpen ? "translate-x-0" : "-translate-x-full"} md:block md:translate-x-0`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-[--color-border] bg-[--color-surface] transition-transform duration-300 ease-in-out md:static ${isOpen ? "translate-x-0" : "-translate-x-full"} md:block md:translate-x-0`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+        <div className="flex items-center justify-between border-b border-[--color-border] p-4">
+          <h3 className="text-sm font-semibold text-[--color-text-primary]">
             Pages ({totalPages})
           </h3>
           <button
             onClick={onClose}
-            className="rounded-md p-1 hover:bg-gray-100 md:hidden dark:hover:bg-gray-700"
+            className="rounded-md p-1 hover:bg-[--color-base] md:hidden"
             aria-label="Close thumbnails"
           >
             <svg
@@ -121,7 +121,7 @@ export function ThumbnailsSidebar({
               ))}
             </Document>
           ) : (
-            <div className="py-8 text-center text-gray-500 dark:text-gray-400">
+            <div className="py-8 text-center text-[--color-text-muted]">
               <p className="text-sm">No PDF available</p>
             </div>
           )}
@@ -147,31 +147,31 @@ function ThumbnailItem({
       onClick={onClick}
       className={`w-full rounded-lg border-2 p-2 text-left transition-all duration-200 ${
         isSelected
-          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700"
+          ? "border-[--color-primary] bg-blue-500/10"
+          : "border-[--color-border] hover:bg-[--color-base]"
       } `}
       aria-label={`Go to page ${pageNumber}`}
       aria-current={isSelected ? "page" : undefined}
     >
       <div className="flex items-center space-x-3">
-        <div className="h-16 w-12 flex-shrink-0 overflow-hidden rounded border bg-gray-100 dark:bg-gray-700">
+        <div className="h-16 w-12 flex-shrink-0 overflow-hidden rounded border bg-[--color-base]">
           <Page
             pageNumber={pageNumber}
             scale={0.2}
             loading={
               <div className="flex h-full w-full items-center justify-center">
-                <div className="h-3 w-3 animate-spin rounded-full border-b-2 border-gray-400"></div>
+                <div className="h-3 w-3 animate-spin rounded-full border-b-2 border-[--color-text-muted]"></div>
               </div>
             }
             error={
-              <div className="flex h-full w-full items-center justify-center text-xs text-gray-500">
+              <div className="flex h-full w-full items-center justify-center text-xs text-[--color-text-muted]">
                 Error
               </div>
             }
           />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <p className="text-sm font-medium text-[--color-text-primary]">
             Page {pageNumber}
           </p>
         </div>

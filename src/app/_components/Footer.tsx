@@ -29,7 +29,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="border-t border-[--color-border] bg-[--color-surface] text-[--color-text-primary] dark:border-slate-800 dark:bg-slate-900 dark:text-white">
+    <footer className="border-t border-[--color-border] bg-[--color-surface] text-[--color-text-primary]">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-6">
           {/* Brand */}
@@ -37,14 +37,14 @@ export default function Footer() {
             <Link href="/" className="mb-4 inline-block text-2xl font-bold">
               Prompt-to-PDF
             </Link>
-            <p className="mb-6 max-w-md text-[--color-text-muted] dark:text-gray-400">
+            <p className="mb-6 max-w-md text-[--color-text-muted]">
               Transform natural language into professional PDFs instantly. Join
               thousands of professionals who trust our AI-powered platform.
             </p>
             <div className="flex space-x-4">
               <a
                 href="https://x.com/kamkmgamer"
-                className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary] dark:text-gray-400 dark:hover:text-white"
+                className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary]"
               >
                 <span className="sr-only">Twitter</span>
                 <svg
@@ -57,7 +57,7 @@ export default function Footer() {
               </a>
               <a
                 href="https://github.com/Kamkmgamer"
-                className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary] dark:text-gray-400 dark:hover:text-white"
+                className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary]"
               >
                 <span className="sr-only">GitHub</span>
                 <svg
@@ -70,7 +70,7 @@ export default function Footer() {
               </a>
               <a
                 href="https://www.linkedin.com/in/kamkm-gamer/"
-                className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary] dark:text-gray-400 dark:hover:text-white"
+                className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary]"
               >
                 <span className="sr-only">LinkedIn</span>
                 <svg
@@ -94,7 +94,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary] dark:text-gray-400 dark:hover:text-white"
+                    className="text-[--color-text-muted] transition-colors hover:text-[--color-text-primary]"
                   >
                     {link.name}
                   </Link>
@@ -161,11 +161,11 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between border-t border-[--color-border] pt-8 md:flex-row dark:border-slate-800">
-          <p className="text-sm text-[--color-text-muted] dark:text-gray-400">
+        <div className="mt-12 flex flex-col items-center justify-between border-t border-[--color-border] pt-8 md:flex-row">
+          <p className="text-sm text-[--color-text-muted]">
             © 2024 Prompt-to-PDF. All rights reserved.
           </p>
-          <p className="mt-4 text-sm text-[--color-text-muted] md:mt-0 dark:text-gray-400">
+          <p className="mt-4 text-sm text-[--color-text-muted] md:mt-0">
             Made with ❤️ for PDF creators everywhere
           </p>
         </div>

@@ -68,8 +68,8 @@ export default function Pricing() {
     >
       {/* Decorative accents for light mode */}
       <div className="pointer-events-none absolute inset-0 dark:hidden">
-        <div className="absolute -top-28 left-10 h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.2),transparent_60%)] blur-2xl" />
-        <div className="absolute right-16 -bottom-24 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.18),transparent_60%)] blur-2xl" />
+        <div className="absolute -top-28 left-10 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.12),transparent_60%)] blur-3xl" />
+        <div className="absolute right-16 -bottom-28 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.10),transparent_60%)] blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4">
@@ -115,7 +115,7 @@ export default function Pricing() {
                 plan.popular
                   ? "scale-105 border-[--color-primary] shadow-lg"
                   : "border-[--color-border] hover:border-[--color-primary]/50"
-              } ${isDark ? "bg-slate-800" : "bg-[--color-surface]"}`}
+              } bg-[--color-surface]`}
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 },

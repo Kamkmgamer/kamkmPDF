@@ -43,10 +43,10 @@ export default function Hero() {
           }`}
         />
         {/* Radial accents for light mode */}
-        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.25),transparent_60%)] blur-2xl" />
-        <div className="absolute -bottom-24 -left-12 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.18),transparent_60%)] blur-2xl" />
+        <div className="absolute -top-32 -right-24 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.15),transparent_60%)] blur-2xl dark:hidden" />
+        <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.12),transparent_60%)] blur-2xl dark:hidden" />
         {/* Soft grid */}
-        <div className="absolute inset-0 [background-image:linear-gradient(to_right,rgba(2,6,23,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(2,6,23,0.06)_1px,transparent_1px)] [background-size:14px_14px] opacity-40 dark:opacity-20" />
+        <div className="absolute inset-0 [background-image:linear-gradient(to_right,rgba(2,6,23,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(2,6,23,0.05)_1px,transparent_1px)] [background-size:14px_14px] opacity-25 dark:opacity-20" />
       </div>
 
       <div className="relative container mx-auto px-4 py-24 lg:py-32">

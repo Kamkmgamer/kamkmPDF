@@ -67,14 +67,41 @@
   --font-sans:
     var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --color-bg: #0f172a;
-  --color-surface: #0b1220;
-  --color-base: #1e293b;
-  --color-text-primary: #e6eef8;
-  --color-text-muted: #9aa3b2;
-  --color-primary: #38bdf8;
-  --color-primary-700: #0369a1;
+  /* Richer, deeper dark palette for better contrast */
+  --color-bg: #0b1220; /* page background */
+  --color-surface: #0f1b2d; /* elevated surfaces/cards */
+  --color-base: #0e1628; /* base panels */
+  --color-text-primary: #e8f1fb; /* bright text */
+  --color-text-muted: #9fb0c8; /* subdued text */
+  --color-primary: #38bdf8; /* sky-400/500 */
+  --color-primary-700: #0ea5e9; /* for active/hover */
   --color-on-primary: #ffffff;
-  --color-accent: #6366f1;
-  --color-border: #0b1220;
+  --color-accent: #818cf8; /* indigo-400 */
+  --color-border: rgba(255, 255, 255, 0.08); /* subtle but visible */
+}
+
+/* Subtle decorative background overlay for dark mode */
+.dark body,
+[data-theme="dark"] body {
+  isolation: isolate; /* allow ::before to sit behind content */
+}
+.dark body::before,
+[data-theme="dark"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    radial-gradient(
+      1200px 800px at 20% -10%,
+      rgba(56, 189, 248, 0.1),
+      transparent 45%
+    ),
+    radial-gradient(
+      900px 700px at 100% 120%,
+      rgba(99, 102, 241, 0.1),
+      transparent 45%
+    );
+  background-repeat: no-repeat;
 }

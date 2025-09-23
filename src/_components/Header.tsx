@@ -15,7 +15,7 @@ export default function Header() {
     pathname?.startsWith("/dashboard") ?? pathname?.startsWith("/pdf/");
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/10 bg-white/80 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-neutral-900/80">
+    <header className="sticky top-0 z-50 border-b border-[--color-border] bg-[--color-surface]/80 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-[--color-surface]/60">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Brand */}
         <div className="flex items-center gap-3">
@@ -32,15 +32,15 @@ export default function Header() {
                 href="/dashboard"
                 className={`rounded-md px-2 py-1 transition-colors ${
                   isDashboard
-                    ? "text-neutral-800 dark:text-white"
-                    : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-white"
+                    ? "text-[--color-text-primary]"
+                    : "text-[--color-text-muted] hover:text-[--color-text-primary]"
                 }`}
               >
                 My Documents
               </Link>
               <Link
                 href="/dashboard/new"
-                className="rounded-md border border-neutral-200 px-3 py-1 text-neutral-800 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-white dark:hover:bg-neutral-800"
+                className="rounded-md border border-[--color-border] px-3 py-1 text-[--color-text-primary] transition-colors hover:bg-[--color-surface]"
               >
                 New PDF
               </Link>
@@ -81,7 +81,7 @@ export default function Header() {
           )}
           {/* Mobile menu toggle */}
           <button
-            className="rounded-md border border-neutral-200 bg-white/70 p-2 backdrop-blur transition-colors hover:bg-white/90 md:hidden dark:border-white/10 dark:bg-neutral-800/60 dark:hover:bg-neutral-800/80"
+            className="rounded-md border border-[--color-border] bg-[--color-surface]/60 p-2 backdrop-blur transition-colors hover:bg-[--color-surface]/80 md:hidden"
             aria-label="Toggle menu"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -106,20 +106,20 @@ export default function Header() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="border-t border-neutral-200 bg-white/90 backdrop-blur md:hidden dark:border-white/10 dark:bg-neutral-900/90">
+        <div className="border-t border-[--color-border] bg-[--color-surface]/90 backdrop-blur md:hidden">
           <div className="mx-auto max-w-7xl space-y-2 px-4 py-3">
             {isLoaded && isSignedIn ? (
               <>
                 <Link
                   href="/dashboard"
-                  className="block py-1 text-neutral-800 dark:text-white"
+                  className="block py-1 text-[--color-text-primary]"
                   onClick={() => setOpen(false)}
                 >
                   My Documents
                 </Link>
                 <Link
                   href="/dashboard/new"
-                  className="block py-1 text-neutral-800 dark:text-white"
+                  className="block py-1 text-[--color-text-primary]"
                   onClick={() => setOpen(false)}
                 >
                   New PDF
@@ -128,7 +128,7 @@ export default function Header() {
             ) : (
               <div className="flex gap-2 pt-2">
                 <SignInButton mode="modal">
-                  <button className="flex-1 rounded-md border border-neutral-200 bg-white/70 px-3 py-2 text-sm text-neutral-800 transition-colors hover:bg-white/90 dark:border-white/10 dark:bg-neutral-800/60 dark:text-white dark:hover:bg-neutral-800/80">
+                  <button className="flex-1 rounded-md border border-[--color-border] bg-[--color-surface]/60 px-3 py-2 text-sm text-[--color-text-primary] transition-colors hover:bg-[--color-surface]/80">
                     Sign In
                   </button>
                 </SignInButton>

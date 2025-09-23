@@ -37,7 +37,7 @@ export default function Features() {
       className="relative scroll-mt-24 overflow-hidden bg-[--color-bg] py-20"
     >
       {/* Decorative subtle grid for light mode */}
-      <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(2,6,23,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(2,6,23,0.05)_1px,transparent_1px)] [background-size:16px_16px] opacity-30 dark:hidden" />
+      <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(2,6,23,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(2,6,23,0.04)_1px,transparent_1px)] [background-size:16px_16px] opacity-20 dark:hidden" />
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
           <motion.h2
@@ -74,7 +74,7 @@ export default function Features() {
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              className="group relative rounded-2xl border border-[--color-border] bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-[--color-primary]/40 hover:shadow-xl dark:border-white/10 dark:bg-slate-800"
+              className="group relative rounded-2xl border border-[--color-border] bg-[--color-surface] p-8 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-[--color-primary]/40 hover:shadow-xl"
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 },

@@ -11,12 +11,12 @@ export default function CTASection() {
   return (
     <section
       id="cta"
-      className="relative scroll-mt-24 overflow-hidden bg-gradient-to-r from-sky-500 to-cyan-600 py-20 text-white"
+      className="relative scroll-mt-24 overflow-hidden bg-gradient-to-r from-sky-500 to-cyan-600 py-20 text-white dark:from-sky-700 dark:to-cyan-700"
     >
       {/* Decorative orbs */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-20 left-10 h-56 w-56 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25),transparent_60%)] blur-2xl" />
-        <div className="absolute right-16 -bottom-24 h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.18),transparent_60%)] blur-2xl" />
+        <div className="absolute -top-24 left-10 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.16),transparent_60%)] blur-[60px]" />
+        <div className="absolute right-16 -bottom-28 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_60%)] blur-[70px]" />
       </div>
 
       <div className="container mx-auto px-4 text-center">
@@ -59,7 +59,7 @@ export default function CTASection() {
 
           <Link
             href="/dashboard/new"
-            className="group flex items-center rounded-xl border-2 border-[--color-border] bg-blue-500/80 px-8 py-4 text-lg font-semibold text-[--color-text-primary] shadow-sm transition-all duration-200 hover:bg-blue-400 hover:shadow-lg dark:border-white/30 dark:bg-transparent dark:hover:bg-blue-100/20 dark:hover:shadow-xl"
+            className="group flex items-center rounded-xl border-2 border-white/30 bg-white/10 px-8 py-4 text-lg font-semibold text-white shadow-sm transition-all duration-200 hover:bg-white/15 hover:shadow-lg"
             style={{ boxShadow: "var(--shadow-sm)" }}
           >
             Try Demo
