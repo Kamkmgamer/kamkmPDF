@@ -20,6 +20,8 @@ export async function GET(
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token"); // share link token (not HMAC)
     const { fileId } = await params;
+    // Optional desired filename for download
+    const desiredFilenameRaw = searchParams.get("filename") ?? "";
 
     // Load file and its owning user
     const fileWithJob = await db
@@ -56,11 +58,45 @@ export async function GET(
       }
     }
 
-    // Generate UploadThing signed URL and redirect
+    // Generate UploadThing signed URL
     const { ufsUrl } = await utapi.generateSignedURL(file.fileKey, {
       expiresIn: 60 * 60, // 1 hour
     });
-    return NextResponse.redirect(ufsUrl, { status: 302 });
+
+    // Fetch the file from UploadThing and stream it back with our own headers
+    const upstream = await fetch(ufsUrl);
+    if (!upstream.ok || !upstream.body) {
+      return NextResponse.json(
+        { error: "Failed to fetch file from storage" },
+        { status: 502 },
+      );
+    }
+
+    // Sanitize the requested filename and ensure .pdf extension
+    function sanitizeFilename(input: string): string {
+      const cleaned = input
+        .trim()
+        .replace(/[\\/:*?"<>|]+/g, " ") // remove illegal characters
+        .replace(/\s+/g, " ")
+        .slice(0, 100);
+      const base = cleaned || "document";
+      return base.toLowerCase().endsWith(".pdf") ? base : `${base}.pdf`;
+    }
+    const downloadName = sanitizeFilename(desiredFilenameRaw);
+
+    const headers = new Headers();
+    const ct = upstream.headers.get("content-type") ?? "application/pdf";
+    const cl = upstream.headers.get("content-length");
+    headers.set("content-type", ct);
+    if (cl) headers.set("content-length", cl);
+    headers.set(
+      "content-disposition",
+      `attachment; filename="${downloadName.replace(/"/g, "")}"`,
+    );
+    // Prevent caching of signed downloads
+    headers.set("cache-control", "private, max-age=0, no-cache");
+
+    return new NextResponse(upstream.body, { status: 200, headers });
   } catch (err) {
     console.error("[download] error", err);
     return NextResponse.json(

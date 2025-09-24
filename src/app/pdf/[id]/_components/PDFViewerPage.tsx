@@ -10,6 +10,7 @@ import { ErrorBoundary, ErrorBoundaryWrapper } from "./ErrorBoundary";
 import { ThumbnailsSidebar } from "./ThumbnailsSidebar";
 import { ShareModal } from "./ShareModal";
 import { ConfirmModal } from "./ConfirmModal";
+import { toastPrompt } from "~/_components/ToastPrompt";
 
 // Dynamically import PDFViewer with SSR disabled to prevent DOMMatrix issues
 const PDFViewer = dynamic(
@@ -45,24 +46,46 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   // Fetch job data
   const { data: job, isLoading, error, refetch } = api.jobs.get.useQuery(jobId);
 
-  // Handle download
-  const downloadMutation = api.files.getDownloadUrl.useQuery(
-    { fileId: job?.resultFileId ?? "" },
-    { enabled: !!job?.resultFileId },
-  );
+  // We keep getDownloadUrl for preview components elsewhere; for the download button
+  // we call our own API route to allow a custom filename via Content-Disposition.
 
   const shareMutation = api.files.createShareLink.useMutation();
   const regenerateMutation = api.jobs.recreate.useMutation();
 
-  // Handle download
+  // Handle download with custom filename toast prompt
   const handleDownload = async () => {
     if (!job?.resultFileId) return;
 
     try {
-      const result = await downloadMutation.refetch();
-      if (result.data?.url) {
-        window.open(result.data.url, "_blank");
-      }
+      // Suggest a default name based on the prompt or job id
+      const defaultBase = (job.prompt?.trim() ?? `document-${job.id}`).slice(
+        0,
+        50,
+      );
+      const suggested = defaultBase ?? "document";
+
+      const input = await toastPrompt({
+        title: "Name your PDF",
+        message: "Enter a filename for your download.",
+        defaultValue: suggested,
+        placeholder: "e.g. Proposal v1",
+        confirmText: "Download",
+        validate: (v) => {
+          const val = v.trim();
+          if (!val) return "Please enter a name";
+          if (val.length > 100) return "Name is too long (max 100)";
+          return null;
+        },
+      });
+
+      if (input === null) return; // user cancelled
+      const name = input.trim();
+      const filename = name.toLowerCase().endsWith(".pdf")
+        ? name
+        : `${name}.pdf`;
+
+      const url = `/api/files/${job.resultFileId}/download?filename=${encodeURIComponent(filename)}`;
+      window.open(url, "_blank");
     } catch (error) {
       console.error("Download failed:", error);
     }

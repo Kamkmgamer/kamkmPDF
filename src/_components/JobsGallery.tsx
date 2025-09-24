@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { api } from "~/trpc/react";
+import { toastPrompt } from "~/_components/ToastPrompt";
 
 type Status = "all" | "completed" | "processing" | "failed";
 
@@ -24,13 +25,35 @@ export default function JobsGallery() {
 
   const shareMutation = api.files.createShareLink.useMutation();
 
-  async function handleDownload(fileId: string) {
+  async function handleDownload(fileId: string, baseName?: string) {
     try {
       setDownloadingId(fileId);
-      const res = await utils.files.getDownloadUrl.fetch({ fileId });
-      if (res?.url) {
-        window.open(res.url, "_blank");
-      }
+      // Smooth toast prompt for filename
+      const suggestedBase = (baseName?.trim() ?? "document").slice(0, 50);
+      const suggested = suggestedBase || "document";
+      const input = await toastPrompt({
+        title: "Name your PDF",
+        message: "Enter a filename for your download.",
+        defaultValue: suggested,
+        placeholder: "e.g. Resume v2",
+        confirmText: "Download",
+        validate: (v) => {
+          const val = v.trim();
+          if (!val) return "Please enter a name";
+          if (val.length > 100) return "Name is too long (max 100)";
+          return null;
+        },
+      });
+      if (input === null) return; // cancelled
+      const name = input.trim();
+      const filename = name.toLowerCase().endsWith(".pdf")
+        ? name
+        : `${name}.pdf`;
+
+      const url = `/api/files/${fileId}/download?filename=${encodeURIComponent(
+        filename,
+      )}`;
+      window.open(url, "_blank");
     } finally {
       setDownloadingId(null);
     }
@@ -109,7 +132,7 @@ export default function JobsGallery() {
                 <StatusBadge status={item.status} />
                 <div className="ml-auto flex items-center gap-2">
                   <button
-                    onClick={() => handleDownload(item.fileId)}
+                    onClick={() => handleDownload(item.fileId, item.prompt)}
                     disabled={downloadingId === item.fileId}
                     className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
                   >
