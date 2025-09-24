@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
 import { api } from "~/trpc/react";
 import type { Job } from "~/types/pdf";
 
-// Configure PDF.js worker (use jsDelivr to avoid CORS/MIME issues seen with unpkg)
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+type ReactPdfModule = Awaited<typeof import("react-pdf")>;
 
 interface ThumbnailsSidebarProps {
   fileId: string;
@@ -28,6 +26,28 @@ export function ThumbnailsSidebar({
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [reactPdf, setReactPdf] = useState<ReactPdfModule | null>(null);
+
+  // Lazy-load react-pdf to ensure pdfjs only runs in the browser
+  useEffect(() => {
+    let mounted = true;
+
+    void import("react-pdf")
+      .then((mod) => {
+        if (!mounted) return;
+        mod.pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${mod.pdfjs.version}/build/pdf.worker.min.mjs`;
+        setReactPdf(mod);
+      })
+      .catch((error) => {
+        console.error("Failed to load react-pdf", error);
+        setReactPdf(null);
+        setIsLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Get PDF URL from tRPC
   const { data: downloadUrl } = api.files.getDownloadUrl.useQuery(
@@ -55,6 +75,9 @@ export function ThumbnailsSidebar({
   };
 
   if (!isOpen) return null;
+
+  const DocumentComponent = reactPdf?.Document;
+  const PageComponent = reactPdf?.Page;
 
   return (
     <>
@@ -96,12 +119,12 @@ export function ThumbnailsSidebar({
 
         {/* Thumbnails Container */}
         <div className="max-h-[calc(100vh-80px)] flex-1 space-y-2 overflow-y-auto p-2 md:max-h-[calc(100vh-200px)]">
-          {isLoading ? (
+          {isLoading || !DocumentComponent || !PageComponent ? (
             <div className="flex items-center justify-center py-8">
               <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
             </div>
           ) : pdfUrl ? (
-            <Document
+            <DocumentComponent
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
@@ -117,9 +140,10 @@ export function ThumbnailsSidebar({
                   pageNumber={index + 1}
                   isSelected={currentPage === index + 1}
                   onClick={() => onPageSelect(index + 1)}
+                  PageComponent={PageComponent}
                 />
               ))}
-            </Document>
+            </DocumentComponent>
           ) : (
             <div className="py-8 text-center text-[--color-text-muted]">
               <p className="text-sm">No PDF available</p>
@@ -135,12 +159,14 @@ interface ThumbnailItemProps {
   pageNumber: number;
   isSelected: boolean;
   onClick: () => void;
+  PageComponent: ReactPdfModule["Page"];
 }
 
 function ThumbnailItem({
   pageNumber,
   isSelected,
   onClick,
+  PageComponent,
 }: ThumbnailItemProps) {
   return (
     <button
@@ -155,7 +181,7 @@ function ThumbnailItem({
     >
       <div className="flex items-center space-x-3">
         <div className="h-16 w-12 flex-shrink-0 overflow-hidden rounded border bg-[--color-base]">
-          <Page
+          <PageComponent
             pageNumber={pageNumber}
             scale={0.2}
             loading={

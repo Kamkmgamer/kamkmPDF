@@ -147,12 +147,22 @@ export default function JobsGallery() {
                   >
                     {copyingId === item.fileId ? "Copied!" : "Copy Link"}
                   </button>
-                  <Link
-                    href={`/pdf/${item.fileId}`}
-                    className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-sm text-white hover:opacity-90"
-                  >
-                    View
-                  </Link>
+                  {item.jobId ? (
+                    <Link
+                      href={`/pdf/${item.jobId}`}
+                      className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-sm text-white hover:opacity-90"
+                    >
+                      View
+                    </Link>
+                  ) : (
+                    <button
+                      disabled
+                      className="cursor-not-allowed rounded-md bg-gray-400 px-3 py-1.5 text-sm text-white opacity-60"
+                      title="Job metadata is missing for this file"
+                    >
+                      View
+                    </button>
+                  )}
                 </div>
               </div>
 
