@@ -17,7 +17,7 @@ A Next.js application for generating structured prompts from PDFs, leveraging AI
 1. Clone the repository:
 
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/Kamkmgamer/kamkmPDF
    cd pdfprompt
    ```
 
@@ -40,6 +40,104 @@ A Next.js application for generating structured prompts from PDFs, leveraging AI
      pnpm db:migrate
      ```
    - Or use the provided `start-database.sh` script for local setup.
+
+### Database Options
+
+You can use any PostgreSQL-compatible database. Here are detailed setup instructions for popular free options:
+
+#### Option 1: Neon (Recommended - Free PostgreSQL)
+
+Neon provides a free PostgreSQL database with 0.5 GB storage.
+
+**Setup Steps:**
+
+1. Go to [neon.com](https://neon.com) and sign up for a free account
+2. Click "Create a project"
+3. Choose your project name and select your preferred region
+4. Click "Create project"
+5. In your project dashboard, go to "Dashboard" → "Connection Details"
+6. Copy the connection string (it will look like: `postgresql://username:password@hostname/database?sslmode=require`)
+7. Create a `.env.local` file in your project root:
+   ```bash
+   cp .env.example .env.local
+   ```
+8. Add your Neon connection string to `.env.local`:
+   ```env
+   DATABASE_URL=postgresql://username:password@hostname/database?sslmode=require
+   ```
+9. Run database migrations:
+   ```bash
+   pnpm db:migrate
+   ```
+
+**Getting your Neon connection string:**
+
+- After creating your project, click on "Dashboard" in the left sidebar
+- Click on "Connection Details"
+- Copy the full connection string from the "Connection string" field
+- Make sure to include `?sslmode=require` at the end for secure connections
+
+#### Option 2: Railway
+
+Railway provides a free PostgreSQL database with 500MB storage.
+
+**Setup Steps:**
+
+1. Go to [railway.app](https://railway.app) and sign up for a free account
+2. Install Railway CLI:
+   ```bash
+   npm install -g @railway/cli
+   ```
+3. Login to Railway:
+   ```bash
+   railway login
+   ```
+4. Create a new project:
+   ```bash
+   railway init
+   ```
+5. Add PostgreSQL database:
+   ```bash
+   railway add postgresql
+   ```
+6. Link your project:
+   ```bash
+   railway link
+   ```
+7. Get your database URL:
+   ```bash
+   railway variables
+   ```
+8. Copy the `DATABASE_URL` value
+9. Add it to your `.env.local`:
+   ```env
+   DATABASE_URL=your-railway-database-url
+   ```
+10. Run migrations:
+    ```bash
+    pnpm db:migrate
+    ```
+
+#### Redis Setup
+
+For Redis, you can use free options like:
+
+**Railway Redis (Free):**
+
+```bash
+railway add redis
+```
+
+**Redis Cloud (Free tier):**
+
+1. Go to [redis.com/try-free](https://redis.com/try-free)
+2. Sign up and create a free database
+3. Copy the connection string
+4. Add to `.env.local`:
+
+   ```env
+   REDIS_URL=redis://username:password@hostname:port
+   ```
 
 5. Start the development server:
    ```bash
@@ -327,7 +425,7 @@ Follow ESLint rules and add tests for new features.
 
 ## 📄 License
 
-This project is proprietary and not open source. All rights reserved.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙌 Acknowledgments
 
