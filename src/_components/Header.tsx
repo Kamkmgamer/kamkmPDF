@@ -19,10 +19,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <Link
-            href={isSignedIn ? "/dashboard" : "/"}
-            className="font-semibold"
-          >
+          <Link href={isSignedIn ? "/" : "/"} className="font-semibold">
             Prompt‑to‑PDF
           </Link>
           {/* Focused navigation: only useful links */}
