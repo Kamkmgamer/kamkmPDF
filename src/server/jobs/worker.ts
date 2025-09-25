@@ -60,6 +60,7 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
 
     const fileId = randomUUID();
     const filename = `${fileId}.pdf`;
+    const inlineKey = `inline:${fileId}`;
 
     // Generate PDF in-memory
     const pdfBuffer = await generatePdfBuffer({
@@ -67,40 +68,73 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       prompt: job.prompt ?? "",
     });
 
-    // Upload to UploadThing: construct BlobPart as a plain ArrayBuffer to satisfy TS
-    const ab = new ArrayBuffer(pdfBuffer.length);
-    new Uint8Array(ab).set(pdfBuffer);
-    const utFile = new UTFile([ab], filename, {
-      type: "application/pdf",
-      customId: fileId,
-    });
-    const uploadResArr = await utapi.uploadFiles([utFile]);
+    const inlineBase64 = pdfBuffer.toString("base64");
 
-    const uploadRes = uploadResArr[0];
-    if (!uploadRes || uploadRes.error || !uploadRes.data) {
-      const message = uploadRes?.error?.message ?? "UploadThing upload failed";
-      throw new Error(message);
-    }
-
-    const { key, url, size } = uploadRes.data;
-
-    // insert file record only after successful upload
+    // Make the PDF immediately available by inserting an inline record
     await db.insert(files).values({
       id: fileId,
       jobId: job.id,
       userId: job.userId ?? null,
-      fileKey: key,
-      fileUrl: url,
+      fileKey: inlineKey,
+      fileUrl: inlineBase64,
       mimeType: "application/pdf",
-      size: size ?? pdfBuffer.length,
+      size: pdfBuffer.length,
     });
 
-    // update job
     await db
       .update(jobs)
-      .set({ status: "completed", resultFileId: fileId })
+      .set({ status: "completed", resultFileId: fileId, errorMessage: null })
       .where(eq(jobs.id, job.id));
-    console.log(`[worker] job ${job.id} completed, file ${fileId}`);
+    console.log(
+      `[worker] job ${job.id} completed (inline ready), file ${fileId}`,
+    );
+
+    try {
+      // Upload to UploadThing: construct BlobPart as a plain ArrayBuffer to satisfy TS
+      const ab = new ArrayBuffer(pdfBuffer.length);
+      new Uint8Array(ab).set(pdfBuffer);
+      const utFile = new UTFile([ab], filename, {
+        type: "application/pdf",
+        customId: fileId,
+      });
+      const uploadResArr = await utapi.uploadFiles([utFile]);
+
+      const uploadRes = uploadResArr[0];
+      if (!uploadRes || uploadRes.error || !uploadRes.data) {
+        const message =
+          uploadRes?.error?.message ?? "UploadThing upload failed";
+        throw new Error(message);
+      }
+
+      const { key, url, size } = uploadRes.data;
+
+      await db
+        .update(files)
+        .set({
+          fileKey: key,
+          fileUrl: url,
+          size: size ?? pdfBuffer.length,
+        })
+        .where(eq(files.id, fileId));
+
+      await db
+        .update(jobs)
+        .set({ errorMessage: null })
+        .where(eq(jobs.id, job.id));
+      console.log(
+        `[worker] job ${job.id} storage upload completed, file ${fileId}`,
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(
+        `[worker] job ${job.id} storage upload failed (inline available):`,
+        message,
+      );
+      await db
+        .update(jobs)
+        .set({ errorMessage: message })
+        .where(eq(jobs.id, job.id));
+    }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     console.error(`[worker] job ${job.id} failed:`, errorMessage);
