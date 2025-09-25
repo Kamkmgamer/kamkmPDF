@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -9,6 +9,10 @@ import type { Job } from "~/types/pdf";
 
 // Configure PDF.js worker (use jsDelivr to avoid CORS/MIME issues seen with unpkg)
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+type PdfSource =
+  | { kind: "url"; value: string }
+  | { kind: "data"; value: Uint8Array };
 
 interface PDFViewerProps {
   fileId: string;
@@ -21,24 +25,86 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
   const [zoom, setZoom] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfSource, setPdfSource] = useState<PdfSource | null>(null);
+  const [inlineLoaded, setInlineLoaded] = useState(false);
+
+  useEffect(() => {
+    setInlineLoaded(false);
+    setPdfSource(null);
+    setError(null);
+    setIsLoading(true);
+  }, [fileId]);
 
   // Get PDF URL from tRPC
   const {
     data: downloadUrl,
     isLoading: urlLoading,
     error: urlError,
-  } = api.files.getDownloadUrl.useQuery({ fileId }, { enabled: !!fileId });
+  } = api.files.getDownloadUrl.useQuery(
+    { fileId },
+    {
+      enabled: !!fileId,
+      refetchInterval: (query) =>
+        query.state.data?.url?.startsWith("data:") && !inlineLoaded
+          ? 3000
+          : false,
+    },
+  );
 
   useEffect(() => {
-    if (downloadUrl?.url) {
-      setPdfUrl(downloadUrl.url);
-      setIsLoading(false);
-    } else if (urlError) {
-      setError(urlError.message || "Failed to load PDF");
-      setIsLoading(false);
+    if (!downloadUrl?.url) {
+      if (urlError) {
+        setError(urlError.message || "Failed to load PDF");
+        setIsLoading(false);
+      }
+      return;
     }
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    const load = async () => {
+      try {
+        const url = downloadUrl.url;
+        if (url.startsWith("data:")) {
+          setIsLoading(true);
+          const response = await fetch(url, { signal: controller.signal });
+          if (!response.ok) {
+            throw new Error(`Inline PDF fetch failed: ${response.status}`);
+          }
+          const buffer = await response.arrayBuffer();
+          if (cancelled) return;
+          setPdfSource({ kind: "data", value: new Uint8Array(buffer) });
+          setInlineLoaded(true);
+        } else {
+          setPdfSource({ kind: "url", value: url });
+          setInlineLoaded(false);
+        }
+        if (!cancelled) {
+          setError(null);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        if (cancelled) return;
+        console.error("Failed to load PDF source", err);
+        setError("Failed to load PDF");
+        setIsLoading(false);
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [downloadUrl, urlError]);
+
+  const documentFile = useMemo(() => {
+    if (!pdfSource) return null;
+    if (pdfSource.kind === "url") return pdfSource.value;
+    return { data: pdfSource.value };
+  }, [pdfSource]);
 
   const handleZoomIn = () => {
     setZoom((prev) => Math.min(prev + 0.25, 3));
@@ -123,10 +189,10 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
             </div>
             <p className="text-red-600 dark:text-red-400">{error}</p>
           </div>
-        ) : pdfUrl ? (
+        ) : documentFile ? (
           <div className="max-h-full overflow-auto rounded-lg bg-white shadow-lg dark:bg-gray-800">
             <Document
-              file={pdfUrl}
+              file={documentFile}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
               loading={

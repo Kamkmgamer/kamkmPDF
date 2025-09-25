@@ -44,7 +44,20 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   const [regenerationStatus, setRegenerationStatus] = useState<string>("");
 
   // Fetch job data
-  const { data: job, isLoading, error, refetch } = api.jobs.get.useQuery(jobId);
+  const {
+    data: job,
+    isLoading,
+    error,
+    refetch,
+  } = api.jobs.get.useQuery(jobId, {
+    refetchInterval: (query) => {
+      const current = query.state.data;
+      if (!current) return 2000;
+      return current.status === "completed" && current.resultFileId
+        ? false
+        : 2000;
+    },
+  });
 
   // We keep getDownloadUrl for preview components elsewhere; for the download button
   // we call our own API route to allow a custom filename via Content-Disposition.

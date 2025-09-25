@@ -68,7 +68,11 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       prompt: job.prompt ?? "",
     });
 
-    const inlineBase64 = pdfBuffer.toString("base64");
+    const nodeBuffer = Buffer.isBuffer(pdfBuffer)
+      ? pdfBuffer
+      : Buffer.from(pdfBuffer);
+
+    const inlineBase64 = nodeBuffer.toString("base64");
 
     // Make the PDF immediately available by inserting an inline record
     await db.insert(files).values({
@@ -78,7 +82,7 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       fileKey: inlineKey,
       fileUrl: inlineBase64,
       mimeType: "application/pdf",
-      size: pdfBuffer.length,
+      size: nodeBuffer.length,
     });
 
     await db
@@ -91,8 +95,8 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
 
     try {
       // Upload to UploadThing: construct BlobPart as a plain ArrayBuffer to satisfy TS
-      const ab = new ArrayBuffer(pdfBuffer.length);
-      new Uint8Array(ab).set(pdfBuffer);
+      const ab = new ArrayBuffer(nodeBuffer.length);
+      new Uint8Array(ab).set(nodeBuffer);
       const utFile = new UTFile([ab], filename, {
         type: "application/pdf",
         customId: fileId,
@@ -113,7 +117,7 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
         .set({
           fileKey: key,
           fileUrl: url,
-          size: size ?? pdfBuffer.length,
+          size: size ?? nodeBuffer.length,
         })
         .where(eq(files.id, fileId));
 

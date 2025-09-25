@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { api } from "~/trpc/react";
 import type { Job } from "~/types/pdf";
 
@@ -25,8 +25,15 @@ export function ThumbnailsSidebar({
 }: ThumbnailsSidebarProps) {
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfSource, setPdfSource] = useState<string | Uint8Array | null>(null);
   const [reactPdf, setReactPdf] = useState<ReactPdfModule | null>(null);
+  const [inlineLoaded, setInlineLoaded] = useState(false);
+
+  useEffect(() => {
+    setInlineLoaded(false);
+    setPdfSource(null);
+    setIsLoading(true);
+  }, [fileId]);
 
   // Lazy-load react-pdf to ensure pdfjs only runs in the browser
   useEffect(() => {
@@ -50,26 +57,76 @@ export function ThumbnailsSidebar({
   }, []);
 
   // Get PDF URL from tRPC
-  const { data: downloadUrl } = api.files.getDownloadUrl.useQuery(
-    { fileId },
-    {
-      enabled: !!fileId && job.status === "completed",
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  );
+  const { data: downloadUrl, error: downloadError } =
+    api.files.getDownloadUrl.useQuery(
+      { fileId },
+      {
+        enabled: !!fileId && job.status === "completed",
+        refetchInterval: (query) =>
+          query.state.data?.url?.startsWith("data:") && !inlineLoaded
+            ? 3000
+            : false,
+      },
+    );
 
   useEffect(() => {
-    if (downloadUrl?.url) {
-      setPdfUrl(downloadUrl.url);
-      setIsLoading(false);
+    if (!downloadUrl?.url) {
+      if (downloadError) {
+        console.error("Thumbnail download error", downloadError);
+        setIsLoading(false);
+      }
+      return;
     }
-  }, [downloadUrl]);
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    const load = async () => {
+      try {
+        const url = downloadUrl.url;
+        if (url.startsWith("data:")) {
+          setIsLoading(true);
+          const response = await fetch(url, { signal: controller.signal });
+          if (!response.ok) {
+            throw new Error(`Inline PDF fetch failed: ${response.status}`);
+          }
+          const buffer = await response.arrayBuffer();
+          if (cancelled) return;
+          setPdfSource(new Uint8Array(buffer));
+          setInlineLoaded(true);
+        } else {
+          setPdfSource(url);
+          setInlineLoaded(false);
+        }
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      } catch (err) {
+        if (cancelled) return;
+        console.error("Failed to load inline PDF for thumbnails", err);
+        setPdfSource(null);
+        setIsLoading(false);
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [downloadUrl, downloadError]);
+
+  const documentSource = useMemo(() => {
+    if (!pdfSource) return null;
+    if (typeof pdfSource === "string") return pdfSource;
+    return { data: pdfSource };
+  }, [pdfSource]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setTotalPages(numPages);
     setIsLoading(false);
   };
-
   const onDocumentLoadError = (_error: Error) => {
     setIsLoading(false);
   };
@@ -123,9 +180,9 @@ export function ThumbnailsSidebar({
             <div className="flex items-center justify-center py-8">
               <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
             </div>
-          ) : pdfUrl ? (
+          ) : documentSource ? (
             <DocumentComponent
-              file={pdfUrl}
+              file={documentSource}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
               loading={
