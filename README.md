@@ -1,483 +1,212 @@
 # PDF Prompt Generator
 
-A Next.js application for generating structured prompts from PDFs, leveraging AI providers for intelligent content extraction and processing. Built with modern TypeScript tooling, tRPC for type-safe APIs, Drizzle ORM for database interactions, and Clerk for authentication.
+A Next.js application that turns PDF uploads into structured, reusable prompts. The app pairs a modern React front end with a typed API layer, Drizzle ORM, UploadThing storage, and optional AI-powered rendering through OpenRouter.
 
-## 🚀 Quick Start
+## Overview
+
+- **Frontend**: Next.js App Router with React Server Components, Tailwind CSS, and Clerk-powered auth UI.
+- **API Layer**: tRPC routers with Zod validation for type-safe client/server contracts.
+- **Data**: PostgreSQL via Drizzle ORM (`src/server/db/`) storing jobs, generated files, and temporary share links.
+- **Workers**: A Postgres-backed queue processed by `src/server/jobs/worker.ts`, deployable as a Vercel cron drain or long-running process.
+- **Output**: PDFs stored with UploadThing (`src/server/uploadthing.ts`) and accessible through signed URLs.
+
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ and pnpm
-- PostgreSQL 14+ database
-- Redis for caching and queue management
-- API keys for AI providers (OpenAI, Anthropic, etc.)
-- Clerk developer account for authentication
+- **Node.js 18+** with **pnpm** (project uses `packageManager: pnpm@10.x`).
+- **PostgreSQL 14+** (local or hosted).
+- **Clerk** developer account for authentication keys.
+- **UploadThing V7 token** for persistent PDF storage.
+- **Optional** OpenRouter API key if you want AI-authored PDF content instead of the static fallback.
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone and install**
 
    ```bash
    git clone https://github.com/Kamkmgamer/kamkmPDF
    cd pdfprompt
-   ```
-
-2. Install dependencies:
-
-   ```bash
    pnpm install
    ```
 
-3. Set up environment variables (see `.env.example`):
+2. **Configure environment** (see [Environment Variables](#environment-variables)).
 
-   ```bash
-   cp .env.example .env.local
-   # Edit .env.local with your values
-   ```
+3. **Run database migrations**
 
-4. Database setup:
-   - Run migrations:
-     ```bash
-     pnpm db:migrate
-     ```
-   - Or use the provided `start-database.sh` script for local setup.
-
-### Database Options
-
-You can use any PostgreSQL-compatible database. Here are detailed setup instructions for popular free options:
-
-#### Option 1: Neon (Recommended - Free PostgreSQL)
-
-Neon provides a free PostgreSQL database with 0.5 GB storage.
-
-**Setup Steps:**
-
-1. Go to [neon.com](https://neon.com) and sign up for a free account
-2. Click "Create a project"
-3. Choose your project name and select your preferred region
-4. Click "Create project"
-5. In your project dashboard, go to "Dashboard" → "Connection Details"
-6. Copy the connection string (it will look like: `postgresql://username:password@hostname/database?sslmode=require`)
-7. Create a `.env.local` file in your project root:
-   ```bash
-   cp .env.example .env.local
-   ```
-8. Add your Neon connection string to `.env.local`:
-   ```env
-   DATABASE_URL=postgresql://username:password@hostname/database?sslmode=require
-   ```
-9. Run database migrations:
    ```bash
    pnpm db:migrate
    ```
 
-**Getting your Neon connection string:**
-
-- After creating your project, click on "Dashboard" in the left sidebar
-- Click on "Connection Details"
-- Copy the full connection string from the "Connection string" field
-- Make sure to include `?sslmode=require` at the end for secure connections
-
-#### Option 2: Railway
-
-Railway provides a free PostgreSQL database with 500MB storage.
-
-**Setup Steps:**
-
-1. Go to [railway.app](https://railway.app) and sign up for a free account
-2. Install Railway CLI:
-   ```bash
-   npm install -g @railway/cli
-   ```
-3. Login to Railway:
-   ```bash
-   railway login
-   ```
-4. Create a new project:
-   ```bash
-   railway init
-   ```
-5. Add PostgreSQL database:
-   ```bash
-   railway add postgresql
-   ```
-6. Link your project:
-   ```bash
-   railway link
-   ```
-7. Get your database URL:
-   ```bash
-   railway variables
-   ```
-8. Copy the `DATABASE_URL` value
-9. Add it to your `.env.local`:
-   ```env
-   DATABASE_URL=your-railway-database-url
-   ```
-10. Run migrations:
-    ```bash
-    pnpm db:migrate
-    ```
-
-#### Redis Setup
-
-For Redis, you can use free options like:
-
-**Railway Redis (Free):**
-
-```bash
-railway add redis
-```
-
-**Redis Cloud (Free tier):**
-
-1. Go to [redis.com/try-free](https://redis.com/try-free)
-2. Sign up and create a free database
-3. Copy the connection string
-4. Add to `.env.local`:
-
-   ```env
-   REDIS_URL=redis://username:password@hostname:port
-   ```
-
-5. Start the development server:
+4. **Start the development server**
    ```bash
    pnpm dev
    ```
-   Open [http://localhost:3000](http://localhost:3000) to view the app.
+   Visit `http://localhost:3000`.
 
-## 🛠 Tech Stack
+## Environment Variables
 
-### Frontend
+Environment validation lives in `src/env.js`. Copy the example file and fill in required values:
 
-- **Next.js 14**: App Router, Server Components, and React 18
-- **TypeScript**: Full type safety
-- **Tailwind CSS**: Utility-first styling
-- **tRPC**: End-to-end type-safe APIs
-- **Clerk**: Authentication and user management
-
-### Backend
-
-- **tRPC**: Server-side API routes
-- **Drizzle ORM**: Type-safe database queries with PostgreSQL
-- **Zod**: Schema validation for inputs and APIs
-
-### AI Integration
-
-- **AI Router**: Dynamic routing to multiple providers (OpenAI, Anthropic, Grok, etc.)
-- **PDF Processing**: PDF.js for client-side parsing, server-side extraction via libraries
-- **Prompt Engineering**: Structured templates for PDF-to-prompt conversion
-
-### Infrastructure
-
-- **Database**: PostgreSQL for user data, prompts, and processing history
-- **Queue**: DB-backed job queue (no persistent worker required on Vercel)
-- **Deployment**: Vercel for hosting, with preview deployments
-- **Storage**: UploadThing for persistent PDF storage (private by default)
-
-### Development Tools
-
-- **ESLint & Prettier**: Code linting and formatting
-- **Husky**: Git hooks for pre-commit checks
-- **TypeScript**: Strict mode enabled
-
-## 🏗 Architecture
-
-### High-Level Overview
-
-The app follows a microservices-inspired architecture within a monorepo:
-
-1. **Client Layer**: React components for PDF upload, prompt preview, and user interactions.
-2. **API Layer**: tRPC routers handle requests, validate inputs, and orchestrate AI calls.
-3. **AI Service Layer**: Router selects optimal AI provider based on availability, cost, and capabilities. Processes PDF text extraction and generates structured prompts.
-4. **Data Layer**: Drizzle ORM manages schema for users, sessions, PDFs, and generated prompts.
-5. **Queue System**: DB-backed job queue for long-running PDF processing and AI inference to prevent timeouts.
-
-### Key Flows
-
-- **PDF Upload & Processing**:
-  1. User uploads PDF via Clerk-authenticated session.
-  2. Client-side parsing extracts text; server validates and stores metadata.
-  3. Job queued in DB; worker drains queue on Vercel via Cron.
-  4. AI generates structured prompt (e.g., JSON schema for analysis tasks).
-
-- **Prompt Generation**:
-  1. User selects template (e.g., "Summarize", "Extract Key Points").
-  2. tRPC query combines PDF content with template.
-  3. AI router calls provider; response cached in Redis and stored in DB.
-
-- **Authentication**:
-  - Clerk handles OAuth, JWT sessions.
-  - Server-side middleware verifies sessions for protected routes.
-
-### Database Schema (Drizzle)
-
-Defined in `src/server/db/schema.ts`:
-
-- `users`: Clerk user integration (id, email, etc.)
-- `pdfs`: Uploaded PDFs (userId, fileUrl, metadata)
-- `prompts`: Generated prompts (pdfId, template, aiProvider, output)
-- `sessions`: Active processing sessions with Redis sync
-
-Example schema snippet:
-
-```ts
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  clerkId: text("clerk_id").notNull().unique(),
-  email: text("email").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const pdfs = pgTable("pdfs", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  fileUrl: text("file_url").notNull(),
-  pageCount: integer("page_count"),
-  extractedText: text("extracted_text"),
-});
+```bash
+cp .env.example .env.local
 ```
 
-## 🔒 Security
+```env
+# Database and runtime
+DATABASE_URL=postgresql://user:pass@localhost:5432/pdfprompt
+NODE_ENV=development
 
-- **Authentication**: Clerk provides secure sessions, MFA, and social logins.
-- **API Security**: tRPC input validation with Zod; rate limiting via middleware.
-- **Data Privacy**: PDFs processed server-side; no client-side AI calls to avoid key exposure.
-- **CORS & Headers**: Next.js config enforces strict origins.
-- **Secrets Management**: Environment variables via Vercel; never commit `.env.local`.
-
-## 🌍 Environment Variables
-
-Copy `.env.example` to `.env.local` and fill in:
-
-```
-# Clerk
+# Clerk authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 
-# Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/pdfprompt
+# UploadThing storage
+UPLOADTHING_TOKEN=ut7_...
 
-# Redis
-REDIS_URL=redis://localhost:6379
+# Public application URL
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# AI Providers (optional)
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=...
-# Add more as needed
+# Optional AI configuration
+OPENROUTER_API_KEY=...
+OPENROUTER_MODEL=openai/gpt-4o-mini
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
-# Next.js
-NEXTAUTH_SECRET=your-secret
-NEXTAUTH_URL=http://localhost:3000
+# Optional worker tuning
+PDFPROMPT_WORKER_SECRET=...
+PDFPROMPT_MAX_JOBS_PER_INVOCATION=10
+PDFPROMPT_MAX_MS_PER_INVOCATION=30000
+PDFPROMPT_BATCH_SIZE=5
 
-# UploadThing (required for PDF storage)
-UPLOADTHING_TOKEN="ut7_..." # Get from UploadThing Dashboard (API Keys > V7)
-
-# Optional: Vercel
-VERCEL_ENV=development
+# Optional worker polling override (local worker only)
+PDFPROMPT_POLL_MS=2000
 ```
 
-## 🧪 Testing
+Client-side keys **must** be prefixed with `NEXT_PUBLIC_`. Do not commit `.env.local`.
 
-### Unit Tests
+## Project Structure Highlights
 
-- Run with Vitest (configured in `package.json`):
+- **`src/app/`** – Next.js routes, layouts, and React components.
+- **`src/server/api/`** – tRPC routers orchestrating uploads, jobs, and prompt generation.
+- **`src/server/jobs/worker.ts`** – Queue consumer with UploadThing integration.
+- **`src/server/jobs/pdf.ts`** – PDF generation pipeline (OpenRouter ➝ Puppeteer ➝ PDFKit fallbacks).
+- **`src/server/uploadthing.ts`** – Single `UTApi` instance configured with the UploadThing token.
+- **`src/server/db/schema.ts`** – Drizzle models for jobs, files, and share links.
+- **`vercel.json`** – Vercel cron schedule hitting `/api/worker/drain` every minute.
+
+## Running the App
+
+- **Development server**
+
+  ```bash
+  pnpm dev
+  ```
+
+- **Type checking + lint**
+
+  ```bash
+  pnpm typecheck
+  pnpm lint
+  ```
+
+- **Formatting**
+
+  ```bash
+  pnpm format:write
+  ```
+
+- **Unit tests (Vitest)**
+
   ```bash
   pnpm test
   ```
 
-### E2E Tests
-
-- Using Playwright:
+- **Worker loop (local debugging)**
   ```bash
-  pnpm e2e
+  pnpm worker:dev
   ```
+  The worker reads from the same Postgres instance, so ensure `DATABASE_URL` is available.
 
-### Linting & Formatting
+## Background Processing
 
-```bash
-pnpm lint
-pnpm format
-```
+### Queue Mechanics
 
-## 🔐 GitHub Repository Secrets (for CI/CD)
+- **Enqueue**: App routes add rows to the `pdfprompt_job` table via Drizzle.
+- **Drain**: `drain()` in `src/server/jobs/worker.ts` claims jobs in batches using `FOR UPDATE SKIP LOCKED`.
+- **Generation**: `generatePdfBuffer()` in `src/server/jobs/pdf.ts` tries OpenRouter first, then Puppeteer, then PDFKit.
+- **Upload**: PDFs stream to UploadThing with `UTApi.uploadFiles`, and metadata is stored in `pdfprompt_file`.
+- **Completion**: Jobs are marked `completed` with a `resultFileId`; failures capture an error message for retry visibility.
 
-To enable automated builds and deployments, add these secrets to your GitHub repository settings:
+### Deployment Options
 
-**Required Secrets:**
+- **Vercel Cron (default)**
+  - `vercel.json` schedules `/api/worker/drain` every minute.
+  - Protect the endpoint by setting `PDFPROMPT_WORKER_SECRET`; the handler enforces the shared key.
 
-- `DATABASE_URL` - PostgreSQL connection string
-- `CLERK_SECRET_KEY` - Clerk authentication secret key
-- `UPLOADTHING_TOKEN` - UploadThing API token (v7 format)
-- `NEXT_PUBLIC_APP_URL` - Your production application URL
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
+- **Dedicated Worker Process**
+  - Run `pnpm worker` on a long-lived host if you need higher throughput.
+  - Tune `PDFPROMPT_MAX_*` and `PDFPROMPT_BATCH_SIZE` without redeploying.
 
-**Optional Secrets (for AI features):**
+- **Manual Debugging**
+  - Visit `http://localhost:3000/api/worker/drain?maxJobs=5&maxMs=20000` during development.
 
-- `OPENROUTER_API_KEY` - OpenRouter API key for AI processing
-- `OPENROUTER_MODEL` - Default AI model to use
-- `OPENROUTER_BASE_URL` - Custom OpenRouter base URL (if needed)
-- `PDFPROMPT_WORKER_SECRET` - Secret for protecting worker endpoints
-- `PDFPROMPT_MAX_JOBS_PER_INVOCATION` - Max jobs to process per worker run (default: 10)
-- `PDFPROMPT_MAX_MS_PER_INVOCATION` - Max milliseconds per worker run (default: 30000)
-- `PDFPROMPT_BATCH_SIZE` - Batch size for job processing (default: 5)
+## UploadThing Integration
 
-**How to add secrets:**
+- **Storage**: File records live in the `pdfprompt_file` table, linked to jobs and users.
+- **Access control**: Downloads require authenticated access; signed URLs are generated server-side per request.
+- **Sharing**: Temporary tokens in `pdfprompt_share_link` enable optional share flows without exposing raw URLs.
 
-1. Go to your GitHub repository → Settings → Secrets and variables → Actions
-2. Click "New repository secret"
-3. Add each secret with the exact name shown above
-4. The CI workflow will automatically use these secrets during builds
+## Tech Stack
 
-## � Deployment
+- **Next.js 15 / React 19** – App Router, Server Components, Streaming.
+- **TypeScript** – Strict mode throughout the repo.
+- **tRPC 11** – End-to-end type safety for API calls.
+- **Drizzle ORM** – SQL-first schema & migrations with `drizzle-kit` scripts.
+- **Clerk** – Authentication, session management, and user data syncing.
+- **UploadThing v7** – File storage and signed delivery.
+- **Vitest** – Unit testing framework configured via `pnpm test`.
+- **Puppeteer & PDFKit** – HTML-to-PDF rendering and fallbacks.
+- **Tailwind CSS 4** – Utility-first styling.
+
+## Deployment
 
 ### Vercel (Recommended)
 
-1. Push to GitHub.
-2. Connect repo in Vercel dashboard.
-3. Add environment variables in Vercel project settings.
-4. Ensure `vercel.json` is present to configure a Cron for the worker drain.
-5. Deploy automatically on push to main.
+1. **Push to GitHub** and connect the repo in Vercel.
+2. **Configure environment variables** in the Vercel dashboard (use the list above).
+3. **Ensure cron scheduling** – `vercel.json` already ships with the `*/1 * * * *` drain.
+4. **Deploy** – each push to `main` triggers a production build; PRs create preview deployments.
 
-Vercel handles:
+### Production Worker
 
-- Serverless functions for API routes.
-- Scheduled Cron hits to `/api/worker/drain` to process queued jobs.
-- Edge caching for static assets.
-- Preview branches for PRs.
+- **Serverless-only**: rely on the cron route. Provide `PDFPROMPT_WORKER_SECRET` and include the header `x-worker-secret` when invoking manually.
+- **Container or VM**: run `pnpm worker:prod` (after building with `pnpm build`) for a persistent loop.
 
-### Custom Deployment
+### Custom Hosting
 
-- Build: `pnpm build`
-- Start: `pnpm start`
-- Ensure PostgreSQL and Redis are running (e.g., via Docker Compose).
+- Build once: `pnpm build`.
+- Start app: `pnpm start`.
+- Start worker (optional): `pnpm worker:prod`.
 
-### Background Worker on Vercel
+## GitHub Secrets Checklist
 
-This project runs background processing on Vercel by exposing a serverless route `src/app/api/worker/drain/route.ts` that drains a bounded number of jobs per invocation.
+- **DATABASE_URL** – Postgres connection string.
+- **CLERK_SECRET_KEY** – Backend Clerk key.
+- **NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY** – Frontend Clerk key.
+- **NEXT_PUBLIC_APP_URL** – Fully qualified public URL.
+- **UPLOADTHING_TOKEN** – UploadThing V7 token.
+- **Optional** – `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`, `PDFPROMPT_WORKER_SECRET`, `PDFPROMPT_MAX_*`, `PDFPROMPT_BATCH_SIZE`.
 
-- Endpoint: `/api/worker/drain`
-- Defaults: up to `PDFPROMPT_MAX_JOBS_PER_INVOCATION` jobs or `PDFPROMPT_MAX_MS_PER_INVOCATION` milliseconds (see `.env.example`).
-- Optional protection: set `PDFPROMPT_WORKER_SECRET` and call with header `x-worker-secret` or query `?key=`.
+## Contributing
 
-Automatic scheduling:
+- **Fork & branch** – Follow conventional commit practices.
+- **Install & test** – `pnpm install`, `pnpm lint`, `pnpm test`.
+- **Open PRs** – Include screenshots or logs when updating worker flows or AI output.
 
-- `vercel.json` includes a Cron entry that runs the drain every minute:
+## License
 
-  ```json
-  {
-    "crons": [{ "path": "/api/worker/drain", "schedule": "*/1 * * * *" }]
-  }
-  ```
-
-On-demand kick-off:
-
-- When a job is created (`src/server/api/routers/jobs.ts`), the app best-effort pings `/api/worker/drain` so processing starts immediately on Vercel.
-
-Local development tips:
-
-- Start Next.js: `pnpm dev`
-- Manually drain: open `http://localhost:3000/api/worker/drain?maxJobs=5`
-- Or run the persistent loop for load testing: `pnpm worker:dev`
-
-### Docker (Optional)
-
-Add `Dockerfile` and `docker-compose.yml` for containerization:
-
-```yaml
-# docker-compose.yml
-services:
-  db:
-    image: postgres:14
-    environment:
-      POSTGRES_DB: pdfprompt
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-  redis:
-    image: redis:alpine
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    depends_on:
-      - db
-      - redis
-    environment:
-      DATABASE_URL: postgresql://user:pass@db:5432/pdfprompt
-      REDIS_URL: redis://redis:6379
-```
-
-Run: `docker-compose up`
-
-## 📊 Monitoring & Analytics
-
-- **Logging**: Use Next.js built-in logging; integrate Sentry for errors.
-- **Analytics**: Vercel Analytics for performance; add PostHog or similar for user tracking.
-- **AI Usage**: Track provider costs via API dashboards; implement quotas in Clerk.
-
-## 🤝 Contributing
-
-1. Fork the repo and create a feature branch.
-2. Install dependencies and run locally.
-3. Commit changes and push.
-4. Open a Pull Request.
-
-Follow ESLint rules and add tests for new features.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙌 Acknowledgments
-
-- Built with love using open-source tools.
-- Inspired by Notion's technical planning for AI-driven document processing.
+Released under the [MIT](LICENSE) license.
 
 ---
 
-## 📦 UploadThing Integration
-
-This project stores generated PDFs in UploadThing instead of the local filesystem.
-
-What's implemented:
-
-- PDF generation produces an in-memory `Buffer` and is uploaded to UploadThing on the server using `UTApi`.
-- The database stores the `fileKey`, `fileUrl`, `userId`, `jobId`, and `size` for each PDF in the `files` table.
-- Access control ensures only the PDF's creator can view or download the file. Signed URLs from UploadThing are generated server-side per request.
-- The legacy local tmp-folder workflow has been removed from production paths.
-
-Setup steps:
-
-1. Create an UploadThing app and copy your V7 token from the dashboard.
-2. Set `UPLOADTHING_TOKEN` in your `.env.local`.
-3. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-4. Apply database changes (adds `fileKey`, `fileUrl`, `userId` to `files` table):
-   ```bash
-   pnpm db:generate
-   pnpm db:migrate
-   ```
-5. Start the app and (optionally) the worker locally:
-   ```bash
-   pnpm dev
-   # Option A: hit the drain endpoint manually when you queue jobs
-   #   http://localhost:3000/api/worker/drain?maxJobs=5
-   # Option B: run the standalone worker loop (useful for local stress testing)
-   pnpm worker:dev
-   ```
-
-Usage notes:
-
-- Files are private by default; the app generates time-limited signed URLs with `UTApi.generateSignedURL`.
-- Sharing uses server-generated tokens stored in `share_links`. Shared downloads go through the server route to validate the token, then redirect to a signed URL.
-- No credentials are exposed to the client; uploads happen exclusively on the server.
-
-Troubleshooting:
-
-- If uploads fail, ensure `UPLOADTHING_TOKEN` is present and valid. As of UploadThing v7, `UPLOADTHING_SECRET` has been replaced by `UPLOADTHING_TOKEN`.
-- Ensure your database schema is migrated after pulling changes.
-
----
-
-_Last updated: September 22, 2025_
+_Last updated: September 25, 2025_
