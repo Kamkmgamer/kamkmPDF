@@ -1,2 +1,8 @@
 onlyBuiltDependencies:
+  - "@clerk/shared"
+  - "@tailwindcss/oxide"
+  - esbuild
+  - msgpackr-extract
   - puppeteer
+  - sharp
+  - unrs-resolver
