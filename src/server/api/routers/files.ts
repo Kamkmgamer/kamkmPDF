@@ -6,7 +6,7 @@ import {
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { files, jobs, shareLinks } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { generateShareToken, createShareUrl } from "~/server/utils/share-links";
 import { utapi } from "~/server/uploadthing";
@@ -50,7 +50,8 @@ export const filesRouter = createTRPCRouter({
         .leftJoin(jobs, eq(files.jobId, jobs.id))
         .where(eq(jobs.userId, ctx.userId))
         .limit(limit)
-        .orderBy(jobs.createdAt ? jobs.createdAt : files.createdAt);
+        // Important: order by newest first BEFORE applying limit so new items appear
+        .orderBy(desc(jobs.createdAt));
 
       // Filter client-side for search/status to keep query simple and portable
       const filtered = rows
