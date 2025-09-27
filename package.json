@@ -25,7 +25,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.32.2",
+    "@clerk/nextjs": "^6.33.0",
     "@sparticuz/chromium": "^132.0.0",
     "@t3-oss/env-nextjs": "^0.12.0",
     "@tanstack/react-query": "^5.90.2",
@@ -58,7 +58,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^20.19.17",
     "@types/pdfkit": "^0.17.3",
-    "@types/react": "^19.1.13",
+    "@types/react": "^19.1.14",
     "@types/react-dom": "^19.1.9",
     "drizzle-kit": "^0.30.6",
     "eslint": "^9.36.0",
