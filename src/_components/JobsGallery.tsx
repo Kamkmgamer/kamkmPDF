@@ -18,8 +18,6 @@ export default function JobsGallery() {
 
   const { data, isLoading, refetch, isRefetching } =
     api.files.listMine.useQuery(params, { refetchOnWindowFocus: false });
-
-  const utils = api.useUtils();
   const [copyingId, setCopyingId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 

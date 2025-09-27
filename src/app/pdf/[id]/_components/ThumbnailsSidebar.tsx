@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import type * as ReactPdf from "react-pdf";
 import { api } from "~/trpc/react";
 import type { Job } from "~/types/pdf";
 
-type ReactPdfModule = Awaited<typeof import("react-pdf")>;
+type ReactPdfModule = typeof ReactPdf;
 
 interface ThumbnailsSidebarProps {
   fileId: string;

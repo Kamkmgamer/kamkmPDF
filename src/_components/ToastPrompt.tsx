@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -38,16 +38,7 @@ function ToastPromptUI({
     return () => clearTimeout(t);
   }, []);
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onResolve(null);
-      if (e.key === "Enter") handleConfirm();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [value]);
-
-  function handleConfirm() {
+  const handleConfirm = useCallback(() => {
     const v = value.trim();
     const msg = validate ? validate(v) : null;
     if (msg) {
@@ -55,7 +46,16 @@ function ToastPromptUI({
       return;
     }
     onResolve(v || defaultValue);
-  }
+  }, [value, defaultValue, validate, onResolve]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onResolve(null);
+      if (e.key === "Enter") handleConfirm();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [handleConfirm, onResolve]);
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[9999] flex items-end justify-end p-4 sm:p-6">

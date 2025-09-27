@@ -40,14 +40,8 @@ export async function POST(req: Request) {
 
     const form = await req.formData();
     const promptValue = form.get("prompt");
-     
-     
-     
-     
-     
-     
-    const promptRaw =
-      typeof promptValue === "string" ? promptValue : String(promptValue ?? "");
+
+    const promptRaw = typeof promptValue === "string" ? promptValue : "";
     const prompt = promptRaw.trim();
     if (prompt.length < 1 || prompt.length > 2000) {
       return NextResponse.json(
@@ -57,14 +51,7 @@ export async function POST(req: Request) {
     }
 
     const modeValue = form.get("mode");
-     
-     
-     
-     
-     
-     
-    const modeInput =
-      typeof modeValue === "string" ? modeValue : String(modeValue ?? "inline");
+    const modeInput = typeof modeValue === "string" ? modeValue : "inline";
     const modeInputLower = modeInput.toLowerCase();
     const mode: ImageMode = modeInputLower === "cover" ? "cover" : "inline";
 
