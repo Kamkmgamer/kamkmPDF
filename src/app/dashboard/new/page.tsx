@@ -18,6 +18,7 @@ export default function NewPromptPage() {
   const [imageError, setImageError] = React.useState<string | null>(null);
   const [mode, setMode] = React.useState<"cover" | "inline">("inline");
   const [submitting, setSubmitting] = React.useState(false);
+  const [expanded, setExpanded] = React.useState(false);
 
   const createJob = api.jobs.create.useMutation();
 
@@ -55,6 +56,7 @@ export default function NewPromptPage() {
   }
 
   const charCount = prompt.length;
+  const wordCount = prompt.trim() ? prompt.trim().split(/\s+/).length : 0;
   const maxChars = 2000; // aligned with jobs.create zod schema
   const tooLong = charCount > maxChars;
   const tooShort = prompt.trim().length === 0;
@@ -87,7 +89,7 @@ export default function NewPromptPage() {
         (resolve, reject) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
           const imgElement = new (window as any).Image();
-           
+
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           imgElement.onload = () =>
             resolve({
@@ -202,18 +204,28 @@ export default function NewPromptPage() {
   return (
     <DashboardLayout>
       <div className="p-3 sm:p-4 lg:p-6">
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Create a New PDF
-            </h1>
-            <p className="text-sm text-[--color-text-muted]">
-              Describe what you want. We’ll generate a polished PDF from your
-              prompt.
-            </p>
-          </div>
-          <div className="text-xs text-[--color-text-muted]">
-            Press Ctrl/Cmd + Enter to convert
+        {/* Hero header */}
+        <div className="mb-6 rounded-2xl border border-[--color-border] bg-gradient-to-br from-[--color-surface] to-[--color-base] p-5 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">
+                Create a New PDF
+              </h1>
+              <p className="text-sm text-[--color-text-muted]">
+                Turn a short description into a beautiful, ready‑to‑share PDF.
+                Add an optional image and choose placement.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-[--color-text-muted]">
+              <span className="hidden sm:inline">Shortcut:</span>
+              <kbd className="rounded border border-[--color-border] bg-[--color-surface] px-1.5 py-0.5">
+                Ctrl/Cmd
+              </kbd>
+              +
+              <kbd className="rounded border border-[--color-border] bg-[--color-surface] px-1.5 py-0.5">
+                Enter
+              </kbd>
+            </div>
           </div>
         </div>
 
@@ -259,7 +271,7 @@ export default function NewPromptPage() {
                   <div
                     onDrop={onDrop}
                     onDragOver={onDragOver}
-                    className="mt-2 flex items-center justify-center rounded-md border border-dashed border-[--color-border] bg-[var(--color-base)] p-4 text-center"
+                    className="mt-2 flex items-center justify-center rounded-lg border border-dashed border-[--color-border] bg-[var(--color-base)] p-4 text-center transition hover:bg-[--color-surface]"
                   >
                     <div className="w-full">
                       {imagePreview ? (
@@ -267,9 +279,9 @@ export default function NewPromptPage() {
                           <Image
                             src={imagePreview}
                             alt="preview"
-                            width={64}
-                            height={64}
-                            className="h-16 w-16 rounded object-cover"
+                            width={96}
+                            height={96}
+                            className="h-24 w-24 rounded object-cover ring-1 ring-[--color-border]"
                           />
                           <div className="flex-1 text-left">
                             <div className="text-xs text-[--color-text-muted]">
@@ -334,7 +346,8 @@ export default function NewPromptPage() {
                     </div>
                   )}
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
+                {/* Sticky actions */}
+                <div className="sticky bottom-2 z-10 mt-3 flex flex-wrap items-center gap-2 bg-gradient-to-t from-[--color-surface]/80 to-transparent px-1 py-1 backdrop-blur">
                   <button
                     id="submit-btn"
                     type="submit"
