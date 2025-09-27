@@ -1,15 +1,23 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import PdfThumbnail from "./PdfThumbnail";
 import { api } from "~/trpc/react";
 import { toastPrompt } from "~/_components/ToastPrompt";
 
 type Status = "all" | "completed" | "processing" | "failed";
 
 export default function JobsGallery() {
+  const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<Status>("all");
+
+  // Debounce the text input so we don't spam queries
+  useEffect(() => {
+    const id = setTimeout(() => setSearch(query.trim()), 300);
+    return () => clearTimeout(id);
+  }, [query]);
 
   const params = useMemo(
     () => ({ limit: 24, status, search }),
@@ -20,6 +28,12 @@ export default function JobsGallery() {
     api.files.listMine.useQuery(params, { refetchOnWindowFocus: false });
   const [copyingId, setCopyingId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [previewId, setPreviewId] = useState<string | null>(null);
+
+  const previewQuery = api.files.getDownloadUrl.useQuery(
+    { fileId: previewId ?? "" },
+    { enabled: !!previewId },
+  );
 
   const shareMutation = api.files.createShareLink.useMutation();
 
@@ -72,14 +86,24 @@ export default function JobsGallery() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex w-full max-w-xl items-center gap-2 rounded-xl border border-[--color-border] bg-[--color-surface] px-3 py-2">
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Search your documents by prompt..."
             className="w-full bg-transparent outline-none placeholder:text-[--color-text-muted]"
           />
+          {!!query && (
+            <button
+              aria-label="Clear search"
+              className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
+              onClick={() => setQuery("")}
+            >
+              Clear
+            </button>
+          )}
           <button
             onClick={() => refetch()}
             className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-sm text-white hover:opacity-90"
@@ -88,18 +112,42 @@ export default function JobsGallery() {
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <label className="text-sm text-[--color-text-muted]">Status</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as Status)}
-            className="rounded-md border border-[--color-border] bg-[--color-surface] px-2 py-1 text-sm dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:[color-scheme:dark]"
-          >
-            <option value="all">All</option>
-            <option value="completed">Completed</option>
-            <option value="processing">Processing</option>
-            <option value="failed">Failed</option>
-          </select>
+        {/* Status filter: tabs on larger screens, select on mobile */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="hidden items-center gap-1 rounded-md border border-[--color-border] bg-[--color-surface] p-1 sm:flex">
+            {(["all", "completed", "processing", "failed"] as Status[]).map(
+              (s) => (
+                <button
+                  key={s}
+                  onClick={() => setStatus(s)}
+                  className={`rounded px-3 py-1.5 text-sm transition-colors ${
+                    status === s
+                      ? "bg-[var(--color-primary)] text-white"
+                      : "text-[--color-text-muted] hover:bg-[--color-base]"
+                  }`}
+                  aria-pressed={status === s}
+                >
+                  {s[0]?.toUpperCase()}
+                  {s.slice(1)}
+                </button>
+              ),
+            )}
+          </div>
+          <div className="sm:hidden">
+            <label className="mr-2 text-sm text-[--color-text-muted]">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as Status)}
+              className="rounded-md border border-[--color-border] bg-[--color-surface] px-2 py-1 text-sm dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:[color-scheme:dark]"
+            >
+              <option value="all">All</option>
+              <option value="completed">Completed</option>
+              <option value="processing">Processing</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -112,15 +160,24 @@ export default function JobsGallery() {
           {data.map((item) => (
             <li
               key={item.fileId}
-              className="group relative overflow-hidden rounded-xl border border-[--color-border] bg-[--color-surface] shadow-sm transition-all hover:shadow-md"
+              className="group relative overflow-hidden rounded-2xl border border-[--color-border] bg-[--color-surface] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="aspect-[3/4] w-full bg-neutral-950/2">
-                {/* Lightweight preview: show an inline PDF icon & first lines of prompt; consider adding real thumbnails later */}
-                <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-                  <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[--color-primary]/10 text-[--color-primary]">
-                    📄
+              {/* Visual header with real thumbnail when possible */}
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-[var(--color-base)]">
+                {item.mimeType?.includes("pdf") ? (
+                  <PdfThumbnail fileId={item.fileId} />
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+                    <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/10 text-[--color-primary] shadow-sm">
+                      📄
+                    </div>
+                    <div className="line-clamp-3 text-sm text-[--color-text-muted]">
+                      {item.prompt}
+                    </div>
                   </div>
-                  <div className="line-clamp-3 text-sm text-[--color-text-muted]">
+                )}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/10 to-transparent p-3 text-left">
+                  <div className="line-clamp-2 text-sm font-medium text-white drop-shadow">
                     {item.prompt}
                   </div>
                 </div>
@@ -129,6 +186,12 @@ export default function JobsGallery() {
               <div className="flex items-center gap-2 border-t border-[--color-border] p-3">
                 <StatusBadge status={item.status} />
                 <div className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={() => setPreviewId(item.fileId)}
+                    className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
+                  >
+                    Preview
+                  </button>
                   <button
                     onClick={() => handleDownload(item.fileId, item.prompt)}
                     disabled={downloadingId === item.fileId}
@@ -171,6 +234,49 @@ export default function JobsGallery() {
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Preview Modal */}
+      {previewId && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setPreviewId(null)}
+        >
+          <div
+            className="relative w-full max-w-5xl overflow-hidden rounded-xl border border-[--color-border] bg-[--color-surface] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[--color-border] px-4 py-2">
+              <div className="text-sm font-medium">PDF Preview</div>
+              <button
+                className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
+                onClick={() => setPreviewId(null)}
+                aria-label="Close preview"
+              >
+                Close
+              </button>
+            </div>
+            <div className="h-[80vh] w-full bg-[var(--color-base)]">
+              {previewQuery.isLoading ? (
+                <div className="flex h-full items-center justify-center text-[--color-text-muted]">
+                  Loading preview…
+                </div>
+              ) : previewQuery.data?.url ? (
+                <iframe
+                  src={`${previewQuery.data.url}#toolbar=0&navpanes=0&scrollbar=0`}
+                  className="h-full w-full"
+                  title="PDF preview"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-rose-600">
+                  Failed to load preview
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
