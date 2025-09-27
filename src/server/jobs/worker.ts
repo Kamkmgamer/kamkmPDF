@@ -4,6 +4,11 @@ import { jobs, files } from "~/server/db/schema";
 import { randomUUID } from "crypto";
 import { eq, lt, asc, and, inArray } from "drizzle-orm";
 import { generatePdfBuffer } from "~/server/jobs/pdf";
+import {
+  readJobTempImage,
+  readJobTempMeta,
+  cleanupJobTemp,
+} from "~/server/jobs/temp";
 import type { InferSelectModel } from "drizzle-orm";
 import { UTFile } from "uploadthing/server";
 import { utapi } from "~/server/uploadthing";
@@ -63,9 +68,18 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
     const inlineKey = `inline:${fileId}`;
 
     // Generate PDF in-memory
+    const tempImage = await readJobTempImage(job.id);
+    const meta = await readJobTempMeta(job.id);
     const pdfBuffer = await generatePdfBuffer({
       jobId: job.id,
       prompt: job.prompt ?? "",
+      image: tempImage
+        ? {
+            path: tempImage.path,
+            mime: tempImage.mime,
+            mode: meta?.mode ?? "inline",
+          }
+        : null,
     });
 
     const nodeBuffer = Buffer.isBuffer(pdfBuffer)
@@ -139,6 +153,8 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
         .set({ errorMessage: message })
         .where(eq(jobs.id, job.id));
     }
+    // Cleanup temp files after processing regardless of storage outcome
+    await cleanupJobTemp(job.id).catch(() => undefined);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     console.error(`[worker] job ${job.id} failed:`, errorMessage);
@@ -146,6 +162,8 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       .update(jobs)
       .set({ status: "failed", errorMessage })
       .where(eq(jobs.id, job.id));
+    // Attempt cleanup on failure as well
+    await cleanupJobTemp(job.id).catch(() => undefined);
   }
 }
 

@@ -3,6 +3,7 @@
 import React from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import DashboardLayout from "../../../_components/DashboardLayout";
 import { api } from "~/trpc/react";
 
@@ -12,6 +13,11 @@ export default function NewPromptPage() {
   const [prompt, setPrompt] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
   const [touched, setTouched] = React.useState(false);
+  const [imageFile, setImageFile] = React.useState<File | null>(null);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
+  const [imageError, setImageError] = React.useState<string | null>(null);
+  const [mode, setMode] = React.useState<"cover" | "inline">("inline");
+  const [submitting, setSubmitting] = React.useState(false);
 
   const createJob = api.jobs.create.useMutation();
 
@@ -53,6 +59,80 @@ export default function NewPromptPage() {
   const tooLong = charCount > maxChars;
   const tooShort = prompt.trim().length === 0;
 
+  // Frontend validation constraints
+  const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8MB
+  const ACCEPTED_TYPES = new Set(["image/png", "image/jpeg"]);
+
+  function resetImage() {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    setImageFile(null);
+    setImageError(null);
+  }
+
+  async function validateAndSetImage(file: File) {
+    setImageError(null);
+    if (!ACCEPTED_TYPES.has(file.type)) {
+      setImageError("Unsupported file type. Use PNG or JPEG.");
+      return;
+    }
+    if (file.size <= 0 || file.size > MAX_IMAGE_BYTES) {
+      setImageError("File too large. Max 8MB.");
+      return;
+    }
+    // Basic dimension check
+    const url = URL.createObjectURL(file);
+    try {
+      const dims = await new Promise<{ w: number; h: number }>(
+        (resolve, reject) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+          const imgElement = new (window as any).Image();
+           
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          imgElement.onload = () =>
+            resolve({
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+              w: imgElement.naturalWidth,
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+              h: imgElement.naturalHeight,
+            });
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          imgElement.onerror = () => reject(new Error("Failed to load image"));
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          imgElement.src = url;
+        },
+      );
+      if (dims.w < 16 || dims.h < 16) {
+        URL.revokeObjectURL(url);
+        setImageError("Image too small. Minimum 16x16.");
+        return;
+      }
+      if (dims.w > 20000 || dims.h > 20000) {
+        URL.revokeObjectURL(url);
+        setImageError("Image dimensions too large.");
+        return;
+      }
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      setImagePreview(url);
+      setImageFile(file);
+    } catch {
+      URL.revokeObjectURL(url);
+      setImageError("Could not read image.");
+    }
+  }
+
+  function onDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer.files?.[0];
+    if (file) void validateAndSetImage(file);
+  }
+
+  function onDragOver(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
   const templates: { title: string; text: string }[] = [
     {
       title: "Professional Resume",
@@ -80,12 +160,42 @@ export default function NewPromptPage() {
       setError(`Prompt is too long. Maximum ${maxChars} characters.`);
       return;
     }
-    try {
-      const job = await createJob.mutateAsync({ prompt: prompt.trim() });
-      if (job?.id) router.push(`/pdf/${job.id}`);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(msg || "Failed to create job.");
+    // If we have an image, use multipart API; else use existing tRPC flow
+    if (imageFile) {
+      setSubmitting(true);
+      try {
+        const fd = new FormData();
+        fd.set("prompt", prompt.trim());
+        fd.set("mode", mode);
+        fd.set("image", imageFile);
+        const res = await fetch("/api/jobs/create-with-image", {
+          method: "POST",
+          body: fd,
+        });
+        if (!res.ok) {
+          const data = (await res.json().catch(() => ({}))) as {
+            error?: string;
+          };
+          throw new Error(data?.error ?? `Upload failed (${res.status})`);
+        }
+        const data = (await res.json()) as { ok: boolean; id?: string };
+        if (data?.id) router.push(`/pdf/${data.id}`);
+        else throw new Error("No job id returned");
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(msg || "Failed to create job.");
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    } else {
+      try {
+        const job = await createJob.mutateAsync({ prompt: prompt.trim() });
+        if (job?.id) router.push(`/pdf/${job.id}`);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(msg || "Failed to create job.");
+      }
     }
   }
 
@@ -143,17 +253,102 @@ export default function NewPromptPage() {
                     {!tooShort && !tooLong && error}
                   </div>
                 )}
+                {/* Image Upload */}
+                <div className="mt-4">
+                  <label className="text-sm font-medium">Optional image</label>
+                  <div
+                    onDrop={onDrop}
+                    onDragOver={onDragOver}
+                    className="mt-2 flex items-center justify-center rounded-md border border-dashed border-[--color-border] bg-[var(--color-base)] p-4 text-center"
+                  >
+                    <div className="w-full">
+                      {imagePreview ? (
+                        <div className="flex items-center gap-3">
+                          <Image
+                            src={imagePreview}
+                            alt="preview"
+                            width={64}
+                            height={64}
+                            className="h-16 w-16 rounded object-cover"
+                          />
+                          <div className="flex-1 text-left">
+                            <div className="text-xs text-[--color-text-muted]">
+                              Selected image
+                            </div>
+                            <div className="mt-1 flex flex-wrap items-center gap-3">
+                              <div className="inline-flex items-center gap-2 rounded border border-[--color-border] px-2 py-1 text-xs">
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="mode"
+                                    value="inline"
+                                    checked={mode === "inline"}
+                                    onChange={() => setMode("inline")}
+                                  />
+                                  <span className="ml-1">Inline</span>
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="mode"
+                                    value="cover"
+                                    checked={mode === "cover"}
+                                    onChange={() => setMode("cover")}
+                                  />
+                                  <span className="ml-1">Cover</span>
+                                </label>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={resetImage}
+                                className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[var(--color-surface)]"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-[--color-text-muted]">
+                          Drag and drop an image here, or
+                          <label className="ml-1 cursor-pointer text-[--color-primary] underline">
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg"
+                              className="hidden"
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) void validateAndSetImage(f);
+                              }}
+                            />
+                            browse
+                          </label>
+                          . PNG or JPEG, up to 8MB.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {imageError && (
+                    <div className="mt-2 text-sm text-rose-600">
+                      {imageError}
+                    </div>
+                  )}
+                </div>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     id="submit-btn"
                     type="submit"
-                    disabled={createJob.isPending || tooShort || tooLong}
-                    aria-disabled={createJob.isPending || tooShort || tooLong}
-                    aria-busy={createJob.isPending}
+                    disabled={
+                      createJob.isPending || submitting || tooShort || tooLong
+                    }
+                    aria-disabled={
+                      createJob.isPending || submitting || tooShort || tooLong
+                    }
+                    aria-busy={createJob.isPending || submitting}
                     className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-[var(--color-on-primary)] shadow-sm transition hover:opacity-95 focus:ring-2 focus:ring-[--color-primary] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                     title="Convert (Ctrl/Cmd + Enter)"
                   >
-                    {createJob.isPending && (
+                    {(createJob.isPending || submitting) && (
                       <svg
                         className="h-4 w-4 animate-spin"
                         viewBox="0 0 24 24"
@@ -177,12 +372,17 @@ export default function NewPromptPage() {
                       </svg>
                     )}
                     <span>
-                      {createJob.isPending ? "Converting…" : "Convert to PDF"}
+                      {createJob.isPending || submitting
+                        ? "Converting…"
+                        : "Convert to PDF"}
                     </span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPrompt("")}
+                    onClick={() => {
+                      setPrompt("");
+                      resetImage();
+                    }}
                     className="rounded-md border border-[--color-border] px-4 py-2 text-sm hover:bg-[var(--color-base)]"
                   >
                     Clear
