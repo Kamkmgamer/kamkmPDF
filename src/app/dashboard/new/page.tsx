@@ -19,21 +19,105 @@ export default function NewPromptPage() {
   const [mode, setMode] = React.useState<"cover" | "inline">("inline");
   const [submitting, setSubmitting] = React.useState(false);
   const [expanded, setExpanded] = React.useState(false);
+  const [templateOpen, setTemplateOpen] = React.useState(false);
+  const [templateQuery, setTemplateQuery] = React.useState("");
+  const tones = [
+    "Formal",
+    "Friendly",
+    "Technical",
+    "Persuasive",
+    "Concise",
+  ] as const;
+  const [selectedTone, setSelectedTone] = React.useState<
+    null | (typeof tones)[number]
+  >(null);
 
   const createJob = api.jobs.create.useMutation();
 
+  function toneVisuals(t: (typeof tones)[number] | null) {
+    if (!t) return { bg: "", caret: undefined as string | undefined };
+    switch (t) {
+      case "Friendly":
+        return {
+          bg: "bg-[linear-gradient(180deg,rgba(16,185,129,0.08),transparent)]",
+          caret: "#10b981",
+        };
+      case "Technical":
+        return {
+          bg: "bg-[linear-gradient(180deg,rgba(56,189,248,0.10),transparent)]",
+          caret: "#38bdf8",
+        };
+      case "Persuasive":
+        return {
+          bg: "bg-[linear-gradient(180deg,rgba(244,63,94,0.10),transparent)]",
+          caret: "#f43f5e",
+        };
+      case "Concise":
+        return {
+          bg: "bg-[linear-gradient(180deg,rgba(245,158,11,0.10),transparent)]",
+          caret: "#f59e0b",
+        };
+      case "Formal":
+        return {
+          bg: "bg-[linear-gradient(180deg,rgba(100,116,139,0.08),transparent)]",
+          caret: "#64748b",
+        };
+    }
+  }
+
   React.useEffect(() => {
     function onKeydown(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "enter") {
+      const key = e.key.toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && key === "enter") {
         const el = document.getElementById(
           "submit-btn",
         ) as HTMLButtonElement | null;
         el?.click();
       }
+      if (e.altKey && key === "e") {
+        e.preventDefault();
+        const ta = document.getElementById(
+          "prompt",
+        ) as HTMLTextAreaElement | null;
+        ta?.focus();
+      }
+      if (e.altKey && key === "x") {
+        e.preventDefault();
+        setExpanded((v) => !v);
+      }
+      if (e.altKey && key === "t") {
+        e.preventDefault();
+        setTemplateOpen(true);
+      }
     }
     window.addEventListener("keydown", onKeydown);
     return () => window.removeEventListener("keydown", onKeydown);
   }, []);
+
+  // Autosave draft prompt
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem("dashboard:new:prompt");
+      if (saved && !prompt) setPrompt(saved);
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("dashboard:new:prompt", prompt);
+    } catch {}
+  }, [prompt]);
+
+  // Warn before leaving with unsaved content
+  React.useEffect(() => {
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      if (!prompt.trim() || submitting) return;
+      e.preventDefault();
+      e.returnValue = "";
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [prompt, submitting]);
 
   // Show loading state while auth is being determined
   if (!isLoaded) {
@@ -57,6 +141,7 @@ export default function NewPromptPage() {
 
   const charCount = prompt.length;
   const wordCount = prompt.trim() ? prompt.trim().split(/\s+/).length : 0;
+  const readingTime = Math.max(1, Math.round(wordCount / 200));
   const maxChars = 2000; // aligned with jobs.create zod schema
   const tooLong = charCount > maxChars;
   const tooShort = prompt.trim().length === 0;
@@ -150,6 +235,56 @@ export default function NewPromptPage() {
     },
   ];
 
+  function toneSystemPrefix(t: (typeof tones)[number]) {
+    switch (t) {
+      case "Formal":
+        return "System: Use a formal, professional tone with precise language.";
+      case "Friendly":
+        return "System: Use a friendly, approachable tone with warm language.";
+      case "Technical":
+        return "System: Use a technical tone with accurate terminology and concise explanations.";
+      case "Persuasive":
+        return "System: Use a persuasive tone, emphasizing benefits and calls to action.";
+      case "Concise":
+        return "System: Use a concise tone, prioritize brevity and clarity.";
+    }
+  }
+
+  function renderPreviewText(text: string) {
+    // Lightweight structured preview: bullets and paragraphs
+    const lines = text.split(/\n+/);
+    const items: React.ReactNode[] = [];
+    let list: string[] = [];
+    function flushList() {
+      if (list.length) {
+        items.push(
+          <ul className="ml-5 list-disc space-y-1" key={`ul-${items.length}`}>
+            {list.map((li, i) => (
+              <li key={i} className="text-sm">
+                {li.replace(/^[-*]\s*/, "")}
+              </li>
+            ))}
+          </ul>,
+        );
+        list = [];
+      }
+    }
+    for (const ln of lines) {
+      if (/^\s*[-*]\s+/.test(ln)) {
+        list.push(ln);
+      } else if (ln.trim()) {
+        flushList();
+        items.push(
+          <p className="text-sm leading-relaxed" key={`p-${items.length}`}>
+            {ln}
+          </p>,
+        );
+      }
+    }
+    flushList();
+    return items;
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setTouched(true);
@@ -162,12 +297,17 @@ export default function NewPromptPage() {
       setError(`Prompt is too long. Maximum ${maxChars} characters.`);
       return;
     }
+    // Build final prompt, injecting tone as a hidden system prompt (not typed in the field)
+    const finalPrompt = selectedTone
+      ? `${toneSystemPrefix(selectedTone)}\n\n${prompt.trim()}`
+      : prompt.trim();
+
     // If we have an image, use multipart API; else use existing tRPC flow
     if (imageFile) {
       setSubmitting(true);
       try {
         const fd = new FormData();
-        fd.set("prompt", prompt.trim());
+        fd.set("prompt", finalPrompt);
         fd.set("mode", mode);
         fd.set("image", imageFile);
         const res = await fetch("/api/jobs/create-with-image", {
@@ -192,7 +332,7 @@ export default function NewPromptPage() {
       return;
     } else {
       try {
-        const job = await createJob.mutateAsync({ prompt: prompt.trim() });
+        const job = await createJob.mutateAsync({ prompt: finalPrompt });
         if (job?.id) router.push(`/pdf/${job.id}`);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -247,14 +387,27 @@ export default function NewPromptPage() {
                 <textarea
                   id="prompt"
                   aria-label="prompt"
-                  className={`mt-1 block w-full resize-y rounded-md border px-3 py-2 transition outline-none focus:ring-2 focus:ring-[--color-primary] ${
+                  className={`mt-1 block w-full resize-y rounded-md border px-3 py-2 transition outline-none focus:ring-2 ${
                     tooLong ? "border-rose-400" : "border-[--color-border]"
-                  }`}
+                  } ${
+                    selectedTone === "Friendly"
+                      ? "ring-1 ring-emerald-200/60 focus:ring-emerald-400/50"
+                      : selectedTone === "Technical"
+                        ? "ring-1 ring-sky-200/60 focus:ring-sky-400/50"
+                        : selectedTone === "Persuasive"
+                          ? "ring-1 ring-rose-200/60 focus:ring-rose-400/50"
+                          : selectedTone === "Concise"
+                            ? "ring-1 ring-amber-200/60 focus:ring-amber-400/50"
+                            : selectedTone === "Formal"
+                              ? "ring-1 ring-slate-200/60 focus:ring-slate-400/50"
+                              : "focus:ring-[--color-primary]"
+                  } ${toneVisuals(selectedTone).bg}`}
                   rows={10}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   onBlur={() => setTouched(true)}
                   placeholder="Describe the document you want to generate…"
+                  style={{ caretColor: toneVisuals(selectedTone).caret }}
                 />
                 {((touched && tooShort) || tooLong || error) && (
                   <div className="mt-2 text-sm text-rose-600">
@@ -265,6 +418,46 @@ export default function NewPromptPage() {
                     {!tooShort && !tooLong && error}
                   </div>
                 )}
+
+                {/* Tone/style presets as toggles (do not modify prompt text) */}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {tones.map((t) => {
+                    const active = selectedTone === t;
+                    const toneHue =
+                      t === "Formal"
+                        ? "ring-slate-300"
+                        : t === "Friendly"
+                          ? "ring-emerald-300"
+                          : t === "Technical"
+                            ? "ring-sky-300"
+                            : t === "Persuasive"
+                              ? "ring-rose-300"
+                              : "ring-amber-300"; // Concise
+                    return (
+                      <button
+                        type="button"
+                        key={t}
+                        onClick={() => setSelectedTone(active ? null : t)}
+                        className={`rounded-full border px-3 py-1 text-xs transition ${
+                          active
+                            ? `border-transparent bg-[--color-surface] text-[--color-text] ring-2 ${toneHue}`
+                            : "border-[--color-border] bg-[--color-base] text-[--color-text-muted] hover:bg-[--color-surface]"
+                        }`}
+                        aria-pressed={active}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => setTemplateOpen(true)}
+                    className="ml-auto rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
+                    aria-haspopup="dialog"
+                  >
+                    Browse Templates… (Alt+T)
+                  </button>
+                </div>
                 {/* Image Upload */}
                 <div className="mt-4">
                   <label className="text-sm font-medium">Optional image</label>
@@ -446,19 +639,18 @@ export default function NewPromptPage() {
           </div>
 
           {/* Right: Preview & Tips */}
-          <div className="space-y-4 lg:col-span-5 xl:col-span-4">
+          <div className="space-y-4 self-start lg:sticky lg:top-4 lg:col-span-5 xl:col-span-4">
             <div className="rounded-xl border border-[--color-border] bg-[--color-surface] p-4 shadow-sm">
               <h2 className="text-sm font-medium">Preview</h2>
               <div className="mt-2 rounded-md border border-dashed border-[--color-border] p-4">
                 {prompt.trim() ? (
                   <div className="space-y-2">
                     <div className="text-xs tracking-wide text-[--color-text-muted] uppercase">
-                      First lines
+                      Structure preview
                     </div>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-[--color-text]">
-                      {prompt.slice(0, 600)}
-                      {prompt.length > 600 ? "…" : ""}
-                    </p>
+                    <div className="space-y-2 text-[--color-text]">
+                      {renderPreviewText(prompt.slice(0, 800))}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-sm text-[--color-text-muted]">
@@ -476,12 +668,12 @@ export default function NewPromptPage() {
                   </div>
                 </div>
                 <div className="rounded-md border border-[--color-border] p-2">
-                  <div className="text-[11px] uppercase">Limit</div>
-                  <div className="text-sm">{maxChars}</div>
+                  <div className="text-[11px] uppercase">Words</div>
+                  <div className="text-sm">{wordCount}</div>
                 </div>
                 <div className="rounded-md border border-[--color-border] p-2">
                   <div className="text-[11px] uppercase">Estimated</div>
-                  <div className="text-sm">1 page</div>
+                  <div className="text-sm">~{readingTime} min read</div>
                 </div>
               </div>
             </div>
@@ -512,6 +704,68 @@ export default function NewPromptPage() {
           </div>
         </div>
       </div>
+      {/* Template Picker Modal */}
+      {templateOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setTemplateOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-2xl rounded-xl border border-[--color-border] bg-[--color-surface] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[--color-border] px-4 py-3">
+              <div className="font-medium">Browse Templates</div>
+              <button
+                onClick={() => setTemplateOpen(false)}
+                className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
+              >
+                Close
+              </button>
+            </div>
+            <div className="p-4">
+              <input
+                value={templateQuery}
+                onChange={(e) => setTemplateQuery(e.target.value)}
+                placeholder="Search templates..."
+                className="mb-3 w-full rounded-md border border-[--color-border] bg-[--color-base] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[--color-primary]"
+              />
+              <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {templates
+                  .filter(
+                    (t) =>
+                      !templateQuery.trim() ||
+                      t.title
+                        .toLowerCase()
+                        .includes(templateQuery.toLowerCase()) ||
+                      t.text
+                        .toLowerCase()
+                        .includes(templateQuery.toLowerCase()),
+                  )
+                  .map((t) => (
+                    <li key={t.title}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPrompt(t.text);
+                          setTemplateOpen(false);
+                        }}
+                        className="group block w-full rounded-lg border border-[--color-border] bg-[var(--color-base)] p-3 text-left transition hover:-translate-y-0.5 hover:border-[--color-primary] hover:bg-[var(--color-surface)] hover:shadow-sm"
+                      >
+                        <div className="font-medium">{t.title}</div>
+                        <div className="mt-1 line-clamp-2 text-xs text-[--color-text-muted]">
+                          {t.text}
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
