@@ -17,7 +17,6 @@ export default function TemplateDetailPage() {
   const router = useRouter();
   const createJob = api.jobs.create.useMutation();
 
-  const [loading, setLoading] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
   const [formData, setFormData] = React.useState({
@@ -38,30 +37,13 @@ export default function TemplateDetailPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const fillSample = () => {
-    setFormData({
-      name: "Alex Johnson",
-      email: "alex.johnson@example.com",
-      phone: "+1 (555) 012-3456",
-      linkedin: "https://www.linkedin.com/in/alexjohnson",
-      github: "https://github.com/alexjohnson",
-      summary:
-        "Product-minded software engineer with 6+ years experience building web apps. Passionate about performance, accessibility, and great UX.",
-      experience:
-        "Senior Software Engineer, Acme Inc. (2021–Present)\n- Led migration to Next.js, improving TTFB by 35% and Core Web Vitals to green.\n- Built PDF generation service reducing support workload by 20%.\n\nSoftware Engineer, Beta Co. (2018–2021)\n- Implemented role-based access control; reduced auth bugs by 60%.",
-      education:
-        "B.Sc. in Computer Science, State University (2014–2018)\nGoogle Cloud Associate Engineer (2020)",
-      skills: "TypeScript, React, Next.js, Node.js, SQL, Tailwind, Testing",
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!template) return;
 
     const nextErrors: Record<string, string> = {};
     if (!formData.name.trim()) nextErrors.name = "Please enter your full name.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+    if (!/^[^\s@]+@[^^\s@]+\.[^\s@]+$/.test(formData.email))
       nextErrors.email = "Please enter a valid email address.";
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
@@ -96,14 +78,11 @@ ${formData.skills}
 `;
 
     try {
-      setLoading(true);
       const job = await createJob.mutateAsync({ prompt });
       if (job?.id) router.push(`/pdf/${job.id}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(msg);
-    } finally {
-      setLoading(false);
     }
   };
 
