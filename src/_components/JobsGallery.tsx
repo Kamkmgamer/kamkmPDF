@@ -148,19 +148,61 @@ export default function JobsGallery() {
             >
               {/* Visual header with real thumbnail when possible */}
               <div className="relative aspect-[3/4] w-full overflow-hidden bg-[var(--color-base)]">
-                {item.mimeType?.includes("pdf") ? (
-                  <div className="h-full w-full origin-center group-hover:scale-[1.02] motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out">
-                    <PdfThumbnail fileId={item.fileId} />
-                  </div>
+                {item.jobId ? (
+                  <Link
+                    href={`/pdf/${item.jobId}`}
+                    className="group/link relative block h-full w-full overflow-hidden rounded-t-2xl transition-all duration-300 ease-out hover:shadow-[var(--color-primary)]/20 hover:shadow-lg"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/0 via-transparent to-black/0 opacity-0 transition-opacity duration-300 group-hover/link:opacity-100" />
+                    <div className="absolute top-2 right-2 opacity-0 transition-all duration-300 group-hover/link:opacity-100">
+                      <div className="rounded-full bg-black/70 p-1.5 backdrop-blur-sm">
+                        <svg
+                          className="h-4 w-4 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    {item.mimeType?.includes("pdf") ? (
+                      <div className="h-full w-full origin-center transition-transform duration-300 group-hover/link:scale-[1.02]">
+                        <PdfThumbnail fileId={item.fileId} />
+                      </div>
+                    ) : (
+                      <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+                        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/15 text-[--color-primary] transition-transform duration-300 group-hover/link:scale-110">
+                          📄
+                        </div>
+                        <div className="line-clamp-3 text-sm text-[--color-text-muted]">
+                          {item.prompt}
+                        </div>
+                      </div>
+                    )}
+                  </Link>
                 ) : (
-                  <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-                    <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/15 text-[--color-primary]">
-                      📄
-                    </div>
-                    <div className="line-clamp-3 text-sm text-[--color-text-muted]">
-                      {item.prompt}
-                    </div>
-                  </div>
+                  <>
+                    {item.mimeType?.includes("pdf") ? (
+                      <div className="h-full w-full origin-center">
+                        <PdfThumbnail fileId={item.fileId} />
+                      </div>
+                    ) : (
+                      <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+                        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/15 text-[--color-primary]">
+                          📄
+                        </div>
+                        <div className="line-clamp-3 text-sm text-[--color-text-muted]">
+                          {item.prompt}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
                 {/* Top info chips (no shadow, high contrast) */}
                 <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-2 text-[10px] font-medium">
