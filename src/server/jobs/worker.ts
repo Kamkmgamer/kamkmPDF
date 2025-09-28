@@ -4,6 +4,7 @@ import { jobs, files } from "~/server/db/schema";
 import { randomUUID } from "crypto";
 import { eq, lt, asc, and, inArray } from "drizzle-orm";
 import { generatePdfBuffer } from "~/server/jobs/pdf";
+import type { GenerationStage } from "~/types/pdf";
 import {
   readJobTempImage,
   readJobTempMeta,
@@ -61,6 +62,15 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
         console.log(`[worker] skipped job ${job.id} (already claimed)`);
         return;
       }
+      // Best-effort: initialize stage/progress
+      try {
+        await db
+          .update(jobs)
+          .set({ progress: 5, stage: "Processing PDF" })
+          .where(eq(jobs.id, job.id));
+      } catch {
+        // ignore if columns not present yet
+      }
     }
 
     const fileId = randomUUID();
@@ -80,6 +90,19 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
             mode: meta?.mode ?? "inline",
           }
         : null,
+      onStage: async (stage: GenerationStage, progress: number) => {
+        try {
+          await db
+            .update(jobs)
+            .set({ stage, progress })
+            .where(eq(jobs.id, job.id));
+        } catch (e) {
+          console.warn(
+            `[worker] failed to update stage/progress for ${job.id}`,
+            e,
+          );
+        }
+      },
     });
 
     const nodeBuffer = Buffer.isBuffer(pdfBuffer)
@@ -103,6 +126,12 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       .update(jobs)
       .set({ status: "completed", resultFileId: fileId, errorMessage: null })
       .where(eq(jobs.id, job.id));
+    try {
+      await db
+        .update(jobs)
+        .set({ progress: 90, stage: "Finalizing document" })
+        .where(eq(jobs.id, job.id));
+    } catch {}
     console.log(
       `[worker] job ${job.id} completed (inline ready), file ${fileId}`,
     );
@@ -139,6 +168,12 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
         .update(jobs)
         .set({ errorMessage: null })
         .where(eq(jobs.id, job.id));
+      try {
+        await db
+          .update(jobs)
+          .set({ progress: 100, stage: null })
+          .where(eq(jobs.id, job.id));
+      } catch {}
       console.log(
         `[worker] job ${job.id} storage upload completed, file ${fileId}`,
       );

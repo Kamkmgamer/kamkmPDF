@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { api } from "~/trpc/react";
 import { Toolbar } from "./Toolbar";
+import type { GenerationStage } from "~/types/pdf";
 import { LoadingStates } from "./LoadingStates";
 import { ErrorBoundary, ErrorBoundaryWrapper } from "./ErrorBoundary";
 import { ThumbnailsSidebar } from "./ThumbnailsSidebar";
@@ -42,6 +43,8 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   const [shareUrl, setShareUrl] = useState<string>("");
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenerationStatus, setRegenerationStatus] = useState<string>("");
+  const [showReadyBanner, setShowReadyBanner] = useState(false);
+  const prevStatusRef = useRef<string | null>(null);
 
   // Fetch job data
   const {
@@ -58,6 +61,24 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
         : 2000;
     },
   });
+
+  // Show a transient banner when the job transitions to completed
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    const status = job?.status ?? null;
+    if (
+      status &&
+      prev &&
+      prev !== status &&
+      status === "completed" &&
+      !isRegenerating
+    ) {
+      setShowReadyBanner(true);
+      const t = setTimeout(() => setShowReadyBanner(false), 2500);
+      return () => clearTimeout(t);
+    }
+    prevStatusRef.current = status;
+  }, [job?.status, isRegenerating]);
 
   // We keep getDownloadUrl for preview components elsewhere; for the download button
   // we call our own API route to allow a custom filename via Content-Disposition.
@@ -254,7 +275,23 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
         </div>
       );
     }
-    return <LoadingStates type="processing" />;
+    const pct = Math.min(
+      99,
+      Math.max(0, job.progress ?? (job.status === "processing" ? 20 : 5)),
+    );
+    const allowed: GenerationStage[] = [
+      "Processing PDF",
+      "Analyzing your request",
+      "Generating content",
+      "Formatting PDF",
+      "Finalizing document",
+    ];
+    const stageStr =
+      job.stage ?? (job.status === "queued" ? "Processing PDF" : undefined);
+    const stage = allowed.includes(stageStr as GenerationStage)
+      ? (stageStr as GenerationStage)
+      : undefined;
+    return <LoadingStates type="processing" progress={pct} stage={stage} />;
   }
 
   // Failed state
@@ -274,6 +311,11 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   if (job.status === "completed" && job.resultFileId) {
     return (
       <div className="flex h-screen flex-col bg-gray-50 dark:bg-gray-900">
+        {showReadyBanner && (
+          <div className="z-10 w-full bg-green-50 px-3 py-2 text-center text-sm text-green-700 shadow-sm sm:px-4 dark:bg-green-900/30 dark:text-green-200">
+            PDF ready. You can view, download, or share it now.
+          </div>
+        )}
         <Toolbar
           job={job}
           onBack={() => router.push("/dashboard")}

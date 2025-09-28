@@ -1,15 +1,19 @@
 "use client";
 
+import type { GenerationStage } from "~/types/pdf";
+
 interface LoadingStatesProps {
   type: "loading" | "processing" | "error" | "skeleton";
   message?: string;
   progress?: number; // 0-100 for progress indication
+  stage?: GenerationStage | null;
 }
 
 export function LoadingStates({
   type,
   message,
   progress = 0,
+  stage,
 }: LoadingStatesProps) {
   if (type === "loading") {
     return (
@@ -158,6 +162,14 @@ export function LoadingStates({
   }
 
   if (type === "processing") {
+    const stepOrder: GenerationStage[] = [
+      "Processing PDF",
+      "Analyzing your request",
+      "Generating content",
+      "Formatting PDF",
+      "Finalizing document",
+    ];
+    const activeIndex = stage ? stepOrder.indexOf(stage) : 0;
     return (
       <div
         className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-900"
@@ -170,7 +182,7 @@ export function LoadingStates({
             <div className="absolute inset-0 mx-auto h-16 w-16 animate-ping rounded-full border-4 border-transparent border-r-blue-400"></div>
           </div>
           <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Processing PDF
+            {stage ?? "Processing PDF"}
           </h2>
           <p
             className="mb-6 text-gray-600 dark:text-gray-400"
@@ -211,48 +223,25 @@ export function LoadingStates({
             className="mt-6 space-y-2 text-left"
             aria-label="Processing steps"
           >
-            <div className="flex items-center space-x-2 text-sm">
-              <div
-                className="h-2 w-2 animate-pulse rounded-full bg-green-500"
-                aria-hidden="true"
-              ></div>
-              <span className="text-gray-600 dark:text-gray-400">
-                Analyzing your request
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <div
-                className={`h-2 w-2 rounded-full ${progress > 30 ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-600"} ${progress > 30 ? "animate-pulse" : ""}`}
-                aria-hidden="true"
-              ></div>
-              <span
-                className={`text-gray-600 dark:text-gray-400 ${progress > 30 ? "" : "opacity-50"}`}
-              >
-                Generating content
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <div
-                className={`h-2 w-2 rounded-full ${progress > 60 ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-600"} ${progress > 60 ? "animate-pulse" : ""}`}
-                aria-hidden="true"
-              ></div>
-              <span
-                className={`text-gray-600 dark:text-gray-400 ${progress > 60 ? "" : "opacity-50"}`}
-              >
-                Formatting PDF
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <div
-                className={`h-2 w-2 rounded-full ${progress > 90 ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-600"} ${progress > 90 ? "animate-pulse" : ""}`}
-                aria-hidden="true"
-              ></div>
-              <span
-                className={`text-gray-600 dark:text-gray-400 ${progress > 90 ? "" : "opacity-50"}`}
-              >
-                Finalizing document
-              </span>
-            </div>
+            {stepOrder.map((s, idx) => {
+              const isActive = idx === activeIndex;
+              const isDone =
+                idx < activeIndex ||
+                progress >= ((idx + 1) / stepOrder.length) * 100 - 1;
+              return (
+                <div key={s} className="flex items-center space-x-2 text-sm">
+                  <div
+                    className={`h-2 w-2 rounded-full ${isDone ? "bg-green-500" : isActive ? "animate-pulse bg-blue-500" : "bg-gray-300 dark:bg-gray-600"}`}
+                    aria-hidden="true"
+                  ></div>
+                  <span
+                    className={`text-gray-600 dark:text-gray-400 ${isDone || isActive ? "" : "opacity-50"}`}
+                  >
+                    {s}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

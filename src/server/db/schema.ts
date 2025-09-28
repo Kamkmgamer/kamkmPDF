@@ -38,6 +38,9 @@ export const jobs = createTable("job", (d) => ({
   attempts: d.integer().default(0).notNull(),
   resultFileId: d.text(),
   errorMessage: d.text(),
+  // Live progress tracking (0-100) and current stage label
+  progress: d.integer().default(0).notNull(),
+  stage: d.varchar({ length: 64 }),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)

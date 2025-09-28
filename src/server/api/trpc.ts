@@ -156,7 +156,10 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  */
 const enforceAuth = t.middleware(async ({ ctx, next }) => {
   if (!ctx?.clerkUserId) {
-    throw new Error("UNAUTHORIZED: user not authenticated");
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Please sign in to continue.",
+    });
   }
   return next({ ctx: { ...ctx, userId: ctx.clerkUserId } });
 });

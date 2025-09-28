@@ -1,5 +1,13 @@
 export type JobStatus = "queued" | "processing" | "completed" | "failed";
 
+// Exact generation stages shown to users (must match UI copy)
+export type GenerationStage =
+  | "Processing PDF"
+  | "Analyzing your request"
+  | "Generating content"
+  | "Formatting PDF"
+  | "Finalizing document";
+
 export interface Job {
   id: string;
   userId: string | null;
@@ -10,6 +18,9 @@ export interface Job {
   errorMessage: string | null;
   createdAt: Date;
   updatedAt: Date | null;
+  // Optional fields for live progress tracking (backend may not always supply)
+  progress?: number; // 0-100
+  stage?: string | null; // backend stores free-form label; UI maps to GenerationStage
 }
 
 export interface File {

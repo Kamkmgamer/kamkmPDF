@@ -7,6 +7,7 @@ import {
 } from "~/server/ai/openrouter";
 import type { ImageMode } from "~/server/jobs/temp";
 import htmlToPdfToPath, { htmlToPdfToBuffer } from "~/server/jobs/htmlToPdf";
+import type { GenerationStage } from "~/types/pdf";
 
 // Detect common serverless platforms so we avoid PDFKit (which expects AFM files at runtime)
 function isServerless() {
@@ -140,14 +141,17 @@ export async function generatePdfBuffer(opts: {
   jobId: string;
   prompt?: string;
   image?: { path: string; mime: string; mode: ImageMode } | null;
+  onStage?: (stage: GenerationStage, progress: number) => void | Promise<void>;
 }): Promise<Buffer> {
   // Try AI pipeline if configured
   try {
     if (process.env.OPENROUTER_API_KEY) {
+      await opts.onStage?.("Analyzing your request", 15);
       const htmlBodyRaw = await generateHtmlFromPrompt({
         prompt: opts.prompt ?? "",
         brandName: "Prompt‑to‑PDF",
       });
+      await opts.onStage?.("Generating content", 40);
       let body = htmlBodyRaw;
       // If an image was provided, inline it as data URL at top, letting CSS handle sizing
       if (
@@ -170,6 +174,7 @@ export async function generatePdfBuffer(opts: {
         }
       }
       const htmlDoc = wrapHtmlDocument(body, "Prompt‑to‑PDF Document");
+      await opts.onStage?.("Formatting PDF", 70);
       const buf = await htmlToPdfToBuffer(htmlDoc, {
         format: "A4",
         printBackground: true,
@@ -182,6 +187,7 @@ export async function generatePdfBuffer(opts: {
 
   // On serverless (Netlify/Vercel/Lambda), avoid PDFKit asset lookups; use Puppeteer-based path
   if (isServerless()) {
+    await opts.onStage?.("Analyzing your request", 10);
     let fallbackHtmlBody = `
       <main style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding: 40px;">
         <h1 style="text-align:center; font-size: 22px;">Generated PDF (Fallback)</h1>
@@ -195,6 +201,7 @@ export async function generatePdfBuffer(opts: {
         <p style="margin-top:16px; font-size: 12px;">Generated at: ${new Date().toISOString()}</p>
       </main>
     `;
+    await opts.onStage?.("Generating content", 35);
     if (
       opts.image?.path &&
       (opts.image.mime === "image/png" || opts.image.mime === "image/jpeg")
@@ -220,6 +227,7 @@ export async function generatePdfBuffer(opts: {
       fallbackHtmlBody,
       "Prompt‑to‑PDF Document",
     );
+    await opts.onStage?.("Formatting PDF", 70);
     const buf = await htmlToPdfToBuffer(htmlDoc, {
       format: "A4",
       printBackground: true,
@@ -241,6 +249,12 @@ export async function generatePdfBuffer(opts: {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     doc.pipe(pt);
+
+    void (async () => {
+      try {
+        await opts.onStage?.("Generating content", 35);
+      } catch {}
+    })();
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     doc.fontSize(20).text("Generated PDF (Fallback)", { align: "center" });
@@ -297,6 +311,7 @@ export async function generatePdfBuffer(opts: {
             doc.moveDown();
           }
         }
+        await opts.onStage?.("Formatting PDF", 70);
       } catch {
         // ignore image draw errors
       }

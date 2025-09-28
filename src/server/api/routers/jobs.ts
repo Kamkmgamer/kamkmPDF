@@ -24,7 +24,7 @@ export const jobsRouter = createTRPCRouter({
     }),
 
   create: protectedProcedure
-    .input(z.object({ prompt: z.string().min(1).max(2000) }))
+    .input(z.object({ prompt: z.string().min(1).max(8000) }))
     .mutation(async ({ input, ctx }) => {
       const id = randomUUID();
       const userId = ctx.userId;
