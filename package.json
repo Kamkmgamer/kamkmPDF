@@ -33,6 +33,7 @@
     "@trpc/react-query": "^11.6.0",
     "@trpc/server": "^11.6.0",
     "@uploadthing/react": "^7.3.3",
+    "date-fns": "^4.1.0",
     "drizzle-orm": "^0.41.0",
     "framer-motion": "^12.23.22",
     "lucide-react": "^0.544.0",

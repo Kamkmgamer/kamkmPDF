@@ -26,7 +26,6 @@ export default function JobsGallery() {
 
   const { data, isLoading, refetch, isRefetching } =
     api.files.listMine.useQuery(params, { refetchOnWindowFocus: false });
-  const [copyingId, setCopyingId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
 
@@ -34,8 +33,6 @@ export default function JobsGallery() {
     { fileId: previewId ?? "" },
     { enabled: !!previewId },
   );
-
-  const shareMutation = api.files.createShareLink.useMutation();
 
   async function handleDownload(fileId: string, baseName?: string) {
     try {
@@ -68,19 +65,6 @@ export default function JobsGallery() {
       window.open(url, "_blank");
     } finally {
       setDownloadingId(null);
-    }
-  }
-
-  async function handleShare(fileId: string) {
-    try {
-      setCopyingId(fileId);
-      const out = (await shareMutation.mutateAsync({ fileId })) as {
-        url: string;
-        expiresAt: string;
-      };
-      await navigator.clipboard.writeText(out.url);
-    } finally {
-      setCopyingId(null);
     }
   }
 
@@ -160,7 +144,7 @@ export default function JobsGallery() {
           {data.map((item) => (
             <li
               key={item.fileId}
-              className="group relative overflow-hidden rounded-2xl border border-[--color-border] bg-[--color-surface] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-[--color-border] bg-[--color-surface] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
               {/* Visual header with real thumbnail when possible */}
               <div className="relative aspect-[3/4] w-full overflow-hidden bg-[var(--color-base)]">
@@ -183,9 +167,12 @@ export default function JobsGallery() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 border-t border-[--color-border] p-3">
+              <div className="flex flex-1 flex-col p-3">
                 <StatusBadge status={item.status} />
-                <div className="ml-auto flex items-center gap-2">
+              </div>
+
+              <div className="flex items-center justify-between gap-2 border-t border-[--color-border] p-2">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => setPreviewId(item.fileId)}
                     className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
@@ -201,13 +188,8 @@ export default function JobsGallery() {
                       ? "Downloading..."
                       : "Download"}
                   </button>
-                  <button
-                    onClick={() => handleShare(item.fileId)}
-                    disabled={copyingId === item.fileId}
-                    className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
-                  >
-                    {copyingId === item.fileId ? "Copied!" : "Copy Link"}
-                  </button>
+                </div>
+                <div className="flex-shrink-0">
                   {item.jobId ? (
                     <Link
                       href={`/pdf/${item.jobId}`}
@@ -301,7 +283,7 @@ function GallerySkeleton() {
 function EmptyState() {
   return (
     <div className="rounded-xl border border-dashed border-[--color-border] p-10 text-center">
-      <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
+      <div className="text-[--color-primary)] mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary)]/10">
         📄
       </div>
       <h3 className="text-lg font-medium">No documents yet</h3>

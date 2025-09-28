@@ -14,6 +14,14 @@ const config = {
     }
     return cfg;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
+    ],
+  },
 };
 
 export default config;

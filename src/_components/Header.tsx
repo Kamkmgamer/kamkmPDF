@@ -5,6 +5,7 @@ import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
 import ThemeToggle from "./ThemeToggle";
 import React from "react";
 import { usePathname } from "next/navigation";
+import { File, Menu as MenuIcon, X } from "lucide-react";
 
 export default function Header() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -15,70 +16,70 @@ export default function Header() {
     pathname?.startsWith("/dashboard") ?? pathname?.startsWith("/pdf/");
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[--color-border] bg-[--color-surface]/80 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-[--color-surface]/60">
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 shadow-sm backdrop-blur-lg dark:border-gray-800 dark:bg-gray-900/80">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <Link href={isSignedIn ? "/" : "/"} className="font-semibold">
-            Prompt‑to‑PDF
+        <div className="flex items-center gap-4">
+          <Link
+            href={isSignedIn ? "/dashboard" : "/"}
+            className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white"
+          >
+            <File className="h-6 w-6" />
+            <span>Prompt‑to‑PDF</span>
           </Link>
-          {/* Focused navigation: only useful links */}
-          {isLoaded && isSignedIn && (
-            <nav className="hidden items-center gap-4 text-sm md:flex">
-              <Link
-                href="/dashboard"
-                className={`rounded-md px-2 py-1 transition-colors ${
-                  isDashboard
-                    ? "text-[--color-text-primary]"
-                    : "text-[--color-text-muted] hover:text-[--color-text-primary]"
-                }`}
-              >
-                My Documents
-              </Link>
-              <Link
-                href="/dashboard/new"
-                className="rounded-md border border-[--color-border] px-3 py-1 text-[--color-text-primary] transition-colors hover:bg-[--color-surface]"
-              >
-                New PDF
-              </Link>
-            </nav>
-          )}
         </div>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-3">
+        {isLoaded && isSignedIn && (
+          <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+            <Link
+              href="/dashboard"
+              className={`text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white ${isDashboard ? "text-gray-900 dark:text-white" : ""}`}
+            >
+              My Documents
+            </Link>
+            <Link
+              href="/dashboard/templates"
+              className={`text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white ${pathname?.startsWith("/dashboard/templates") ? "text-gray-900 dark:text-white" : ""}`}
+            >
+              Templates
+            </Link>
+            <Link
+              href="/dashboard/new"
+              className="rounded-full bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+            >
+              New PDF
+            </Link>
+          </nav>
+        )}
+
+        <div className="flex items-center gap-4">
           <ThemeToggle />
           {isLoaded && (
             <>
               {isSignedIn ? (
-                <>
-                  <UserButton
-                    appearance={{
-                      elements: {
-                        avatarBox: "w-8 h-8",
-                      },
-                    }}
-                  />
-                </>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: "h-9 w-9",
+                    },
+                  }}
+                />
               ) : (
                 <div className="hidden items-center gap-2 sm:flex">
                   <SignInButton
                     mode="modal"
-                    // Ensure successful auth returns to dashboard
                     forceRedirectUrl="/dashboard"
                     fallbackRedirectUrl="/dashboard"
                   >
-                    <button className="rounded-md border border-[--color-border] px-3 py-1 text-sm text-[--color-text-primary] transition-colors hover:bg-[--color-surface]">
+                    <button className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
                       Sign In
                     </button>
                   </SignInButton>
                   <SignUpButton
                     mode="modal"
-                    // Ensure successful auth returns to dashboard
                     forceRedirectUrl="/dashboard"
                     fallbackRedirectUrl="/dashboard"
                   >
-                    <button className="rounded-md bg-[color:var(--color-primary,#2563eb)] px-3 py-1 text-sm text-white transition-colors hover:opacity-90">
+                    <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
                       Get Started
                     </button>
                   </SignUpButton>
@@ -86,60 +87,55 @@ export default function Header() {
               )}
             </>
           )}
-          {/* Mobile menu toggle */}
           <button
-            className="rounded-md border border-[--color-border] bg-[--color-surface]/60 p-2 backdrop-blur transition-colors hover:bg-[--color-surface]/80 md:hidden"
+            className="rounded-full p-2 text-gray-600 hover:bg-gray-100 md:hidden dark:text-gray-400 dark:hover:bg-gray-800"
             aria-label="Toggle menu"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
+            {open ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <MenuIcon className="h-6 w-6" />
+            )}
           </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
       {open && (
-        <div className="border-t border-[--color-border] bg-[--color-surface]/90 backdrop-blur md:hidden">
-          <div className="mx-auto max-w-7xl space-y-2 px-4 py-3">
+        <div className="border-t border-gray-200 bg-white/95 md:hidden dark:border-gray-800 dark:bg-gray-900/95">
+          <div className="mx-auto max-w-7xl space-y-4 px-4 py-5">
             {isLoaded && isSignedIn ? (
-              <>
+              <nav className="flex flex-col space-y-4">
                 <Link
                   href="/dashboard"
-                  className="block py-1 text-[--color-text-primary]"
+                  className="text-lg font-medium text-gray-800 dark:text-gray-200"
                   onClick={() => setOpen(false)}
                 >
                   My Documents
                 </Link>
                 <Link
-                  href="/dashboard/new"
-                  className="block py-1 text-[--color-text-primary]"
+                  href="/dashboard/templates"
+                  className="text-lg font-medium text-gray-800 dark:text-gray-200"
                   onClick={() => setOpen(false)}
+                >
+                  Templates
+                </Link>
+                <Link
+                  href="/dashboard/new"
+                  className="rounded-lg bg-blue-600 px-4 py-3 text-center text-lg font-medium text-white"
                 >
                   New PDF
                 </Link>
-              </>
+              </nav>
             ) : (
-              <div className="flex gap-2 pt-2">
+              <div className="grid grid-cols-2 gap-4">
                 <SignInButton
                   mode="modal"
                   forceRedirectUrl="/dashboard"
                   fallbackRedirectUrl="/dashboard"
                 >
-                  <button className="flex-1 rounded-md border border-[--color-border] bg-[--color-surface]/60 px-3 py-2 text-sm text-[--color-text-primary] transition-colors hover:bg-[--color-surface]/80">
+                  <button className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
                     Sign In
                   </button>
                 </SignInButton>
@@ -148,7 +144,7 @@ export default function Header() {
                   forceRedirectUrl="/dashboard"
                   fallbackRedirectUrl="/dashboard"
                 >
-                  <button className="flex-1 rounded-md bg-[color:var(--color-primary,#2563eb)] px-3 py-2 text-sm text-white hover:opacity-90">
+                  <button className="w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-lg font-medium text-white">
                     Get Started
                   </button>
                 </SignUpButton>

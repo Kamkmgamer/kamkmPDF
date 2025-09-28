@@ -1,31 +1,31 @@
 "use client";
 
 import React from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "../../_components/DashboardLayout";
 import JobsGallery from "../../_components/JobsGallery";
 import Link from "next/link";
+import { ArrowRight, FilePlus, ImagePlus, BookOpen } from "lucide-react";
 
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
   const router = useRouter();
 
-  // Show loading state while auth is being determined
   if (!isLoaded) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center p-8">
+        <div className="flex h-full items-center justify-center p-8">
           <div className="text-center">
-            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-[--color-primary]"></div>
-            <p className="mt-2 text-[--color-text-muted]">Loading...</p>
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-500">Loading your dashboard...</p>
           </div>
         </div>
       </DashboardLayout>
     );
   }
 
-  // Redirect to sign-in if not authenticated
   if (!isSignedIn) {
     router.push("/sign-in?redirect_url=/dashboard");
     return null;
@@ -33,110 +33,97 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      {/* Hero header */}
-      <div className="relative overflow-hidden rounded-2xl border border-[--color-border] bg-gradient-to-br from-[--color-surface] to-[--color-base] p-6 sm:p-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Your Documents
-            </h1>
-            <p className="mt-1 text-sm text-[--color-text-muted]">
-              Browse, download and share your generated PDFs. Create a new one
-              in seconds.
-            </p>
+      <div className="p-4 sm:p-6 lg:p-8">
+        {/* Welcome Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            Welcome back, {user?.firstName}!
+          </h1>
+          <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+            Ready to create something amazing?
+          </p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mb-10">
+          <h2 className="mb-4 text-xl font-semibold text-gray-800 dark:text-gray-200">
+            Start Creating
+          </h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <ActionCard
+              href="/dashboard/new"
+              icon={<FilePlus className="h-8 w-8 text-blue-500" />}
+              title="New from Prompt"
+              description="Convert text into a polished PDF document."
+            />
+            <ActionCard
+              href="/dashboard/new"
+              icon={<ImagePlus className="h-8 w-8 text-green-500" />}
+              title="Add an Image"
+              description="Include a cover or inline image in your PDF."
+            />
+            <ActionCard
+              href="/dashboard/new#templates"
+              icon={<BookOpen className="h-8 w-8 text-purple-500" />}
+              title="Browse Templates"
+              description="Use a pre-designed template to get started quickly."
+            />
           </div>
-          <div className="flex items-center gap-2">
+        </div>
+
+        {/* Recent Documents */}
+        <section aria-labelledby="recent-documents">
+          <div className="mb-4 flex items-center justify-between">
+            <h2
+              id="recent-documents"
+              className="text-xl font-semibold text-gray-800 dark:text-gray-200"
+            >
+              Your Recent Documents
+            </h2>
             <Link
               href="/dashboard/new"
-              className="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-on-primary)] shadow-sm transition hover:opacity-95"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
             >
-              New PDF
-            </Link>
-            <Link
-              href="/dashboard/new#templates"
-              className="rounded-lg border border-[--color-border] px-4 py-2 text-sm hover:bg-[--color-surface]"
-            >
-              Use a Template
+              Create New PDF
             </Link>
           </div>
-        </div>
+          <JobsGallery />
+        </section>
       </div>
-
-      {/* Quick actions */}
-      <section aria-labelledby="quick-actions" className="mt-6">
-        <h2 id="quick-actions" className="sr-only">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Link
-            href="/dashboard/new"
-            className="group rounded-xl border border-[--color-border] bg-[--color-surface] p-5 transition-all hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-                ＋
-              </div>
-              <div>
-                <div className="font-medium">New from Prompt</div>
-                <div className="text-sm text-[--color-text-muted]">
-                  Convert text into a polished PDF
-                </div>
-              </div>
-              <span className="ml-auto opacity-0 transition-opacity group-hover:opacity-100">
-                →
-              </span>
-            </div>
-          </Link>
-
-          <Link
-            href="/dashboard/new"
-            className="group rounded-xl border border-[--color-border] bg-[--color-surface] p-5 transition-all hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-                🖼️
-              </div>
-              <div>
-                <div className="font-medium">Add Image</div>
-                <div className="text-sm text-[--color-text-muted]">
-                  Include a cover or inline image
-                </div>
-              </div>
-              <span className="ml-auto opacity-0 transition-opacity group-hover:opacity-100">
-                →
-              </span>
-            </div>
-          </Link>
-
-          <Link
-            href="/dashboard/new#templates"
-            className="group rounded-xl border border-[--color-border] bg-[--color-surface] p-5 transition-all hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-                🧩
-              </div>
-              <div>
-                <div className="font-medium">Browse Templates</div>
-                <div className="text-sm text-[--color-text-muted]">
-                  Use a curated starting point
-                </div>
-              </div>
-              <span className="ml-auto opacity-0 transition-opacity group-hover:opacity-100">
-                →
-              </span>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {/* Gallery */}
-      <section aria-labelledby="your-files" className="mt-8">
-        <h2 id="your-files" className="sr-only">
-          Your Files
-        </h2>
-        <JobsGallery />
-      </section>
     </DashboardLayout>
+  );
+}
+
+function ActionCard({
+  href,
+  icon,
+  title,
+  description,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group block rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-blue-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500"
+    >
+      <div className="flex items-center gap-4">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+          {icon}
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            {title}
+          </h3>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            {description}
+          </p>
+        </div>
+        <ArrowRight className="ml-auto h-5 w-5 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 dark:text-gray-500" />
+      </div>
+    </Link>
   );
 }
