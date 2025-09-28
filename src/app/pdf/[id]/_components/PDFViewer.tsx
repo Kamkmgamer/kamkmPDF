@@ -29,6 +29,19 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
   const [inlineLoaded, setInlineLoaded] = useState(false);
 
   useEffect(() => {
+    // dynamic initial zoom
+    if (typeof window !== "undefined") {
+      const w = window.innerWidth;
+      let z = 1;
+      if (w < 640) z = 1;
+      else if (w < 1024) z = 1.15;
+      else if (w < 1536) z = 1.4;
+      else z = 1.6;
+      setZoom(z);
+    }
+  }, []);
+
+  useEffect(() => {
     setInlineLoaded(false);
     setPdfSource(null);
     setError(null);
@@ -157,14 +170,12 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
         </div>
 
         <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
+          <span>{totalPages} pages</span>
         </div>
       </div>
 
       {/* PDF Content Area */}
-      <div className="flex flex-1 items-center justify-center overflow-auto bg-gray-200 p-2 sm:p-4 dark:bg-gray-700">
+      <div className="flex flex-1 items-center justify-center overflow-x-hidden overflow-y-auto bg-gray-200 p-2 sm:p-4 dark:bg-gray-700">
         {urlLoading || isLoading ? (
           <div className="text-center">
             <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
@@ -190,7 +201,7 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
             <p className="text-red-600 dark:text-red-400">{error}</p>
           </div>
         ) : documentFile ? (
-          <div className="max-h-full w-full max-w-[1000px] overflow-auto rounded-lg bg-white shadow-lg dark:bg-gray-800">
+          <div className="max-h-full w-full max-w-full min-w-0 flex-1 overflow-x-hidden overflow-y-auto rounded-lg bg-white shadow-lg md:mx-auto md:max-w-[1000px] dark:bg-gray-800">
             <Document
               file={documentFile}
               onLoadSuccess={onDocumentLoadSuccess}
@@ -211,25 +222,28 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
                 </div>
               }
             >
-              <Page
-                pageNumber={currentPage}
-                scale={zoom}
-                loading={
-                  <div className="p-4 text-center">
-                    <div className="mx-auto mb-2 h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Loading page...
-                    </p>
-                  </div>
-                }
-                error={
-                  <div className="p-4 text-center">
-                    <p className="text-red-600 dark:text-red-400">
-                      Failed to load page
-                    </p>
-                  </div>
-                }
-              />
+              {Array.from({ length: totalPages }, (_, index) => (
+                <Page
+                  key={index + 1}
+                  pageNumber={index + 1}
+                  scale={zoom}
+                  loading={
+                    <div className="p-4 text-center">
+                      <div className="mx-auto mb-2 h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Loading page...
+                      </p>
+                    </div>
+                  }
+                  error={
+                    <div className="p-4 text-center">
+                      <p className="text-red-600 dark:text-red-400">
+                        Failed to load page
+                      </p>
+                    </div>
+                  }
+                />
+              ))}
             </Document>
           </div>
         ) : (

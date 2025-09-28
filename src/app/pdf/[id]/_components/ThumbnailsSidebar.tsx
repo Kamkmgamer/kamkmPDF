@@ -136,12 +136,11 @@ export function ThumbnailsSidebar({
 
   const DocumentComponent = reactPdf?.Document;
   const PageComponent = reactPdf?.Page;
-
   return (
     <>
       {/* Mobile Overlay */}
       <div
-        className="bg-opacity-50 fixed inset-0 z-40 bg-black md:hidden"
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
         onClick={onClose}
       />
 
@@ -149,7 +148,6 @@ export function ThumbnailsSidebar({
       <div
         className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-[--color-border] bg-[--color-surface] transition-transform duration-300 ease-in-out md:static ${isOpen ? "translate-x-0" : "-translate-x-full"} md:block md:translate-x-0`}
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-[--color-border] p-4">
           <h3 className="text-sm font-semibold text-[--color-text-primary]">
             Pages ({totalPages})

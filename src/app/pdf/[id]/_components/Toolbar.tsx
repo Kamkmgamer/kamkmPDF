@@ -154,7 +154,7 @@ export function Toolbar({
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden items-center justify-between sm:flex">
+      <div className="hidden flex-wrap items-center justify-between gap-y-2 sm:flex">
         <div className="flex items-center space-x-4">
           <button
             onClick={onBack}
@@ -185,7 +185,7 @@ export function Toolbar({
           </h1>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={onDownload}
             className="flex items-center space-x-2 rounded-md border border-gray-300 px-3 py-1 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"

@@ -310,7 +310,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   // Completed state - show PDF viewer
   if (job.status === "completed" && job.resultFileId) {
     return (
-      <div className="flex h-screen flex-col bg-gray-50 dark:bg-gray-900">
+      <div className="flex min-h-screen flex-col overflow-x-hidden bg-gray-50 dark:bg-gray-900">
         {showReadyBanner && (
           <div className="z-10 w-full bg-green-50 px-3 py-2 text-center text-sm text-green-700 shadow-sm sm:px-4 dark:bg-green-900/30 dark:text-green-200">
             PDF ready. You can view, download, or share it now.
@@ -340,7 +340,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
             onClose={() => setShowThumbnails(false)}
           />
 
-          <div className="relative flex-1 overflow-hidden">
+          <div className="relative flex-1 overflow-hidden bg-gray-200 dark:bg-gray-800">
             <PDFViewer fileId={job.resultFileId} _job={job} />
 
             {/* Regeneration Status Overlay */}
