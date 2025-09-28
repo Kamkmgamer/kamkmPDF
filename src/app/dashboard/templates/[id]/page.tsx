@@ -10,7 +10,8 @@ import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 
 export default function TemplateDetailPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id && typeof params.id === "string" ? params.id : "";
   const template = templates.find((t) => t.id === id);
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
@@ -79,7 +80,7 @@ export default function TemplateDetailPage() {
   }
 
   if (!isSignedIn) {
-    router.push(`/sign-in?redirect_url=/dashboard/templates/${id as string}`);
+    router.push(`/sign-in?redirect_url=/dashboard/templates/${id}`);
     return null;
   }
 

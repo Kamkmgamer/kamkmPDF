@@ -37,7 +37,7 @@ export default function NewPromptPage() {
   const createJob = api.jobs.create.useMutation();
 
   // Effects for auth, autosave, and unload warning
-  useAuthGuard(isLoaded, isSignedIn, router);
+  useAuthGuard(isLoaded, isSignedIn ?? false, router);
   useAutosave(prompt, setPrompt);
   useUnloadWarning(prompt, submitting);
 
