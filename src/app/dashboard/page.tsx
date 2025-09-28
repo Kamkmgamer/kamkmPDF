@@ -57,13 +57,7 @@ export default function DashboardPage() {
               description="Convert text into a polished PDF document."
             />
             <ActionCard
-              href="/dashboard/new"
-              icon={<ImagePlus className="h-8 w-8 text-green-500" />}
-              title="Add an Image"
-              description="Include a cover or inline image in your PDF."
-            />
-            <ActionCard
-              href="/dashboard/new#templates"
+              href="/dashboard/templates"
               icon={<BookOpen className="h-8 w-8 text-purple-500" />}
               title="Browse Templates"
               description="Use a pre-designed template to get started quickly."
