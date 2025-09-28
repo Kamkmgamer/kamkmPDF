@@ -16,7 +16,6 @@ export const env = createEnv({
     UPLOADTHING_TOKEN: z.string().min(1),
     // OpenRouter (optional). When not provided, the system falls back to PDFKit-only generation.
     OPENROUTER_API_KEY: z.string().optional(),
-    OPENROUTER_MODEL: z.string().optional(),
     OPENROUTER_BASE_URL: z.string().url().optional(),
     // Worker/cron coordination (optional)
     PDFPROMPT_WORKER_SECRET: z.string().optional(),
@@ -46,7 +45,6 @@ export const env = createEnv({
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
-    OPENROUTER_MODEL: process.env.OPENROUTER_MODEL,
     OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL,
     PDFPROMPT_WORKER_SECRET: process.env.PDFPROMPT_WORKER_SECRET,
     PDFPROMPT_MAX_JOBS_PER_INVOCATION:

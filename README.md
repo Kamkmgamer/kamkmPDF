@@ -69,7 +69,6 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Optional AI configuration
 OPENROUTER_API_KEY=...
-OPENROUTER_MODEL=openai/gpt-4o-mini
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 # Optional worker tuning
@@ -83,6 +82,11 @@ PDFPROMPT_POLL_MS=2000
 ```
 
 Client-side keys **must** be prefixed with `NEXT_PUBLIC_`. Do not commit `.env.local`.
+
+### Model selection
+
+- The OpenRouter model list is now **hardcoded** in `src/server/ai/openrouter.ts` as a prioritized set (1 primary + 12 backups). The code will automatically try each in order until one succeeds.
+- You can still override models per call by passing `model` (single slug or comma-separated list) to `generateHtmlFromPrompt()`.
 
 ## Project Structure Highlights
 
@@ -195,7 +199,7 @@ Client-side keys **must** be prefixed with `NEXT_PUBLIC_`. Do not commit `.env.l
 - **NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY** – Frontend Clerk key.
 - **NEXT_PUBLIC_APP_URL** – Fully qualified public URL.
 - **UPLOADTHING_TOKEN** – UploadThing V7 token.
-- **Optional** – `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`, `PDFPROMPT_WORKER_SECRET`, `PDFPROMPT_MAX_*`, `PDFPROMPT_BATCH_SIZE`.
+- **Optional** – `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`, `PDFPROMPT_WORKER_SECRET`, `PDFPROMPT_MAX_*`, `PDFPROMPT_BATCH_SIZE`.
 
 ## Contributing
 

@@ -6,7 +6,23 @@ export interface GenerateHtmlOptions {
   brandName?: string;
 }
 
-const DEFAULT_MODEL = env.OPENROUTER_MODEL ?? "x-ai/grok-4-fast:free";
+// Hardcoded prioritized list: first is primary, followed by 12 backups.
+const DEFAULT_MODELS: string[] = [
+  "openrouter/auto",
+  "x-ai/grok-4-fast:free",
+  "deepseek/deepseek-chat-v3.1:free",
+  "openai/gpt-oss-120b:free",
+  "openai/gpt-oss-20b:free",
+  "z-ai/glm-4.5-air:free",
+  "qwen/qwen3-coder:free",
+  "moonshotai/kimi-k2:free",
+  "moonshotai/kimi-dev-72b:free",
+  "deepseek/deepseek-r1-0528:free",
+  "tngtech/deepseek-r1t-chimera:free",
+  "deepseek/deepseek-chat-v3-0324:free",
+  "deepseek/deepseek-r1-distill-llama-70b:free",
+  "deepseek/deepseek-r1:free",
+];
 const OPENROUTER_BASE =
   env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
 
@@ -90,26 +106,50 @@ export async function generateHtmlFromPrompt({
     if (asciiOnly.trim().length > 0) headers["X-Title"] = asciiOnly;
   }
 
-  const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      model: model ?? DEFAULT_MODEL,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.3,
-    }),
-  });
+  // Build the prioritized model list (per-call override supports comma-separated as well)
+  const models: string[] = model
+    ? model
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : DEFAULT_MODELS;
 
-  if (!res.ok) {
+  const attemptErrors: string[] = [];
+  for (const currentModel of models) {
+    const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model: currentModel,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.3,
+      }),
+    });
+
+    if (res.ok) {
+      const data = (await res.json()) as OpenRouterResponse;
+      const content: string = data?.choices?.[0]?.message?.content ?? "";
+      if (content && content.trim().length > 0) {
+        return extractHtmlFromContent(content);
+      }
+      attemptErrors.push(`Model ${currentModel} -> ok but empty content`);
+      // try next model
+      continue;
+    }
+
     const text = await res.text().catch(() => "");
-    throw new Error(`OpenRouter API error ${res.status}: ${text}`);
+    attemptErrors.push(
+      `Model ${currentModel} -> ${res.status}: ${text?.slice(0, 500)}`,
+    );
+    // Try next model in list
   }
 
-  const data = (await res.json()) as OpenRouterResponse;
-  const content: string = data?.choices?.[0]?.message?.content ?? "";
-  if (!content) throw new Error("OpenRouter returned empty content");
-  return extractHtmlFromContent(content);
+  // Exhausted all models
+  throw new Error(
+    `OpenRouter failed after trying models in order: ${models.join(", ")}.\n` +
+      attemptErrors.join("\n---\n"),
+  );
 }
