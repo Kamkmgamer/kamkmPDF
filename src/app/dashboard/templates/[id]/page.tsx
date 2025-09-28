@@ -3,7 +3,7 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import DashboardLayout from "../../../../_components/DashboardLayout";
-import { templates } from "../templates";
+import { templates, type Template } from "../templates";
 import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,7 @@ import { api } from "~/trpc/react";
 export default function TemplateDetailPage() {
   const params = useParams();
   const id = params?.id && typeof params.id === "string" ? params.id : "";
-  const template = templates.find((t) => t.id === id);
+  const template: Template | undefined = templates.find((t) => t.id === id);
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const createJob = api.jobs.create.useMutation();
@@ -40,25 +40,31 @@ export default function TemplateDetailPage() {
     if (!template) return;
 
     const prompt = `
-      Create a ${template.name} resume with the following information:
-      Name: ${formData.name}
-      Email: ${formData.email}
-      Phone: ${formData.phone}
-      LinkedIn: ${formData.linkedin}
-      GitHub: ${formData.github}
-      
-      Summary:
-      ${formData.summary}
-      
-      Work Experience:
-      ${formData.experience}
-      
-      Education:
-      ${formData.education}
-      
-      Skills:
-      ${formData.skills}
-    `;
+Create a ${template.name} resume using the following candidate information. Adhere strictly to the template's layout and tone.
+
+TEMPLATE INSTRUCTIONS:
+${template.promptInstructions ?? ""}
+TEMPLATE TAGS: ${template.tags ? template.tags.join(", ") : ""}
+
+CANDIDATE DETAILS:
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone}
+LinkedIn: ${formData.linkedin}
+GitHub: ${formData.github}
+
+Summary:
+${formData.summary}
+
+Work Experience:
+${formData.experience}
+
+Education:
+${formData.education}
+
+Skills:
+${formData.skills}
+`;
 
     try {
       const job = await createJob.mutateAsync({ prompt });
@@ -107,6 +113,18 @@ export default function TemplateDetailPage() {
           <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
             {template.description}
           </p>
+          {Array.isArray(template.tags) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {template.tags?.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200 ring-inset dark:bg-blue-900/30 dark:text-blue-200 dark:ring-blue-800/60"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">

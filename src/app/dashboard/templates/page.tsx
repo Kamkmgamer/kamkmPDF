@@ -2,7 +2,7 @@
 
 import React from "react";
 import DashboardLayout from "../../../_components/DashboardLayout";
-import { templates } from "./templates";
+import { templates, type Template } from "./templates";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -20,7 +20,7 @@ export default function TemplatesPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {templates.map((template) => (
+          {templates.map((template: Template) => (
             <Link
               key={template.id}
               href={`/dashboard/templates/${template.id}`}
@@ -42,6 +42,18 @@ export default function TemplatesPage() {
                   <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     {template.description}
                   </p>
+                  {Array.isArray(template.tags) && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {template.tags?.slice(0, 4).map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200 ring-inset dark:bg-blue-900/30 dark:text-blue-200 dark:ring-blue-800/60"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </Link>
