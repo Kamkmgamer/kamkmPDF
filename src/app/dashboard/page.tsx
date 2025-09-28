@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "../../_components/DashboardLayout";
 import JobsGallery from "../../_components/JobsGallery";
 import Link from "next/link";
-import { ArrowRight, FilePlus, ImagePlus, BookOpen } from "lucide-react";
+import { ArrowRight, FilePlus, BookOpen } from "lucide-react";
 
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
