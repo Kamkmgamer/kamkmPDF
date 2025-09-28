@@ -8,7 +8,8 @@ export interface GenerateHtmlOptions {
 
 // Hardcoded prioritized list: first is primary, followed by 12 backups.
 const DEFAULT_MODELS: string[] = [
-  "openrouter/auto",
+  "openrouter/sonoma-dusk-alpha",
+  "openrouter/sonoma-sky-alpha",
   "x-ai/grok-4-fast:free",
   "deepseek/deepseek-chat-v3.1:free",
   "openai/gpt-oss-120b:free",
