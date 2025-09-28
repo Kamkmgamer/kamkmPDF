@@ -20,7 +20,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <div className="flex items-center gap-4">
           <Link
-            href={isSignedIn ? "/dashboard" : "/"}
+            href={isSignedIn ? "/" : "/"}
             className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white"
           >
             <File className="h-6 w-6" />

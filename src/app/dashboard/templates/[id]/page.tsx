@@ -17,6 +17,9 @@ export default function TemplateDetailPage() {
   const router = useRouter();
   const createJob = api.jobs.create.useMutation();
 
+  const [loading, setLoading] = React.useState(false);
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
+
   const [formData, setFormData] = React.useState({
     name: "",
     email: "",
@@ -35,9 +38,35 @@ export default function TemplateDetailPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const fillSample = () => {
+    setFormData({
+      name: "Alex Johnson",
+      email: "alex.johnson@example.com",
+      phone: "+1 (555) 012-3456",
+      linkedin: "https://www.linkedin.com/in/alexjohnson",
+      github: "https://github.com/alexjohnson",
+      summary:
+        "Product-minded software engineer with 6+ years experience building web apps. Passionate about performance, accessibility, and great UX.",
+      experience:
+        "Senior Software Engineer, Acme Inc. (2021–Present)\n- Led migration to Next.js, improving TTFB by 35% and Core Web Vitals to green.\n- Built PDF generation service reducing support workload by 20%.\n\nSoftware Engineer, Beta Co. (2018–2021)\n- Implemented role-based access control; reduced auth bugs by 60%.",
+      education:
+        "B.Sc. in Computer Science, State University (2014–2018)\nGoogle Cloud Associate Engineer (2020)",
+      skills: "TypeScript, React, Next.js, Node.js, SQL, Tailwind, Testing",
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!template) return;
+
+    const nextErrors: Record<string, string> = {};
+    if (!formData.name.trim()) nextErrors.name = "Please enter your full name.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      nextErrors.email = "Please enter a valid email address.";
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
 
     const prompt = `
 Create a ${template.name} resume using the following candidate information. Adhere strictly to the template's layout and tone.
@@ -67,11 +96,14 @@ ${formData.skills}
 `;
 
     try {
+      setLoading(true);
       const job = await createJob.mutateAsync({ prompt });
       if (job?.id) router.push(`/pdf/${job.id}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -125,6 +157,30 @@ ${formData.skills}
               ))}
             </div>
           )}
+          <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-100">
+            <p className="font-medium">How it works</p>
+            <ol className="mt-2 list-decimal space-y-1 pl-5">
+              <li>
+                Fill in your details below. Keep it simple — bullet points work
+                great.
+              </li>
+              <li>
+                Click Generate PDF. We’ll format it using this template
+                automatically.
+              </li>
+              <li>You can always come back and try another template.</li>
+            </ol>
+            {template.promptInstructions && (
+              <details className="mt-3">
+                <summary className="cursor-pointer text-blue-700 underline select-none dark:text-blue-300">
+                  What this template emphasizes
+                </summary>
+                <pre className="mt-2 rounded-md bg-white/60 p-3 text-xs leading-relaxed whitespace-pre-wrap text-gray-800 ring-1 ring-blue-200 ring-inset dark:bg-gray-800/40 dark:text-gray-200 dark:ring-gray-700">
+                  {template.promptInstructions}
+                </pre>
+              </details>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -142,8 +198,10 @@ ${formData.skills}
                     type="text"
                     name="name"
                     id="name"
+                    required
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    aria-invalid={Boolean(errors.name) || undefined}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
                 <div>
@@ -157,8 +215,10 @@ ${formData.skills}
                     type="email"
                     name="email"
                     id="email"
+                    required
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    aria-invalid={Boolean(errors.email) || undefined}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
                 <div>

@@ -140,19 +140,21 @@ export default function JobsGallery() {
       ) : !data || data.length === 0 ? (
         <EmptyState />
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data.map((item) => (
             <li
               key={item.fileId}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-[--color-border] bg-[--color-surface] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-[--color-border] bg-[--color-surface] transition-colors hover:border-[var(--color-primary)]/50 motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out motion-safe:hover:-translate-y-0.5"
             >
               {/* Visual header with real thumbnail when possible */}
               <div className="relative aspect-[3/4] w-full overflow-hidden bg-[var(--color-base)]">
                 {item.mimeType?.includes("pdf") ? (
-                  <PdfThumbnail fileId={item.fileId} />
+                  <div className="h-full w-full origin-center group-hover:scale-[1.02] motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out">
+                    <PdfThumbnail fileId={item.fileId} />
+                  </div>
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-                    <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/10 text-[--color-primary] shadow-sm">
+                    <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/15 text-[--color-primary]">
                       📄
                     </div>
                     <div className="line-clamp-3 text-sm text-[--color-text-muted]">
@@ -160,14 +162,25 @@ export default function JobsGallery() {
                     </div>
                   </div>
                 )}
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/10 to-transparent p-3 text-left">
-                  <div className="line-clamp-2 text-sm font-medium text-white drop-shadow">
-                    {item.prompt}
-                  </div>
+                {/* Top info chips (no shadow, high contrast) */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-2 text-[10px] font-medium">
+                  <span className="rounded-full bg-black/70 px-2 py-0.5 text-white/95 backdrop-blur-sm">
+                    {new Date(item.createdAt).toLocaleString()}
+                  </span>
+                  <span className="rounded-full bg-black/70 px-2 py-0.5 text-white/95 backdrop-blur-sm">
+                    {formatSize(item.size)}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex flex-1 flex-col p-3">
+              {/* Title and status */}
+              <div className="flex flex-1 flex-col gap-2 p-3">
+                <div
+                  className="line-clamp-2 text-sm leading-snug font-semibold text-gray-900 transition-colors dark:text-gray-50"
+                  title={item.prompt}
+                >
+                  {item.prompt}
+                </div>
                 <StatusBadge status={item.status} />
               </div>
 
@@ -175,25 +188,47 @@ export default function JobsGallery() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setPreviewId(item.fileId)}
-                    className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
+                    className="rounded-md border border-[--color-border] px-2 py-1 text-xs transition-colors hover:bg-[--color-base] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
                   >
                     Preview
                   </button>
                   <button
                     onClick={() => handleDownload(item.fileId, item.prompt)}
                     disabled={downloadingId === item.fileId}
-                    className="rounded-md border border-[--color-border] px-2 py-1 text-xs hover:bg-[--color-base]"
+                    className="inline-flex items-center gap-1 rounded-md border border-[--color-border] px-2 py-1 text-xs transition-colors hover:bg-[--color-base] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {downloadingId === item.fileId
-                      ? "Downloading..."
-                      : "Download"}
+                    {downloadingId === item.fileId ? (
+                      <>
+                        <svg
+                          className="h-3 w-3 animate-spin"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          />
+                        </svg>
+                        Downloading
+                      </>
+                    ) : (
+                      "Download"
+                    )}
                   </button>
                 </div>
                 <div className="flex-shrink-0">
                   {item.jobId ? (
                     <Link
                       href={`/pdf/${item.jobId}`}
-                      className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-sm text-white hover:opacity-90"
+                      className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-sm text-white transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
                     >
                       View
                     </Link>
@@ -209,10 +244,7 @@ export default function JobsGallery() {
                 </div>
               </div>
 
-              <div className="absolute inset-x-0 top-0 hidden items-center justify-between bg-gradient-to-b from-black/30 to-transparent p-2 text-xs text-white group-hover:flex">
-                <span>{new Date(item.createdAt).toLocaleString()}</span>
-                <span>{formatSize(item.size)}</span>
-              </div>
+              {/* Removed top and bottom overlays */}
             </li>
           ))}
         </ul>
