@@ -43,6 +43,12 @@ export default function Header() {
               Templates
             </Link>
             <Link
+              href="/contact"
+              className={`text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white ${pathname?.startsWith("/contact") ? "text-gray-900 dark:text-white" : ""}`}
+            >
+              Contact
+            </Link>
+            <Link
               href="/dashboard/new"
               className="rounded-full bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
             >
@@ -74,6 +80,12 @@ export default function Header() {
                       Sign In
                     </button>
                   </SignInButton>
+                  <Link
+                    href="/contact"
+                    className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                  >
+                    Contact
+                  </Link>
                   <SignUpButton
                     mode="modal"
                     forceRedirectUrl="/dashboard"
@@ -122,6 +134,13 @@ export default function Header() {
                   Templates
                 </Link>
                 <Link
+                  href="/contact"
+                  className="text-lg font-medium text-gray-800 dark:text-gray-200"
+                  onClick={() => setOpen(false)}
+                >
+                  Contact
+                </Link>
+                <Link
                   href="/dashboard/new"
                   className="rounded-lg bg-blue-600 px-4 py-3 text-center text-lg font-medium text-white"
                 >
@@ -139,6 +158,13 @@ export default function Header() {
                     Sign In
                   </button>
                 </SignInButton>
+                <Link
+                  href="/contact"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                  onClick={() => setOpen(false)}
+                >
+                  Contact
+                </Link>
                 <SignUpButton
                   mode="modal"
                   forceRedirectUrl="/dashboard"
