@@ -5,18 +5,15 @@ export default function Footer() {
     product: [
       { name: "Features", href: "#features" },
       { name: "Pricing", href: "#pricing" },
-      { name: "Templates", href: "/templates" },
-      { name: "API", href: "/api" },
+      { name: "Templates", href: "/dashboard/templates" },
     ],
     company: [
       { name: "About", href: "/about" },
       { name: "Blog", href: "/blog" },
-      { name: "Careers", href: "/careers" },
       { name: "Contact", href: "/contact" },
     ],
     support: [
       { name: "Help Center", href: "/help" },
-      { name: "Community", href: "/community" },
       { name: "Status", href: "/status" },
       { name: "Security", href: "/security" },
     ],
