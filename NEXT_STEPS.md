@@ -95,7 +95,7 @@ You'll need to build these React components:
 
 - [ ] **Upgrade Flow**
   - Tier selection page
-  - Payment integration (Stripe/Paddle)
+  - Payment integration `paypal`
   - Success confirmation
 
 - [ ] **Settings Page**
