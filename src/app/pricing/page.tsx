@@ -108,7 +108,7 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <motion.div
@@ -117,15 +117,15 @@ export default function PricingPage() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl dark:text-white">
             Simple, transparent pricing
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-xl text-gray-600">
+          <p className="mx-auto mt-4 max-w-2xl text-xl text-gray-600 dark:text-gray-300">
             Choose the plan that fits your needs. Upgrade or downgrade anytime.
           </p>
 
           {currentSub && (
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
               <span className="flex h-2 w-2 rounded-full bg-blue-600" />
               Current plan:{" "}
               <span className="font-bold capitalize">{currentSub.tier}</span>
@@ -145,11 +145,11 @@ export default function PricingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`relative flex flex-col rounded-2xl border-2 bg-white p-8 shadow-lg transition-all hover:shadow-xl ${
+                className={`relative flex flex-col rounded-2xl border-2 bg-white p-8 shadow-lg transition-all hover:shadow-xl dark:bg-gray-800 ${
                   tier.popular
-                    ? "border-blue-500 ring-2 ring-blue-500 ring-offset-2"
-                    : "border-gray-200"
-                } ${isCurrentTier ? "ring-2 ring-green-500 ring-offset-2" : ""}`}
+                    ? "border-blue-500 ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900"
+                    : "border-gray-200 dark:border-gray-700"
+                } ${isCurrentTier ? "ring-2 ring-green-500 ring-offset-2 dark:ring-offset-gray-900" : ""}`}
               >
                 {tier.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-1 text-sm font-semibold text-white">
@@ -171,21 +171,25 @@ export default function PricingPage() {
                 </div>
 
                 {/* Tier Name */}
-                <h3 className="text-2xl font-bold text-gray-900">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {tier.name}
                 </h3>
-                <p className="mt-2 text-sm text-gray-600">{tier.description}</p>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  {tier.description}
+                </p>
 
                 {/* Price */}
                 <div className="mt-6">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-bold text-gray-900">
+                    <span className="text-5xl font-bold text-gray-900 dark:text-white">
                       ${tier.price}
                     </span>
-                    <span className="text-gray-600">/month</span>
+                    <span className="text-gray-600 dark:text-gray-400">
+                      /month
+                    </span>
                   </div>
                   {tier.priceYearly > 0 && (
-                    <p className="mt-2 text-sm text-gray-600">
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                       or ${tier.priceYearly}/year{" "}
                       <span className="font-semibold text-green-600">
                         (save 17%)
@@ -208,7 +212,7 @@ export default function PricingPage() {
                   className={`mt-8 block rounded-lg px-6 py-3 text-center font-semibold transition-all ${
                     tier.popular || isCurrentTier
                       ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
-                      : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                      : "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
                   }`}
                 >
                   {isCurrentTier ? "Manage Plan" : tier.cta}
@@ -226,8 +230,8 @@ export default function PricingPage() {
                       <span
                         className={`text-sm ${
                           feature.included
-                            ? "text-gray-700"
-                            : "text-gray-400 line-through"
+                            ? "text-gray-700 dark:text-gray-300"
+                            : "text-gray-400 line-through dark:text-gray-600"
                         }`}
                       >
                         {feature.text}
@@ -247,43 +251,43 @@ export default function PricingPage() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="mt-24"
         >
-          <h2 className="text-center text-3xl font-bold text-gray-900">
+          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white">
             Frequently Asked Questions
           </h2>
           <div className="mx-auto mt-12 max-w-3xl space-y-6">
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Can I change plans anytime?
               </h3>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-600 dark:text-gray-300">
                 Yes! You can upgrade or downgrade your plan at any time. Changes
                 take effect immediately, and we&apos;ll prorate any charges.
               </p>
             </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 What happens if I exceed my quota?
               </h3>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-600 dark:text-gray-300">
                 You&apos;ll receive notifications at 80% usage. If you hit your
                 limit, you can upgrade instantly or wait until next month&apos;s
                 reset.
               </p>
             </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Do you offer refunds?
               </h3>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-600 dark:text-gray-300">
                 Yes, we offer a 14-day money-back guarantee on all paid plans.
                 No questions asked.
               </p>
             </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 What payment methods do you accept?
               </h3>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-600 dark:text-gray-300">
                 We accept all major credit cards, PayPal, and bank transfers for
                 Enterprise plans.
               </p>
@@ -308,13 +312,13 @@ export default function PricingPage() {
           <div className="mt-8 flex justify-center gap-4">
             <Link
               href="/contact"
-              className="rounded-lg bg-white px-6 py-3 font-semibold text-blue-600 transition-all hover:bg-blue-50"
+              className="rounded-lg bg-white px-6 py-3 font-semibold text-blue-600 transition-all hover:bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700"
             >
               Contact Sales
             </Link>
             <Link
               href="/help"
-              className="rounded-lg border-2 border-white px-6 py-3 font-semibold text-white transition-all hover:bg-white/10"
+              className="rounded-lg border-2 border-white px-6 py-3 font-semibold text-white transition-all hover:bg-white/10 dark:border-gray-300 dark:text-gray-200 dark:hover:bg-gray-700/30"
             >
               View Documentation
             </Link>

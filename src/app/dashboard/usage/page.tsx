@@ -66,7 +66,7 @@ export default function UsagePage() {
     tierColors.starter;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 dark:from-gray-900 dark:to-gray-800">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -74,8 +74,10 @@ export default function UsagePage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900">Usage & Billing</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Usage & Billing
+          </h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
             Monitor your usage and manage your subscription
           </p>
         </motion.div>
@@ -125,21 +127,21 @@ export default function UsagePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-8 rounded-xl border-2 border-orange-200 bg-orange-50 p-6"
+            className="mb-8 rounded-xl border-2 border-orange-200 bg-orange-50 p-6 dark:border-orange-800 dark:bg-orange-900/20"
           >
             <div className="flex items-start gap-4">
-              <AlertCircle className="h-6 w-6 flex-shrink-0 text-orange-600" />
+              <AlertCircle className="h-6 w-6 flex-shrink-0 text-orange-600 dark:text-orange-400" />
               <div className="flex-1">
-                <h3 className="font-semibold text-orange-900">
+                <h3 className="font-semibold text-orange-900 dark:text-orange-200">
                   Consider Upgrading
                 </h3>
-                <p className="mt-1 text-sm text-orange-700">
+                <p className="mt-1 text-sm text-orange-700 dark:text-orange-300">
                   {upgradeSuggestion.reason}
                 </p>
                 {upgradeSuggestion.suggestedTier && (
                   <Link
                     href={`/pricing`}
-                    className="mt-3 inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-orange-700"
+                    className="mt-3 inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600"
                   >
                     Upgrade to{" "}
                     <span className="capitalize">
@@ -160,34 +162,36 @@ export default function UsagePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-blue-100 p-3">
-                  <FileText className="h-6 w-6 text-blue-600" />
+                <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900/30">
+                  <FileText className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
                     PDF Generation
                   </h3>
-                  <p className="text-sm text-gray-600">This billing period</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    This billing period
+                  </p>
                 </div>
               </div>
             </div>
 
             <div className="mt-6">
               <div className="flex items-baseline justify-between">
-                <span className="text-3xl font-bold text-gray-900">
+                <span className="text-3xl font-bold text-gray-900 dark:text-white">
                   {pdfUsage.used}
                 </span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
                   of {pdfUsage.limit === -1 ? "∞" : pdfUsage.limit} PDFs
                 </span>
               </div>
 
               {/* Progress Bar */}
-              <div className="mt-4 h-3 overflow-hidden rounded-full bg-gray-200">
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                 <div
                   className={`h-full rounded-full transition-all ${
                     pdfUsage.percentage >= 80
@@ -202,7 +206,7 @@ export default function UsagePage() {
                 />
               </div>
 
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 {pdfUsage.percentage.toFixed(1)}% used
               </p>
             </div>
@@ -213,33 +217,37 @@ export default function UsagePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-purple-100 p-3">
-                  <HardDrive className="h-6 w-6 text-purple-600" />
+                <div className="rounded-lg bg-purple-100 p-3 dark:bg-purple-900/30">
+                  <HardDrive className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Storage Used</h3>
-                  <p className="text-sm text-gray-600">Total storage</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
+                    Storage Used
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Total storage
+                  </p>
                 </div>
               </div>
             </div>
 
             <div className="mt-6">
               <div className="flex items-baseline justify-between">
-                <span className="text-3xl font-bold text-gray-900">
+                <span className="text-3xl font-bold text-gray-900 dark:text-white">
                   {storageUsage.usedGB.toFixed(2)}
                 </span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
                   of {storageUsage.limitGB === -1 ? "∞" : storageUsage.limitGB}{" "}
                   GB
                 </span>
               </div>
 
               {/* Progress Bar */}
-              <div className="mt-4 h-3 overflow-hidden rounded-full bg-gray-200">
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                 <div
                   className={`h-full rounded-full transition-all ${
                     storageUsage.percentage >= 80
@@ -254,7 +262,7 @@ export default function UsagePage() {
                 />
               </div>
 
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 {storageUsage.percentage.toFixed(1)}% used
               </p>
             </div>
@@ -266,41 +274,47 @@ export default function UsagePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mt-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+          className="mt-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
         >
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Your Plan Features
           </h3>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-green-100 p-2">
-                <TrendingUp className="h-4 w-4 text-green-600" />
+              <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
+                <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Processing Speed</p>
-                <p className="text-sm text-gray-600">
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Processing Speed
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   {tierConfig.features.processingSpeed}
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-blue-100 p-2">
-                <FileText className="h-4 w-4 text-blue-600" />
+              <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
+                <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Templates</p>
-                <p className="text-sm text-gray-600 capitalize">
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Templates
+                </p>
+                <p className="text-sm text-gray-600 capitalize dark:text-gray-400">
                   {tierConfig.quotas.templatesAccess} access
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-purple-100 p-2">
-                <Crown className="h-4 w-4 text-purple-600" />
+              <div className="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
+                <Crown className="h-4 w-4 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Support</p>
-                <p className="text-sm text-gray-600 capitalize">
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Support
+                </p>
+                <p className="text-sm text-gray-600 capitalize dark:text-gray-400">
                   {tierConfig.features.support}
                 </p>
               </div>
@@ -314,24 +328,24 @@ export default function UsagePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="mt-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+            className="mt-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
           >
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Recent Activity
             </h3>
             <div className="mt-4 space-y-3">
               {usageHistory.slice(0, 5).map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0"
+                  className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0 dark:border-gray-700"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-white">
                       {item.action
                         .replace(/_/g, " ")
                         .replace(/\b\w/g, (l) => l.toUpperCase())}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       {new Date(item.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -340,7 +354,7 @@ export default function UsagePage() {
                       })}
                     </p>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
                     +{item.amount}
                   </span>
                 </div>
