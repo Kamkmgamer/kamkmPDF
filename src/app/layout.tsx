@@ -8,6 +8,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { TRPCReactProvider } from "~/trpc/react";
 import ThemeProvider from "~/providers/ThemeProvider";
 import Header from "~/_components/Header";
+import UsageWarningBanner from "~/_components/UsageWarningBanner";
 
 export const metadata: Metadata = {
   title: "Prompt‑to‑PDF — Generate polished PDFs from natural language",
@@ -67,6 +68,7 @@ export default function RootLayout({
             <ThemeProvider>
               <div className="flex min-h-screen flex-col">
                 <Header />
+                <UsageWarningBanner />
                 <div id="content" className="flex-1">
                   {children}
                 </div>

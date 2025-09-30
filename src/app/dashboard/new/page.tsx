@@ -8,6 +8,7 @@ import Image from "next/image";
 import DashboardLayout from "../../../_components/DashboardLayout";
 import { api } from "~/trpc/react";
 import { ArrowLeft, X } from "lucide-react";
+import QuotaExceededModal from "~/_components/QuotaExceededModal";
 
 // Tone definition
 const tones = [
@@ -33,8 +34,14 @@ export default function NewPromptPage() {
   const [mode, setMode] = React.useState<"cover" | "inline">("inline");
   const [submitting, setSubmitting] = React.useState(false);
   const [selectedTone, setSelectedTone] = React.useState<Tone | null>(null);
+  const [showQuotaModal, setShowQuotaModal] = React.useState(false);
+  const [quotaInfo, setQuotaInfo] = React.useState<{
+    tier: string;
+    limit: number;
+  } | null>(null);
 
   const createJob = api.jobs.create.useMutation();
+  const { data: subscription } = api.subscription.getCurrent.useQuery();
 
   // Effects for auth, autosave, and unload warning
   useAuthGuard(isLoaded, isSignedIn ?? false, router);
@@ -104,7 +111,17 @@ ${prompt.trim()}`
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg ?? "Failed to create job.");
+
+      // Check if it's a quota exceeded error
+      if (msg.includes("monthly limit") || msg.includes("quota")) {
+        setQuotaInfo({
+          tier: subscription?.tier ?? "starter",
+          limit: subscription?.tierConfig?.quotas?.pdfsPerMonth ?? 5,
+        });
+        setShowQuotaModal(true);
+      } else {
+        setError(msg ?? "Failed to create job.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -188,6 +205,17 @@ ${prompt.trim()}`
           </div>
         </form>
       </div>
+
+      {/* Quota Exceeded Modal */}
+      {quotaInfo && (
+        <QuotaExceededModal
+          isOpen={showQuotaModal}
+          onClose={() => setShowQuotaModal(false)}
+          currentTier={quotaInfo.tier}
+          quotaType="pdfs"
+          limit={quotaInfo.limit}
+        />
+      )}
     </DashboardLayout>
   );
 }

@@ -43,10 +43,16 @@ export default function Header() {
               Templates
             </Link>
             <Link
-              href="/contact"
-              className={`text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white ${pathname?.startsWith("/contact") ? "text-gray-900 dark:text-white" : ""}`}
+              href="/dashboard/usage"
+              className={`text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white ${pathname?.startsWith("/dashboard/usage") ? "text-gray-900 dark:text-white" : ""}`}
             >
-              Contact
+              Usage
+            </Link>
+            <Link
+              href="/pricing"
+              className={`text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white ${pathname?.startsWith("/pricing") ? "text-gray-900 dark:text-white" : ""}`}
+            >
+              Pricing
             </Link>
             <Link
               href="/dashboard/new"
@@ -71,6 +77,12 @@ export default function Header() {
                 />
               ) : (
                 <div className="hidden items-center gap-2 sm:flex">
+                  <Link
+                    href="/pricing"
+                    className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                  >
+                    Pricing
+                  </Link>
                   <SignInButton
                     mode="modal"
                     forceRedirectUrl="/dashboard"
@@ -80,12 +92,6 @@ export default function Header() {
                       Sign In
                     </button>
                   </SignInButton>
-                  <Link
-                    href="/contact"
-                    className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                  >
-                    Contact
-                  </Link>
                   <SignUpButton
                     mode="modal"
                     forceRedirectUrl="/dashboard"
@@ -134,46 +140,56 @@ export default function Header() {
                   Templates
                 </Link>
                 <Link
-                  href="/contact"
+                  href="/dashboard/usage"
                   className="text-lg font-medium text-gray-800 dark:text-gray-200"
                   onClick={() => setOpen(false)}
                 >
-                  Contact
+                  Usage
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="text-lg font-medium text-gray-800 dark:text-gray-200"
+                  onClick={() => setOpen(false)}
+                >
+                  Pricing
                 </Link>
                 <Link
                   href="/dashboard/new"
                   className="rounded-lg bg-blue-600 px-4 py-3 text-center text-lg font-medium text-white"
+                  onClick={() => setOpen(false)}
                 >
                   New PDF
                 </Link>
               </nav>
             ) : (
-              <div className="grid grid-cols-2 gap-4">
-                <SignInButton
-                  mode="modal"
-                  forceRedirectUrl="/dashboard"
-                  fallbackRedirectUrl="/dashboard"
-                >
-                  <button className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
-                    Sign In
-                  </button>
-                </SignInButton>
+              <div className="flex flex-col space-y-4">
                 <Link
-                  href="/contact"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                  href="/pricing"
+                  className="text-lg font-medium text-gray-800 dark:text-gray-200"
                   onClick={() => setOpen(false)}
                 >
-                  Contact
+                  Pricing
                 </Link>
-                <SignUpButton
-                  mode="modal"
-                  forceRedirectUrl="/dashboard"
-                  fallbackRedirectUrl="/dashboard"
-                >
-                  <button className="w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-lg font-medium text-white">
-                    Get Started
-                  </button>
-                </SignUpButton>
+                <div className="grid grid-cols-2 gap-4">
+                  <SignInButton
+                    mode="modal"
+                    forceRedirectUrl="/dashboard"
+                    fallbackRedirectUrl="/dashboard"
+                  >
+                    <button className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                  <SignUpButton
+                    mode="modal"
+                    forceRedirectUrl="/dashboard"
+                    fallbackRedirectUrl="/dashboard"
+                  >
+                    <button className="w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-lg font-medium text-white">
+                      Get Started
+                    </button>
+                  </SignUpButton>
+                </div>
               </div>
             )}
           </div>
