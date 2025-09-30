@@ -74,3 +74,37 @@ export const shareLinks = createTable("share_link", (d) => ({
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 }));
+
+// User subscriptions table
+export const userSubscriptions = createTable("user_subscription", (d) => ({
+  id: d.text().primaryKey(),
+  userId: d.text().notNull().unique(),
+  tier: d.varchar({ length: 32 }).default("starter").notNull(), // starter, professional, business, enterprise
+  status: d.varchar({ length: 32 }).default("active").notNull(), // active, cancelled, expired
+  pdfsUsedThisMonth: d.integer().default(0).notNull(),
+  storageUsedBytes: d.bigint({ mode: "number" }).default(0).notNull(),
+  periodStart: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  periodEnd: d.timestamp({ withTimezone: true }),
+  cancelAtPeriodEnd: d.boolean().default(false).notNull(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+}));
+
+// Usage history for analytics and quota tracking
+export const usageHistory = createTable("usage_history", (d) => ({
+  id: d.text().primaryKey(),
+  userId: d.text().notNull(),
+  action: d.varchar({ length: 64 }).notNull(), // pdf_generated, storage_added, etc.
+  amount: d.integer().default(1).notNull(),
+  metadata: d.jsonb(), // flexible field for additional data
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+}));

@@ -5,11 +5,16 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { jobs } from "~/server/db/schema";
+import { jobs, userSubscriptions } from "~/server/db/schema";
 import { randomUUID } from "crypto";
 import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { env } from "~/env";
+import {
+  getTierConfig,
+  hasExceededQuota,
+  type SubscriptionTier,
+} from "~/server/subscription/tiers";
 
 export const jobsRouter = createTRPCRouter({
   listRecent: publicProcedure
@@ -26,8 +31,66 @@ export const jobsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(z.object({ prompt: z.string().min(1).max(8000) }))
     .mutation(async ({ input, ctx }) => {
-      const id = randomUUID();
       const userId = ctx.userId;
+
+      // Check subscription and quota
+      let subscription = await db
+        .select()
+        .from(userSubscriptions)
+        .where(eq(userSubscriptions.userId, userId))
+        .limit(1);
+
+      // Create subscription if doesn't exist
+      if (!subscription[0]) {
+        const subId = randomUUID();
+        const now = new Date();
+        const periodEnd = new Date(now);
+        periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+        await db.insert(userSubscriptions).values({
+          id: subId,
+          userId,
+          tier: "starter",
+          status: "active",
+          pdfsUsedThisMonth: 0,
+          storageUsedBytes: 0,
+          periodStart: now,
+          periodEnd,
+        });
+
+        subscription = await db
+          .select()
+          .from(userSubscriptions)
+          .where(eq(userSubscriptions.userId, userId))
+          .limit(1);
+      }
+
+      const sub = subscription[0];
+      if (!sub) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to get subscription",
+        });
+      }
+
+      // Check if user has exceeded quota
+      const tier = sub.tier as SubscriptionTier;
+      const tierConfig = getTierConfig(tier);
+      const exceeded = hasExceededQuota(
+        tier,
+        sub.pdfsUsedThisMonth,
+        "pdfsPerMonth",
+      );
+
+      if (exceeded) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `You've reached your monthly limit of ${tierConfig.quotas.pdfsPerMonth} PDFs. Please upgrade your plan to continue.`,
+        });
+      }
+
+      // Create the job
+      const id = randomUUID();
       await db.insert(jobs).values({ id, prompt: input.prompt, userId });
       const created = await db
         .select()

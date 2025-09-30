@@ -1,0 +1,337 @@
+/**
+ * Subscription Tier Configuration
+ * Defines pricing, quotas, features, and model access for each tier
+ */
+
+export type SubscriptionTier =
+  | "starter"
+  | "professional"
+  | "business"
+  | "enterprise";
+
+export interface TierConfig {
+  id: SubscriptionTier;
+  name: string;
+  description: string;
+  price: {
+    monthly: number;
+    yearly: number;
+  };
+  quotas: {
+    pdfsPerMonth: number;
+    storageGB: number;
+    maxFileSize: number; // in MB
+    teamSeats: number;
+    templatesAccess: "basic" | "premium" | "unlimited";
+  };
+  features: {
+    watermark: boolean;
+    priorityProcessing: boolean;
+    processingSpeed: string; // human-readable
+    aiModel: "free" | "premium" | "custom";
+    customBranding: boolean;
+    apiAccess: boolean;
+    teamCollaboration: boolean;
+    versionHistory: number; // number of versions kept
+    bulkGeneration: boolean;
+    analytics: boolean;
+    support: "community" | "email" | "priority" | "dedicated";
+    storageRetention: number; // days, -1 for permanent
+  };
+  models: string[]; // OpenRouter model IDs
+}
+
+export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
+  starter: {
+    id: "starter",
+    name: "Starter",
+    description: "Perfect for exploring and casual use",
+    price: {
+      monthly: 0,
+      yearly: 0,
+    },
+    quotas: {
+      pdfsPerMonth: 5,
+      storageGB: 0.05, // 50 MB
+      maxFileSize: 2, // 2 MB per PDF
+      teamSeats: 1,
+      templatesAccess: "basic",
+    },
+    features: {
+      watermark: true,
+      priorityProcessing: false,
+      processingSpeed: "2-5 minutes",
+      aiModel: "free",
+      customBranding: false,
+      apiAccess: false,
+      teamCollaboration: false,
+      versionHistory: 0,
+      bulkGeneration: false,
+      analytics: false,
+      support: "community",
+      storageRetention: 30, // 30 days
+    },
+    models: [
+      // Free tier uses only free models from OpenRouter
+      "x-ai/grok-4-fast:free",
+      "deepseek/deepseek-chat-v3.1:free",
+      "openai/gpt-oss-120b:free",
+      "openai/gpt-oss-20b:free",
+      "z-ai/glm-4.5-air:free",
+      "qwen/qwen3-coder:free",
+      "moonshotai/kimi-k2:free",
+      "moonshotai/kimi-dev-72b:free",
+      "deepseek/deepseek-r1-0528:free",
+      "tngtech/deepseek-r1t-chimera:free",
+      "deepseek/deepseek-chat-v3-0324:free",
+      "deepseek/deepseek-r1-distill-llama-70b:free",
+      "deepseek/deepseek-r1:free",
+    ],
+  },
+  professional: {
+    id: "professional",
+    name: "Professional",
+    description: "For freelancers and professionals who need quality",
+    price: {
+      monthly: 12,
+      yearly: 120, // 17% discount
+    },
+    quotas: {
+      pdfsPerMonth: 50,
+      storageGB: 2,
+      maxFileSize: 10, // 10 MB per PDF
+      teamSeats: 1,
+      templatesAccess: "premium",
+    },
+    features: {
+      watermark: false,
+      priorityProcessing: true,
+      processingSpeed: "<60 seconds",
+      aiModel: "premium",
+      customBranding: false,
+      apiAccess: false,
+      teamCollaboration: false,
+      versionHistory: 10,
+      bulkGeneration: false,
+      analytics: false,
+      support: "email",
+      storageRetention: -1, // permanent
+    },
+    models: [
+      // Premium models for better quality (will use paid models in production)
+      // For development, we'll use the best free models
+      "openrouter/sonoma-dusk-alpha",
+      "openrouter/sonoma-sky-alpha",
+      "x-ai/grok-4-fast:free",
+      "deepseek/deepseek-chat-v3.1:free",
+      "openai/gpt-oss-120b:free",
+    ],
+  },
+  business: {
+    id: "business",
+    name: "Business",
+    description: "For teams and small businesses",
+    price: {
+      monthly: 79,
+      yearly: 790, // 17% discount
+    },
+    quotas: {
+      pdfsPerMonth: 500,
+      storageGB: 50,
+      maxFileSize: 25, // 25 MB per PDF
+      teamSeats: 5,
+      templatesAccess: "unlimited",
+    },
+    features: {
+      watermark: false,
+      priorityProcessing: true,
+      processingSpeed: "<30 seconds",
+      aiModel: "premium",
+      customBranding: true,
+      apiAccess: true,
+      teamCollaboration: true,
+      versionHistory: 50,
+      bulkGeneration: true,
+      analytics: true,
+      support: "priority",
+      storageRetention: -1, // permanent
+    },
+    models: [
+      // Premium models with priority access
+      "openrouter/sonoma-dusk-alpha",
+      "openrouter/sonoma-sky-alpha",
+      "x-ai/grok-4-fast:free",
+      "deepseek/deepseek-chat-v3.1:free",
+    ],
+  },
+  enterprise: {
+    id: "enterprise",
+    name: "Enterprise",
+    description: "Custom solutions for large organizations",
+    price: {
+      monthly: 500, // starting price, custom quotes
+      yearly: 5000,
+    },
+    quotas: {
+      pdfsPerMonth: -1, // unlimited
+      storageGB: -1, // unlimited
+      maxFileSize: 100, // 100 MB per PDF
+      teamSeats: -1, // unlimited
+      templatesAccess: "unlimited",
+    },
+    features: {
+      watermark: false,
+      priorityProcessing: true,
+      processingSpeed: "<15 seconds",
+      aiModel: "custom",
+      customBranding: true,
+      apiAccess: true,
+      teamCollaboration: true,
+      versionHistory: -1, // unlimited
+      bulkGeneration: true,
+      analytics: true,
+      support: "dedicated",
+      storageRetention: -1, // permanent
+    },
+    models: [
+      // Best available models
+      "openrouter/sonoma-dusk-alpha",
+      "openrouter/sonoma-sky-alpha",
+    ],
+  },
+};
+
+/**
+ * Get tier configuration by tier ID
+ */
+export function getTierConfig(tier: SubscriptionTier): TierConfig {
+  return TIER_CONFIGS[tier];
+}
+
+/**
+ * Check if a user can perform an action based on their tier
+ */
+export function canPerformAction(
+  tier: SubscriptionTier,
+  action: keyof TierConfig["features"],
+): boolean {
+  const config = getTierConfig(tier);
+  return Boolean(config.features[action]);
+}
+
+/**
+ * Check if user has exceeded their quota
+ */
+export function hasExceededQuota(
+  tier: SubscriptionTier,
+  used: number,
+  quotaType: keyof TierConfig["quotas"],
+): boolean {
+  const config = getTierConfig(tier);
+  const limit = config.quotas[quotaType];
+
+  // -1 means unlimited
+  if (typeof limit === "number" && limit === -1) return false;
+  if (typeof limit === "string") return false; // template access is not numeric
+
+  return used >= limit;
+}
+
+/**
+ * Get models for a specific tier
+ */
+export function getModelsForTier(tier: SubscriptionTier): string[] {
+  return getTierConfig(tier).models;
+}
+
+/**
+ * Calculate usage percentage
+ */
+export function getUsagePercentage(
+  tier: SubscriptionTier,
+  used: number,
+  quotaType: keyof TierConfig["quotas"],
+): number {
+  const config = getTierConfig(tier);
+  const limit = config.quotas[quotaType];
+
+  if (typeof limit === "number" && limit === -1) return 0; // unlimited
+  if (typeof limit === "string") return 0; // not numeric
+  if (limit === 0) return 100;
+
+  return Math.min(100, (used / limit) * 100);
+}
+
+/**
+ * Get upgrade suggestions based on usage
+ */
+export function getUpgradeSuggestion(
+  currentTier: SubscriptionTier,
+  pdfsUsed: number,
+  storageUsedGB: number,
+): {
+  shouldUpgrade: boolean;
+  reason: string;
+  suggestedTier: SubscriptionTier | null;
+} {
+  const config = getTierConfig(currentTier);
+
+  // Check PDF quota
+  if (
+    config.quotas.pdfsPerMonth !== -1 &&
+    pdfsUsed >= config.quotas.pdfsPerMonth * 0.8
+  ) {
+    const nextTier = getNextTier(currentTier);
+    return {
+      shouldUpgrade: true,
+      reason: `You've used ${pdfsUsed} of ${config.quotas.pdfsPerMonth} PDFs this month`,
+      suggestedTier: nextTier,
+    };
+  }
+
+  // Check storage quota
+  if (
+    config.quotas.storageGB !== -1 &&
+    storageUsedGB >= config.quotas.storageGB * 0.8
+  ) {
+    const nextTier = getNextTier(currentTier);
+    return {
+      shouldUpgrade: true,
+      reason: `You've used ${storageUsedGB.toFixed(2)} GB of ${config.quotas.storageGB} GB storage`,
+      suggestedTier: nextTier,
+    };
+  }
+
+  return {
+    shouldUpgrade: false,
+    reason: "",
+    suggestedTier: null,
+  };
+}
+
+/**
+ * Get the next tier for upgrade suggestions
+ */
+function getNextTier(currentTier: SubscriptionTier): SubscriptionTier | null {
+  const tierOrder: SubscriptionTier[] = [
+    "starter",
+    "professional",
+    "business",
+    "enterprise",
+  ];
+  const currentIndex = tierOrder.indexOf(currentTier);
+
+  if (currentIndex === -1 || currentIndex === tierOrder.length - 1) {
+    return null;
+  }
+
+  return tierOrder[currentIndex + 1] ?? null;
+}
+
+/**
+ * Format price for display
+ */
+export function formatPrice(price: number): string {
+  if (price === 0) return "Free";
+  return `$${price}`;
+}

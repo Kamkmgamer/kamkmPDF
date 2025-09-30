@@ -1,6 +1,11 @@
 import { pathToFileURL } from "url";
 import { db, pg } from "~/server/db";
-import { jobs, files } from "~/server/db/schema";
+import {
+  jobs,
+  files,
+  userSubscriptions,
+  usageHistory,
+} from "~/server/db/schema";
 import { randomUUID } from "crypto";
 import { eq, lt, asc, and, inArray } from "drizzle-orm";
 import { generatePdfBuffer } from "~/server/jobs/pdf";
@@ -13,6 +18,10 @@ import {
 import type { InferSelectModel } from "drizzle-orm";
 import { UTFile } from "uploadthing/server";
 import { utapi } from "~/server/uploadthing";
+import {
+  getTierConfig,
+  type SubscriptionTier,
+} from "~/server/subscription/tiers";
 
 type Job = InferSelectModel<typeof jobs>;
 
@@ -73,16 +82,34 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       }
     }
 
+    // Get user's subscription tier
+    let userTier: SubscriptionTier = "starter";
+    let shouldAddWatermark = true;
+    if (job.userId) {
+      const subscription = await db
+        .select()
+        .from(userSubscriptions)
+        .where(eq(userSubscriptions.userId, job.userId))
+        .limit(1);
+      if (subscription[0]) {
+        userTier = subscription[0].tier as SubscriptionTier;
+        const tierConfig = getTierConfig(userTier);
+        shouldAddWatermark = tierConfig.features.watermark;
+      }
+    }
+
     const fileId = randomUUID();
     const filename = `${fileId}.pdf`;
     const inlineKey = `inline:${fileId}`;
 
-    // Generate PDF in-memory
+    // Generate PDF in-memory with tier-specific settings
     const tempImage = await readJobTempImage(job.id);
     const meta = await readJobTempMeta(job.id);
     const pdfBuffer = await generatePdfBuffer({
       jobId: job.id,
       prompt: job.prompt ?? "",
+      tier: userTier,
+      addWatermark: shouldAddWatermark,
       image: tempImage
         ? {
             path: tempImage.path,
@@ -132,6 +159,44 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
         .set({ progress: 90, stage: "Finalizing document" })
         .where(eq(jobs.id, job.id));
     } catch {}
+
+    // Increment user's PDF usage count
+    if (job.userId) {
+      try {
+        // Get current subscription to increment values
+        const currentSub = await db
+          .select()
+          .from(userSubscriptions)
+          .where(eq(userSubscriptions.userId, job.userId))
+          .limit(1);
+
+        if (currentSub[0]) {
+          await db
+            .update(userSubscriptions)
+            .set({
+              pdfsUsedThisMonth: currentSub[0].pdfsUsedThisMonth + 1,
+              storageUsedBytes:
+                currentSub[0].storageUsedBytes + nodeBuffer.length,
+            })
+            .where(eq(userSubscriptions.userId, job.userId));
+        }
+
+        // Log usage history
+        await db.insert(usageHistory).values({
+          id: randomUUID(),
+          userId: job.userId,
+          action: "pdf_generated",
+          amount: 1,
+          metadata: { jobId: job.id, fileId, fileSize: nodeBuffer.length },
+        });
+      } catch (err) {
+        console.warn(
+          `[worker] failed to increment usage for user ${job.userId}:`,
+          err,
+        );
+      }
+    }
+
     console.log(
       `[worker] job ${job.id} completed (inline ready), file ${fileId}`,
     );

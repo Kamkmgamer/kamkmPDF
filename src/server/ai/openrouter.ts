@@ -1,9 +1,14 @@
 import { env } from "~/env";
+import {
+  getModelsForTier,
+  type SubscriptionTier,
+} from "~/server/subscription/tiers";
 
 export interface GenerateHtmlOptions {
   prompt: string;
   model?: string;
   brandName?: string;
+  tier?: SubscriptionTier; // Add tier to determine which models to use
 }
 
 // Hardcoded prioritized list: first is primary, followed by 12 backups.
@@ -39,9 +44,24 @@ function extractHtmlFromContent(content: string): string {
 export function wrapHtmlDocument(
   bodyOrDoc: string,
   title = "Generated Document",
+  addWatermark = false,
 ): string {
   const hasHtmlTag = /<html[\s\S]*?>[\s\S]*<\/html>/i.test(bodyOrDoc);
-  if (hasHtmlTag) return bodyOrDoc;
+
+  const watermarkHtml = addWatermark
+    ? `<div style="position: fixed; bottom: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #64748b; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        Generated with <strong style="color: #0ea5e9;">KamkmPDF</strong> • <a href="${env.NEXT_PUBLIC_APP_URL ?? "https://kamkmpdf.com"}/pricing" style="color: #0ea5e9; text-decoration: none;">Upgrade to remove</a>
+      </div>`
+    : "";
+
+  if (hasHtmlTag) {
+    // If already has HTML tag, inject watermark before closing body tag
+    if (addWatermark) {
+      return bodyOrDoc.replace(/<\/body>/i, `${watermarkHtml}</body>`);
+    }
+    return bodyOrDoc;
+  }
+
   return `<!doctype html>
   <html lang="en">
     <head>
@@ -65,6 +85,7 @@ export function wrapHtmlDocument(
     </head>
     <body>
       <div class="container">${bodyOrDoc}</div>
+      ${watermarkHtml}
     </body>
   </html>`;
 }
@@ -81,6 +102,7 @@ export async function generateHtmlFromPrompt({
   prompt,
   model,
   brandName,
+  tier = "starter", // Default to starter tier
 }: GenerateHtmlOptions): Promise<string> {
   const apiKey = env.OPENROUTER_API_KEY;
   if (!apiKey) {
@@ -107,13 +129,14 @@ export async function generateHtmlFromPrompt({
     if (asciiOnly.trim().length > 0) headers["X-Title"] = asciiOnly;
   }
 
-  // Build the prioritized model list (per-call override supports comma-separated as well)
+  // Build the prioritized model list based on tier
+  // If model is explicitly provided, use that; otherwise use tier-based models
   const models: string[] = model
     ? model
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean)
-    : DEFAULT_MODELS;
+    : getModelsForTier(tier);
 
   const attemptErrors: string[] = [];
   for (const currentModel of models) {

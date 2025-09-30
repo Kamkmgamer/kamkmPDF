@@ -140,6 +140,8 @@ function injectImageIntoHtmlBody(
 export async function generatePdfBuffer(opts: {
   jobId: string;
   prompt?: string;
+  tier?: "starter" | "professional" | "business" | "enterprise";
+  addWatermark?: boolean;
   image?: { path: string; mime: string; mode: ImageMode } | null;
   onStage?: (stage: GenerationStage, progress: number) => void | Promise<void>;
 }): Promise<Buffer> {
@@ -150,6 +152,7 @@ export async function generatePdfBuffer(opts: {
       const htmlBodyRaw = await generateHtmlFromPrompt({
         prompt: opts.prompt ?? "",
         brandName: "Prompt‑to‑PDF",
+        tier: opts.tier,
       });
       await opts.onStage?.("Generating content", 40);
       let body = htmlBodyRaw;
@@ -173,7 +176,11 @@ export async function generatePdfBuffer(opts: {
           // ignore image read failures; continue without image
         }
       }
-      const htmlDoc = wrapHtmlDocument(body, "Prompt‑to‑PDF Document");
+      const htmlDoc = wrapHtmlDocument(
+        body,
+        "Prompt‑to‑PDF Document",
+        opts.addWatermark ?? false,
+      );
       await opts.onStage?.("Formatting PDF", 70);
       const buf = await htmlToPdfToBuffer(htmlDoc, {
         format: "A4",
