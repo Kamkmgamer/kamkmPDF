@@ -179,7 +179,7 @@ export default function PricingPage() {
                 </p>
 
                 {/* Price */}
-                <div className="mt-6">
+                <div className="mt-6 mb-8">
                   <div className="flex items-baseline gap-2">
                     <span className="text-5xl font-bold text-gray-900 dark:text-white">
                       ${tier.price}
@@ -197,6 +197,28 @@ export default function PricingPage() {
                     </p>
                   )}
                 </div>
+
+                {/* Features */}
+                <ul className="flex-1 space-y-3">
+                  {tier.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center gap-3">
+                      {feature.included ? (
+                        <Check className="h-5 w-5 flex-shrink-0 text-green-500" />
+                      ) : (
+                        <X className="h-5 w-5 flex-shrink-0 text-gray-300 dark:text-gray-600" />
+                      )}
+                      <span
+                        className={`text-sm leading-tight ${
+                          feature.included
+                            ? "text-gray-700 dark:text-gray-300"
+                            : "text-gray-400 line-through dark:text-gray-600"
+                        }`}
+                      >
+                        {feature.text}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
 
                 {/* CTA Button */}
                 <Link
@@ -217,28 +239,6 @@ export default function PricingPage() {
                 >
                   {isCurrentTier ? "Manage Plan" : tier.cta}
                 </Link>
-
-                {/* Features */}
-                <ul className="mt-8 flex-1 space-y-3">
-                  {tier.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center gap-3">
-                      {feature.included ? (
-                        <Check className="h-5 w-5 flex-shrink-0 text-green-500" />
-                      ) : (
-                        <X className="h-5 w-5 flex-shrink-0 text-gray-300 dark:text-gray-600" />
-                      )}
-                      <span
-                        className={`text-sm leading-tight ${
-                          feature.included
-                            ? "text-gray-700 dark:text-gray-300"
-                            : "text-gray-400 line-through dark:text-gray-600"
-                        }`}
-                      >
-                        {feature.text}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
               </motion.div>
             );
           })}
