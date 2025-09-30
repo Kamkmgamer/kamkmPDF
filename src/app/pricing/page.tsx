@@ -219,16 +219,16 @@ export default function PricingPage() {
                 </Link>
 
                 {/* Features */}
-                <ul className="mt-8 space-y-3">
+                <ul className="mt-8 flex-1 space-y-3">
                   {tier.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
+                    <li key={idx} className="flex items-center gap-3">
                       {feature.included ? (
                         <Check className="h-5 w-5 flex-shrink-0 text-green-500" />
                       ) : (
-                        <X className="h-5 w-5 flex-shrink-0 text-gray-300" />
+                        <X className="h-5 w-5 flex-shrink-0 text-gray-300 dark:text-gray-600" />
                       )}
                       <span
-                        className={`text-sm ${
+                        className={`text-sm leading-tight ${
                           feature.included
                             ? "text-gray-700 dark:text-gray-300"
                             : "text-gray-400 line-through dark:text-gray-600"

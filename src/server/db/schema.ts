@@ -81,6 +81,7 @@ export const userSubscriptions = createTable("user_subscription", (d) => ({
   userId: d.text().notNull().unique(),
   tier: d.varchar({ length: 32 }).default("starter").notNull(), // starter, professional, business, enterprise
   status: d.varchar({ length: 32 }).default("active").notNull(), // active, cancelled, expired
+  paypalSubscriptionId: d.text(), // PayPal subscription ID for paid tiers
   pdfsUsedThisMonth: d.integer().default(0).notNull(),
   storageUsedBytes: d.bigint({ mode: "number" }).default(0).notNull(),
   periodStart: d
