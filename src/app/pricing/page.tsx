@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
-import { motion } from "framer-motion";
 import { Check, X, Zap, Users, Building2, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { UpgradeButton } from "~/_components/UpgradeButton";
 import { api } from "~/trpc/react";
 
 export default function PricingPage() {
@@ -108,9 +109,9 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 sm:py-16 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -134,7 +135,7 @@ export default function PricingPage() {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="mt-16 grid gap-8 lg:grid-cols-4">
+        <div className="mt-12 grid gap-6 sm:mt-16 sm:gap-8 md:grid-cols-2 lg:grid-cols-4">
           {tiers.map((tier, index) => {
             const Icon = tier.icon;
             const isCurrentTier = currentSub?.tier === tier.id;
@@ -145,20 +146,20 @@ export default function PricingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`relative flex flex-col rounded-2xl border-2 bg-white p-8 shadow-lg transition-all hover:shadow-xl dark:bg-gray-800 ${
+                className={`relative flex flex-col rounded-2xl border-2 bg-white p-6 shadow-lg transition-all hover:shadow-xl sm:p-8 dark:bg-gray-800 ${
                   tier.popular
                     ? "border-blue-500 ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900"
                     : "border-gray-200 dark:border-gray-700"
                 } ${isCurrentTier ? "ring-2 ring-green-500 ring-offset-2 dark:ring-offset-gray-900" : ""}`}
               >
                 {tier.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-1 text-sm font-semibold text-white">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 px-3 py-1 text-xs font-semibold whitespace-nowrap text-white sm:text-sm">
                     Most Popular
                   </div>
                 )}
 
                 {isCurrentTier && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-green-500 to-green-600 px-4 py-1 text-sm font-semibold text-white">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-green-500 to-green-600 px-3 py-1 text-xs font-semibold whitespace-nowrap text-white sm:text-sm">
                     Current Plan
                   </div>
                 )}
@@ -171,20 +172,20 @@ export default function PricingPage() {
                 </div>
 
                 {/* Tier Name */}
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h3 className="text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
                   {tier.name}
                 </h3>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                <p className="mt-2 text-xs text-gray-600 sm:text-sm dark:text-gray-400">
                   {tier.description}
                 </p>
 
                 {/* Price */}
-                <div className="mt-6 mb-8">
+                <div className="mt-4 mb-6 sm:mt-6 sm:mb-8">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-bold text-gray-900 dark:text-white">
+                    <span className="text-4xl font-bold text-gray-900 sm:text-5xl dark:text-white">
                       ${tier.price}
                     </span>
-                    <span className="text-gray-600 dark:text-gray-400">
+                    <span className="text-sm text-gray-600 sm:text-base dark:text-gray-400">
                       /month
                     </span>
                   </div>
@@ -221,24 +222,46 @@ export default function PricingPage() {
                 </ul>
 
                 {/* CTA Button */}
-                <Link
-                  href={
-                    isCurrentTier
-                      ? "/dashboard"
-                      : tier.id === "enterprise"
-                        ? "/contact"
-                        : isSignedIn
-                          ? `/dashboard?upgrade=${tier.id}`
-                          : "/sign-up"
-                  }
-                  className={`mt-8 block rounded-lg px-6 py-3 text-center font-semibold transition-all ${
-                    tier.popular || isCurrentTier
-                      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
-                      : "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-                  }`}
-                >
-                  {isCurrentTier ? "Manage Plan" : tier.cta}
-                </Link>
+                {isCurrentTier ? (
+                  <Link
+                    href="/dashboard"
+                    className={`mt-6 block w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all sm:mt-8 sm:px-6 sm:py-3 sm:text-base ${
+                      tier.popular || isCurrentTier
+                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
+                        : "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                    }`}
+                  >
+                    Manage Plan
+                  </Link>
+                ) : tier.id === "starter" ? (
+                  <Link
+                    href={isSignedIn ? "/dashboard" : "/sign-up"}
+                    className="mt-6 block w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2.5 text-center text-sm font-semibold text-white transition-all hover:from-blue-600 hover:to-blue-700 sm:mt-8 sm:px-6 sm:py-3 sm:text-base"
+                  >
+                    {tier.cta}
+                  </Link>
+                ) : tier.id === "enterprise" ? (
+                  <Link
+                    href="/contact"
+                    className={`mt-6 block w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all sm:mt-8 sm:px-6 sm:py-3 sm:text-base ${
+                      tier.popular || isCurrentTier
+                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
+                        : "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                    }`}
+                  >
+                    Contact Sales
+                  </Link>
+                ) : (
+                  <div className="mt-6 w-full sm:mt-8">
+                    <UpgradeButton
+                      tier={
+                        tier.id as "professional" | "business" | "enterprise"
+                      }
+                    >
+                      {tier.cta}
+                    </UpgradeButton>
+                  </div>
+                )}
               </motion.div>
             );
           })}
