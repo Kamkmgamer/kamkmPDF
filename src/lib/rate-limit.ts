@@ -52,8 +52,10 @@ class MemoryStore {
 
 const store = new MemoryStore();
 
-// Cleanup expired entries every 5 minutes
-setInterval(() => store.cleanup(), 5 * 60 * 1000);
+// Note: Automatic cleanup via setInterval is disabled for serverless compatibility
+// In serverless environments, each function invocation is stateless and memory is
+// automatically cleaned up after execution. For long-running servers, consider
+// implementing cleanup via a scheduled cron job or on-demand cleanup.
 
 export function createRateLimit(options: RateLimitOptions) {
   const {
