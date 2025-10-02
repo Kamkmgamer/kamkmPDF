@@ -9,13 +9,7 @@ export const logger = pino({
 // Audit logger for security and compliance events
 export const auditLogger = pino({
   level: "info",
-  transport:
-    process.env.NODE_ENV === "production"
-      ? {
-          target: "pino/file",
-          options: { destination: "./logs/audit.log", mkdir: true },
-        }
-      : undefined, // transport is disabled in dev
+  transport: undefined, // Disabled to avoid worker thread issues in serverless environments
 });
 
 // Helper functions for audit logging
