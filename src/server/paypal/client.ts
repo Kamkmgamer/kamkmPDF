@@ -48,16 +48,13 @@ export async function createPayPalSubscription(
       },
       body: JSON.stringify({
         plan_id: params.planId,
+        intent: "SUBSCRIBE",
         custom_id: params.userId, // Store user ID for webhook processing
         application_context: {
           brand_name: "KamkmPDF",
           locale: "en-US",
           shipping_preference: "NO_SHIPPING",
           user_action: "SUBSCRIBE_NOW",
-          payment_method: {
-            payer_selected: "PAYPAL",
-            payee_preferred: "IMMEDIATE_PAYMENT_REQUIRED",
-          },
           return_url: params.returnUrl,
           cancel_url: params.cancelUrl,
         },
@@ -67,10 +64,14 @@ export async function createPayPalSubscription(
       }),
     },
   );
-
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to create PayPal subscription: ${error}`);
+    const errorText = await response.text();
+    console.error("[PayPal] Failed to create subscription", {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText,
+    });
+    throw new Error(`Failed to create PayPal subscription: ${errorText}`);
   }
 
   return (await response.json()) as PayPalSubscription;
