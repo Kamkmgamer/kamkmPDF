@@ -2,178 +2,172 @@
 
 import React from "react";
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
 import { motion } from "framer-motion";
-import { useTheme } from "~/providers/ThemeProvider";
+import { Check, X, Sparkles, ArrowRight } from "lucide-react";
+import { tiers } from "../_data/tiers";
 
 export default function Pricing() {
-  const { isSignedIn } = useAuth();
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
-  const plans = [
-    {
-      name: "Free",
-      price: "$0",
-      period: "/month",
-      description: "Perfect for getting started",
-      features: [
-        "10 PDFs/month",
-        "Basic templates",
-        "Email support",
-        "Standard quality",
-      ],
-      popular: false,
-      cta: "Get Started Free",
-    },
-    {
-      name: "Pro",
-      price: "$15",
-      period: "/month",
-      description: "Best for professionals",
-      features: [
-        "Unlimited PDFs",
-        "Custom branding",
-        "Priority support",
-        "High quality exports",
-        "Template library",
-        "Collaborative editing",
-      ],
-      popular: true,
-      cta: "Start Pro Trial",
-    },
-    {
-      name: "Teams",
-      price: "$99",
-      period: "/month",
-      description: "For growing organizations",
-      features: [
-        "Everything in Pro",
-        "SSO & team management",
-        "Advanced security",
-        "API access",
-        "White-label solution",
-        "Dedicated support",
-      ],
-      popular: false,
-      cta: "Contact Sales",
-    },
-  ];
-
   return (
     <section
       id="pricing"
-      className={`relative scroll-mt-24 overflow-hidden py-20 ${isDark ? "bg-gradient-to-br from-blue-950 to-blue-900" : "bg-white"}`}
+      className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-white to-slate-50 py-32 dark:from-slate-900 dark:to-slate-950"
       suppressHydrationWarning={true}
     >
-      {/* Decorative accents for light mode */}
-      <div className="pointer-events-none absolute inset-0 dark:hidden">
-        <div className="absolute -top-28 left-10 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.12),transparent_60%)] blur-3xl" />
-        <div className="absolute right-16 -bottom-28 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.10),transparent_60%)] blur-3xl" />
+      {/* Decorative elements */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute top-1/3 left-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-blue-400/10 to-cyan-400/10 blur-3xl" />
+        <div className="absolute right-1/4 bottom-1/3 h-96 w-96 rounded-full bg-gradient-to-br from-sky-400/10 to-teal-400/10 blur-3xl" />
       </div>
 
-      <div className="container mx-auto px-4">
-        <div className="mb-16 text-center">
-          <motion.h2
-            className="mb-4 text-4xl font-bold tracking-tight"
-            initial={{ opacity: 0, y: 10 }}
+      <div className="relative container mx-auto px-4">
+        <div className="mb-20 text-center">
+          <motion.div
+            className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.6 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>Pricing Plans</span>
+          </motion.div>
+
+          <motion.h2
+            className="mb-6 text-5xl font-black tracking-tight text-slate-900 lg:text-6xl dark:text-white"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
           >
             Simple, transparent pricing
           </motion.h2>
-          <motion.p
-            className="mx-auto max-w-2xl text-xl text-[--color-text-muted]"
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.6 }}
-            transition={{ duration: 0.45, delay: 0.1, ease: "easeOut" }}
-          >
-            Choose the plan that fits your needs. Upgrade or cancel anytime.
-          </motion.p>
         </div>
 
         <motion.div
-          className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-3"
+          className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-4"
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.2 }}
           variants={{
-            hidden: { opacity: 0, y: 20 },
+            hidden: { opacity: 0 },
             visible: {
               opacity: 1,
-              y: 0,
-              transition: { staggerChildren: 0.12 },
+              transition: { staggerChildren: 0.1 },
             },
           }}
         >
-          {plans.map((plan, index) => (
+          {tiers.map((plan, index) => (
             <motion.div
               key={index}
-              className={`relative flex flex-col rounded-2xl border p-8 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
-                plan.popular
-                  ? "scale-105 border-[--color-primary] shadow-lg"
-                  : "border-[--color-border] hover:border-[--color-primary]/50"
-              } bg-[--color-surface]`}
+              className={`group relative ${plan.popular ? "lg:-mt-4 lg:scale-105" : ""}`}
               variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
+                hidden: { opacity: 0, y: 30, scale: 0.95 },
+                visible: { opacity: 1, y: 0, scale: 1 },
               }}
+              whileHover={{ y: -8, scale: plan.popular ? 1.05 : 1.02 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                  <div className="flex items-center rounded-full bg-gradient-to-r from-sky-500 to-cyan-600 px-4 py-2 text-sm font-semibold text-white shadow-md">
-                    <span className="mr-1">⭐</span>
-                    Most Popular
-                  </div>
-                </div>
-              )}
+              {/* Glow effect on hover */}
+              <div
+                className={`absolute -inset-0.5 bg-gradient-to-r ${plan.color} rounded-3xl opacity-0 blur-xl transition duration-500 group-hover:opacity-60`}
+              />
 
-              <div className="mb-8 text-center">
-                <h3 className="mb-2 text-2xl font-bold">{plan.name}</h3>
-                <p className="mb-4 text-[--color-text-muted]">
+              <div
+                className={`relative flex h-full flex-col overflow-hidden rounded-3xl border bg-white p-8 shadow-2xl transition-all duration-300 dark:bg-slate-800 ${
+                  plan.popular
+                    ? "border-blue-500/50 dark:border-blue-400/50"
+                    : "border-slate-200 dark:border-slate-700"
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2">
+                    <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-4 py-1.5 text-xs font-bold text-white shadow-xl">
+                      <Sparkles className="h-3 w-3" />
+                      <span>Most Popular</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Icon */}
+                <motion.div
+                  className={`mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${plan.color} shadow-xl`}
+                  whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <plan.icon className="h-7 w-7 text-white" />
+                </motion.div>
+
+                {/* Plan name and description */}
+                <h3 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white">
+                  {plan.name}
+                </h3>
+                <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
                   {plan.description}
                 </p>
-                <div className="flex items-baseline justify-center">
-                  <span className="text-5xl font-bold">{plan.price}</span>
-                  <span className="ml-1 text-[--color-text-muted]">
-                    {plan.period}
-                  </span>
+
+                {/* Price */}
+                <div className="mb-6">
+                  <div className="flex items-baseline">
+                    <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-5xl font-black text-transparent dark:from-blue-400 dark:via-cyan-400 dark:to-sky-400">
+                      ${plan.price}
+                    </span>
+                    <span className="ml-2 text-slate-600 dark:text-slate-400">
+                      /month
+                    </span>
+                  </div>
+                  {plan.priceYearly > 0 && (
+                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                      or ${plan.priceYearly}/year{" "}
+                      <span className="font-semibold text-green-600 dark:text-green-400">
+                        (save 17%)
+                      </span>
+                    </p>
+                  )}
                 </div>
-              </div>
 
-              <ul className="mb-8 space-y-4">
-                {plan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-center">
-                    <span className="mr-3 flex-shrink-0 text-green-500">✓</span>
-                    <span className="text-[--color-text-muted]">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+                {/* Features */}
+                <ul className="mb-8 flex-grow space-y-3">
+                  {plan.features.slice(0, 6).map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-start gap-3">
+                      {feature.included ? (
+                        <div className="mt-0.5 flex-shrink-0 rounded-full bg-green-100 p-1 dark:bg-green-900/30">
+                          <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                        </div>
+                      ) : (
+                        <div className="mt-0.5 flex-shrink-0 rounded-full bg-slate-100 p-1 dark:bg-slate-800">
+                          <X className="h-3 w-3 text-slate-400 dark:text-slate-600" />
+                        </div>
+                      )}
+                      <span
+                        className={`text-sm ${feature.included ? "text-slate-700 dark:text-slate-300" : "text-slate-400 line-through dark:text-slate-600"}`}
+                      >
+                        {feature.text}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
 
-              <div className="mt-auto">
-                <Link
-                  href={isSignedIn ? "/dashboard" : "/dashboard"}
-                  className={`block w-full rounded-xl px-6 py-3 text-center font-semibold transition-all duration-200 ${
-                    plan.popular
-                      ? "bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-sm hover:from-sky-600 hover:to-cyan-700 hover:shadow-md"
-                      : "bg-blue-500/80 text-white shadow-sm hover:bg-blue-400 hover:shadow-md"
-                  }`}
+                {/* CTA Button */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  {plan.cta}
-                </Link>
+                  <Link
+                    href={plan.id === "enterprise" ? "/contact" : "/dashboard"}
+                    className={`group/btn relative flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-bold transition-all duration-300 ${
+                      plan.popular
+                        ? "bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 text-white shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40"
+                        : "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+                    }`}
+                  >
+                    <span>{plan.cta}</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                  </Link>
+                </motion.div>
               </div>
             </motion.div>
           ))}
         </motion.div>
-
-        <div className="mt-12 text-center">
-          <p className="text-[--color-text-muted]">
-            All plans include a 14-day free trial • No credit card required •
-            Cancel anytime
-          </p>
-        </div>
       </div>
     </section>
   );
