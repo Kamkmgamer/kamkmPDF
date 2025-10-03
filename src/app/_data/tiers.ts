@@ -1,0 +1,111 @@
+import type React from "react";
+import { Building2, Sparkles, Users, Zap } from "lucide-react";
+
+export type TierFeature = { text: string; included: boolean };
+export type Tier = {
+  id: "starter" | "professional" | "business" | "enterprise";
+  name: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; // lucide icon component
+  price: number;
+  priceYearly: number;
+  description: string;
+  color: string; // tailwind gradient e.g. 'from-blue-400 to-blue-600'
+  features: TierFeature[];
+  cta: string;
+  popular: boolean;
+};
+
+export const tiers: Tier[] = [
+  {
+    id: "starter",
+    name: "Starter",
+    icon: Sparkles,
+    price: 0,
+    priceYearly: 0,
+    description: "Perfect for exploring and casual use",
+    color: "from-gray-400 to-gray-600",
+    features: [
+      { text: "5 PDFs per month", included: true },
+      { text: "50 MB storage (30 days)", included: true },
+      { text: "Basic templates (3)", included: true },
+      { text: "Free AI models", included: true },
+      { text: "Watermark on exports", included: false },
+      { text: "2-5 minute processing", included: false },
+      { text: "Community support", included: true },
+      { text: "Premium templates", included: false },
+      { text: "API access", included: false },
+      { text: "Team collaboration", included: false },
+    ],
+    cta: "Get Started",
+    popular: false,
+  },
+  {
+    id: "professional",
+    name: "Professional",
+    icon: Zap,
+    price: 12,
+    priceYearly: 120,
+    description: "For freelancers and professionals",
+    color: "from-blue-400 to-blue-600",
+    features: [
+      { text: "50 PDFs per month", included: true },
+      { text: "2 GB permanent storage", included: true },
+      { text: "20+ premium templates", included: true },
+      { text: "Premium AI models (GPT-4 class)", included: true },
+      { text: "No watermarks", included: true },
+      { text: "<60 second processing", included: true },
+      { text: "Version history (10 versions)", included: true },
+      { text: "Email support (24-48h)", included: true },
+      { text: "API access", included: false },
+      { text: "Team collaboration", included: false },
+    ],
+    cta: "Upgrade to Pro",
+    popular: true,
+  },
+  {
+    id: "business",
+    name: "Business",
+    icon: Users,
+    price: 79,
+    priceYearly: 790,
+    description: "For teams and small businesses",
+    color: "from-sky-400 to-sky-600",
+    features: [
+      { text: "500 PDFs per month (pooled)", included: true },
+      { text: "50 GB shared storage", included: true },
+      { text: "Unlimited templates", included: true },
+      { text: "Premium AI models + priority", included: true },
+      { text: "Custom branding", included: true },
+      { text: "<30 second processing", included: true },
+      { text: "Version history (50 versions)", included: true },
+      { text: "Priority support (live chat)", included: true },
+      { text: "API access (beta)", included: true },
+      { text: "Team collaboration (5 seats)", included: true },
+    ],
+    cta: "Upgrade to Business",
+    popular: false,
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    icon: Building2,
+    price: 500,
+    priceYearly: 5000,
+    description: "Custom solutions for large organizations",
+    color: "from-orange-400 to-orange-600",
+    features: [
+      { text: "Unlimited PDFs", included: true },
+      { text: "Unlimited storage", included: true },
+      { text: "Custom templates", included: true },
+      { text: "Custom AI models", included: true },
+      { text: "White-label options", included: true },
+      { text: "<15 second processing", included: true },
+      { text: "Unlimited version history", included: true },
+      { text: "Dedicated account manager", included: true },
+      { text: "Full API access + webhooks", included: true },
+      { text: "Unlimited seats + SSO", included: true },
+    ],
+    cta: "Contact Sales",
+    popular: false,
+  },
+];
