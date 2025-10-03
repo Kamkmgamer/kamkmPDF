@@ -51,6 +51,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-pdf": "^10.1.0",
+    "recharts": "^3.2.1",
     "resend": "^6.1.1",
     "server-only": "^0.0.1",
     "superjson": "^2.2.2",
