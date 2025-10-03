@@ -11,24 +11,6 @@ export interface GenerateHtmlOptions {
   tier?: SubscriptionTier; // Add tier to determine which models to use
 }
 
-// Hardcoded prioritized list: first is primary, followed by 12 backups.
-const DEFAULT_MODELS: string[] = [
-  "openrouter/sonoma-dusk-alpha",
-  "openrouter/sonoma-sky-alpha",
-  "x-ai/grok-4-fast:free",
-  "deepseek/deepseek-chat-v3.1:free",
-  "openai/gpt-oss-120b:free",
-  "openai/gpt-oss-20b:free",
-  "z-ai/glm-4.5-air:free",
-  "qwen/qwen3-coder:free",
-  "moonshotai/kimi-k2:free",
-  "moonshotai/kimi-dev-72b:free",
-  "deepseek/deepseek-r1-0528:free",
-  "tngtech/deepseek-r1t-chimera:free",
-  "deepseek/deepseek-chat-v3-0324:free",
-  "deepseek/deepseek-r1-distill-llama-70b:free",
-  "deepseek/deepseek-r1:free",
-];
 const OPENROUTER_BASE =
   env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
 
