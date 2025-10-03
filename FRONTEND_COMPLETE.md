@@ -163,7 +163,7 @@ if (msg.includes("monthly limit") || msg.includes("quota")) {
 
 - **Starter**: Gray gradient (`from-gray-400 to-gray-600`)
 - **Professional**: Blue gradient (`from-blue-400 to-blue-600`)
-- **Business**: Purple gradient (`from-purple-400 to-purple-600`)
+- **Business**: sky gradient (`from-sky-400 to-sky-600`)
 - **Enterprise**: Orange gradient (`from-orange-400 to-orange-600`)
 
 ### Typography
@@ -403,7 +403,7 @@ Edit `src/app/dashboard/usage/page.tsx`:
 const tierColors = {
   starter: "from-gray-400 to-gray-600",
   professional: "from-blue-400 to-blue-600",
-  business: "from-purple-400 to-purple-600",
+  business: "from-sky-400 to-sky-600",
   enterprise: "from-orange-400 to-orange-600",
 };
 ```

@@ -328,7 +328,7 @@ Get usage logs for analytics.
 
 - Starter: Gray gradient
 - Professional: Blue gradient (highlighted)
-- Business: Purple gradient
+- Business: sky gradient
 - Enterprise: Orange gradient
 
 ### 2. Usage Dashboard (`/dashboard/usage`)
