@@ -20,7 +20,6 @@ interface PDFViewerProps {
 }
 
 export function PDFViewer({ fileId, _job }: PDFViewerProps) {
-  const currentPage = 1;
   const [totalPages, setTotalPages] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
