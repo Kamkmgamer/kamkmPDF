@@ -57,7 +57,7 @@ export default function UsagePage() {
   const tierColors = {
     starter: "from-gray-400 to-gray-600",
     professional: "from-blue-400 to-blue-600",
-    business: "from-purple-400 to-purple-600",
+    business: "from-sky-400 to-sky-600",
     enterprise: "from-orange-400 to-orange-600",
   };
 
@@ -221,8 +221,8 @@ export default function UsagePage() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-purple-100 p-3 dark:bg-purple-900/30">
-                  <HardDrive className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <div className="rounded-lg bg-sky-100 p-3 dark:bg-sky-900/30">
+                  <HardDrive className="h-6 w-6 text-sky-600 dark:text-sky-400" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -254,7 +254,7 @@ export default function UsagePage() {
                       ? "bg-gradient-to-r from-orange-500 to-red-500"
                       : storageUsage.percentage >= 50
                         ? "bg-gradient-to-r from-yellow-400 to-orange-500"
-                        : "bg-gradient-to-r from-purple-400 to-purple-600"
+                        : "bg-gradient-to-r from-sky-400 to-sky-600"
                   }`}
                   style={{
                     width: `${Math.min(100, storageUsage.percentage)}%`,
@@ -307,8 +307,8 @@ export default function UsagePage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
-                <Crown className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              <div className="rounded-lg bg-sky-100 p-2 dark:bg-sky-900/30">
+                <Crown className="h-4 w-4 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">

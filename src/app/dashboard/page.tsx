@@ -58,7 +58,7 @@ export default function DashboardPage() {
             />
             <ActionCard
               href="/dashboard/templates"
-              icon={<BookOpen className="h-8 w-8 text-purple-500" />}
+              icon={<BookOpen className="h-8 w-8 text-sky-500" />}
               title="Browse Templates"
               description="Use a pre-designed template to get started quickly."
             />
