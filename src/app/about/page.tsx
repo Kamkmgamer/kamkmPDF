@@ -1,191 +1,226 @@
+"use client";
+
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { Sparkles, Zap, Users, Heart } from "lucide-react";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
 export default function AboutPage() {
-  const stats = [
-    { number: "10K+", label: "PDFs Generated" },
-    { number: "500+", label: "Happy Teams" },
-    { number: "99.9%", label: "Uptime" },
-    { number: "24/7", label: "Support" },
-  ];
-
-  const values = [
-    {
-      title: "Innovation First",
-      description:
-        "                  We&apos;re constantly pushing the boundaries of what&apos;s possible with AI and document generation.",
-    },
-    {
-      title: "User-Centric Design",
-      description:
-        "Every feature we build is designed with our users' workflow and experience in mind.",
-    },
-    {
-      title: "Reliability",
-      description:
-        "                  When you need to create important documents, we&apos;re here with enterprise-grade reliability.",
-    },
-    {
-      title: "Transparency",
-      description:
-        "                  We believe in being open about our technology, our progress, and our mission.",
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-[--color-bg] text-[--color-text-primary]">
-      {/* Hero Section */}
-      <div className="border-b border-[--color-border] bg-[--color-surface]">
-        <div className="container mx-auto px-4 py-16">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              About{" "}
-              <span className="bg-gradient-to-r from-sky-600 to-cyan-500 bg-clip-text text-transparent">
-                Prompt-to-PDF
-              </span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-xl text-[--color-text-muted]">
-              We&apos;re on a mission to revolutionize how professionals create
-              documents. By combining the power of AI with intuitive design,
-              we&apos;re making professional document creation accessible to
-              everyone.
-            </p>
-          </div>
-        </div>
+    <main className="relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30">
+      {/* Decorative elements */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-blue-400/10 to-cyan-400/10 blur-3xl" />
+        <div className="absolute right-1/4 bottom-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-sky-400/10 to-teal-400/10 blur-3xl" />
       </div>
 
-      {/* Stats Section */}
-      <section className="border-b border-[--color-border] bg-[--color-bg] py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl font-bold text-[--color-primary] md:text-4xl">
-                  {stat.number}
-                </div>
-                <div className="mt-2 text-sm text-[--color-text-muted] md:text-base">
-                  {stat.label}
-                </div>
+      {/* Hero Section */}
+      <section className="relative container mx-auto px-6 py-32 text-center">
+        <motion.div
+          className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Heart className="h-4 w-4" />
+          <span>Our Story</span>
+        </motion.div>
+
+        <motion.h1
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ delay: 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="text-6xl font-black tracking-tight text-slate-900 lg:text-7xl dark:text-white"
+        >
+          About{" "}
+          <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-sky-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-cyan-300 dark:to-sky-400">
+            kamkmPDF
+          </span>
+        </motion.h1>
+        <motion.p
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ delay: 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto mt-8 max-w-3xl text-xl leading-relaxed text-slate-600 dark:text-slate-400"
+        >
+          kamkmPDF makes PDF creation simple, fast, and delightful. Whether
+          you&apos;re an individual, a business, or a developer, our mission is
+          to empower you to generate beautiful PDFs in seconds.
+        </motion.p>
+      </section>
+
+      {/* Mission Section */}
+      <section className="relative container mx-auto px-6 py-20">
+        <div className="grid gap-6 md:grid-cols-3">
+          {[
+            {
+              icon: Zap,
+              title: "Fast & Reliable",
+              desc: "Generate PDFs instantly with secure cloud processing.",
+              color: "from-yellow-500 to-orange-500",
+            },
+            {
+              icon: Sparkles,
+              title: "Customizable",
+              desc: "Logos, colors, fonts — fully brand your PDFs.",
+              color: "from-sky-500 to-teal-500",
+            },
+            {
+              icon: Users,
+              title: "For Everyone",
+              desc: "From freelancers to enterprises, kamkmPDF scales with you.",
+              color: "from-blue-500 to-cyan-500",
+            },
+          ].map((item, i) => (
+            <motion.div
+              key={item.title}
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              transition={{
+                delay: i * 0.15,
+                duration: 0.6,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="group relative"
+              whileHover={{ y: -8, scale: 1.02 }}
+            >
+              <div
+                className={`absolute -inset-0.5 bg-gradient-to-r ${item.color} rounded-3xl opacity-0 blur-xl transition duration-500 group-hover:opacity-60`}
+              />
+              <div className="relative h-full rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+                <motion.div
+                  className={`mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${item.color} shadow-xl`}
+                  whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <item.icon className="h-7 w-7 text-white" />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {item.title}
+                </h3>
+                <p className="mt-3 leading-relaxed text-slate-600 dark:text-slate-400">
+                  {item.desc}
+                </p>
               </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="relative bg-gradient-to-b from-white to-slate-50 py-32 dark:from-slate-900 dark:to-slate-950">
+        <div className="container mx-auto px-6">
+          <div className="grid gap-6 text-center md:grid-cols-3">
+            {[
+              { stat: "10K+", label: "PDFs Generated" },
+              { stat: "99.9%", label: "Uptime" },
+              { stat: "500+", label: "Happy Users" },
+            ].map((item, i) => (
+              <motion.div
+                key={item.label}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                transition={{
+                  delay: i * 0.15,
+                  duration: 0.6,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="group relative"
+                whileHover={{ y: -8, scale: 1.05 }}
+              >
+                <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-blue-600 to-cyan-600 opacity-0 blur-xl transition duration-500 group-hover:opacity-40" />
+                <div className="relative rounded-3xl border border-slate-200/50 bg-gradient-to-br from-white to-slate-50 p-8 shadow-2xl dark:border-slate-700/50 dark:from-slate-800 dark:to-slate-900">
+                  <h4 className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-5xl font-black text-transparent dark:from-blue-400 dark:via-cyan-400 dark:to-sky-400">
+                    {item.stat}
+                  </h4>
+                  <p className="mt-3 text-sm font-semibold tracking-wide text-slate-600 uppercase dark:text-slate-400">
+                    {item.label}
+                  </p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Story Section */}
-      <section className="border-b border-[--color-border] bg-[--color-surface] py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl">
-            <h2 className="mb-8 text-center text-3xl font-bold">Our Story</h2>
-            <div className="grid gap-12 md:grid-cols-2">
-              <div>
-                <h3 className="mb-4 text-xl font-semibold">The Problem</h3>
-                <p className="text-[--color-text-muted]">
-                  Traditional document creation is broken. Professionals spend
-                  hours formatting documents, struggling with templates, and
-                  repeating the same work across multiple projects. What should
-                  be a simple task becomes a time-consuming chore that takes
-                  away from actual work.
-                </p>
-              </div>
-              <div>
-                <h3 className="mb-4 text-xl font-semibold">The Solution</h3>
-                <p className="text-[--color-text-muted]">
-                  We saw an opportunity to use AI to transform how documents are
-                  created. By understanding natural language prompts and
-                  converting them into professionally formatted PDFs, we could
-                  save professionals countless hours while ensuring consistent,
-                  high-quality results.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mission Section */}
-      <section className="border-b border-[--color-border] bg-[--color-bg] py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="mb-8 text-3xl font-bold">Our Mission</h2>
-            <p className="text-xl text-[--color-text-muted]">
-              To democratize professional document creation through AI, making
-              it possible for anyone to create beautiful, consistent documents
-              from simple prompts while saving time and reducing frustration.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="border-b border-[--color-border] bg-[--color-surface] py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-6xl">
-            <h2 className="mb-12 text-center text-3xl font-bold">Our Values</h2>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {values.map((value, index) => (
-                <div key={index} className="text-center">
-                  <h3 className="mb-3 text-xl font-semibold">{value.title}</h3>
-                  <p className="text-[--color-text-muted]">
-                    {value.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="border-b border-[--color-border] bg-[--color-bg] py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="mb-8 text-3xl font-bold">Meet the Team</h2>
-            <p className="mb-12 text-xl text-[--color-text-muted]">
-              We&apos;re a small but passionate team of AI enthusiasts,
-              designers, and problem-solvers dedicated to making document
-              creation better for everyone.
-            </p>
-
-            {/* Team members would go here */}
-            <div className="rounded-2xl border border-[--color-border] bg-[--color-surface] p-8">
-              <div className="text-center">
-                <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-r from-sky-500 to-cyan-600"></div>
-                <h3 className="text-xl font-semibold">Our Team</h3>
-                <p className="mt-2 text-[--color-text-muted]">
-                  We&apos;re a distributed team of AI experts, designers, and
-                  engineers working together to build the future of document
-                  creation.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Creator Section */}
+      <section className="container mx-auto px-6 py-24 text-center">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUp}
+          transition={{ delay: 0, duration: 0.6, ease: [0, 0, 0.2, 1] }}
+          className="mx-auto max-w-2xl"
+        >
+          <Image
+            src="https://7g9d5wparu.ufs.sh/f/A10B13NxqwDP69Lcva5U4LiK8WdqGfsrem5jMacTwl1kQxhN"
+            alt="Khalil - Creator of kamkmPDF"
+            width={96}
+            height={96}
+            className="border-primary mx-auto rounded-full border-4"
+          />
+          <h3 className="mt-6 text-2xl font-semibold">Khalil (kamkm)</h3>
+          <p className="text-muted-foreground mt-4">
+            I built kamkmPDF to make professional PDF generation simple,
+            accessible, and fun. This is just the beginning.
+          </p>
+        </motion.div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-r from-sky-500 to-cyan-600 py-16 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">
-            Ready to join the revolution?
-          </h2>
-          <p className="mx-auto mb-8 max-w-2xl text-xl opacity-90">
-            Experience the power of AI-driven document creation. Join thousands
-            of professionals who are already saving time with Prompt-to-PDF.
-          </p>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a
-              href="/dashboard"
-              className="rounded-xl bg-white px-8 py-4 text-lg font-semibold text-[--color-primary] transition-all duration-200 hover:bg-gray-100"
-            >
-              Start Free Trial
-            </a>
-            <a
-              href="/contact"
-              className="rounded-xl border-2 border-white/30 bg-white/10 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:bg-white/20"
-            >
-              Get in Touch
-            </a>
-          </div>
+      <section className="relative py-32">
+        <div className="container mx-auto px-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+            transition={{ delay: 0, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-sky-600 p-16 text-center"
+          >
+            <div className="absolute inset-0 opacity-30">
+              <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
+              <div className="absolute right-1/4 bottom-1/4 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
+            </div>
+            <div className="relative">
+              <h2 className="text-4xl font-black text-white lg:text-5xl">
+                Ready to create beautiful PDFs?
+              </h2>
+              <p className="mt-4 text-xl text-white/90">
+                Join thousands of creators and businesses using kamkmPDF today.
+              </p>
+              <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                <motion.a
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 font-bold text-blue-600 shadow-xl transition-all hover:bg-blue-50"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Try it now
+                </motion.a>
+                <motion.a
+                  href="#features"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-white/30 bg-white/10 px-8 py-4 font-bold text-white backdrop-blur-xl transition-all hover:bg-white/20"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Learn features
+                </motion.a>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }
