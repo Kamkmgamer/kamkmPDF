@@ -1,243 +1,129 @@
+// app/terms/page.tsx
+"use client";
+
+import { motion } from "framer-motion";
+import { FileText, Scale, Shield, AlertCircle } from "lucide-react";
+
 export default function TermsPage() {
-  const termsSections = [
+  const sections = [
     {
-      title: "Acceptance of Terms",
+      title: "1. Introduction",
       content:
-        "By accessing and using Prompt-to-PDF, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.",
+        "By accessing or using kamkmPDF, you agree to these Terms and Conditions. If you do not agree, you may not use the platform.",
+      icon: FileText,
     },
     {
-      title: "Use License",
+      title: "2. Use of Service",
       content:
-        "Permission is granted to temporarily use Prompt-to-PDF for personal and commercial document creation purposes. This is the grant of a license, not a transfer of title, and under this license you may not: modify or copy the materials, use the materials for any commercial purpose or for any public display, or attempt to reverse engineer any software contained on the website.",
+        "You agree to use kamkmPDF only for lawful purposes and in accordance with all applicable local, national, and international laws.",
+      icon: Scale,
     },
     {
-      title: "User Accounts",
+      title: "3. User Content",
       content:
-        "When you create an account with us, you must provide information that is accurate, complete, and current at all times. You are responsible for safeguarding the password and for all activities that occur under your account.",
+        "You retain ownership of your uploaded files. By using our service, you grant kamkmPDF a limited license to process your files for conversion and delivery.",
+      icon: FileText,
     },
     {
-      title: "Acceptable Use",
+      title: "4. Intellectual Property",
       content:
-        "You agree not to use the service to create, upload, or share content that is unlawful, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, libelous, invasive of another's privacy, or otherwise objectionable.",
+        "All rights, titles, and interests in kamkmPDF, including logos, brand, and software, are owned by us and protected under intellectual property laws.",
+      icon: Shield,
     },
     {
-      title: "Service Availability",
+      title: "5. Limitations of Liability",
       content:
-        "We strive to provide uninterrupted service but do not guarantee that the service will be available at all times. We reserve the right to modify, suspend, or discontinue the service with or without notice.",
+        "kamkmPDF is provided 'as is' without warranties of any kind. We are not liable for data loss, damages, or disruptions caused by using our service.",
+      icon: AlertCircle,
     },
     {
-      title: "Limitation of Liability",
+      title: "6. Privacy",
       content:
-        "In no event shall Prompt-to-PDF or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use our services.",
-    },
-  ];
-
-  const pricingTerms = [
-    {
-      title: "Subscription Plans",
-      content:
-        "We offer various subscription plans with different features and limitations. All fees are billed in advance on a recurring basis unless otherwise specified.",
+        "Your use of the service is also governed by our Privacy Policy. Please review it to understand how we collect and use your information.",
+      icon: Shield,
     },
     {
-      title: "Payment Terms",
+      title: "7. Changes to Terms",
       content:
-        "Payment is due at the beginning of each billing cycle. We accept major credit cards and other payment methods as indicated during the checkout process.",
+        "We reserve the right to update these Terms at any time. Continued use of kamkmPDF after changes means you accept the updated Terms.",
+      icon: FileText,
     },
     {
-      title: "Cancellation Policy",
+      title: "8. Contact",
       content:
-        "You may cancel your subscription at any time. Upon cancellation, you will continue to have access to the service until the end of your current billing period.",
+        "If you have any questions about these Terms, please contact us at contact@kamkmPDF.com.",
+      icon: Scale,
     },
-    {
-      title: "Refund Policy",
-      content:
-        "We offer a 14-day money-back guarantee for new subscriptions. Refunds for established accounts are provided at our discretion.",
-    },
-  ];
-
-  const contentGuidelines = [
-    "Documents must not violate any laws or regulations",
-    "Content must not infringe on intellectual property rights",
-    "No creation of misleading or fraudulent documents",
-    "Users are responsible for the accuracy of generated content",
-    "Prohibited from using the service for illegal activities",
-    "Must comply with our community guidelines and acceptable use policy",
   ];
 
   return (
-    <div className="min-h-screen bg-[--color-bg] text-[--color-text-primary]">
-      {/* Hero Section */}
-      <div className="border-b border-[--color-border] bg-[--color-surface]">
-        <div className="container mx-auto px-4 py-16">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Terms of Service
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-xl text-[--color-text-muted]">
-              Last updated: January 15, 2024
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-blue-400/10 to-cyan-400/10 blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-sky-400/10 to-teal-400/10 blur-3xl" />
       </div>
 
-      {/* Introduction */}
-      <section className="border-b border-[--color-border] bg-[--color-bg] py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl">
-            <p className="mb-8 text-lg text-[--color-text-muted]">
-              These Terms of Service (&quot;Terms&quot;) govern your use of
-              Prompt-to-PDF&apos;s AI-powered document creation platform and
-              related services. By using our service, you agree to these Terms.
-            </p>
-            <p className="text-[--color-text-muted]">
-              Please read these Terms carefully before using our services.
-            </p>
-          </div>
-        </div>
-      </section>
+      <div className="relative container mx-auto px-6 py-32">
+        <div className="text-center mb-20">
+          <motion.div
+            className="mb-6 inline-flex items-center gap-2 rounded-full bg-sky-100 dark:bg-sky-900/30 px-4 py-2 text-sm font-semibold text-sky-600 dark:text-sky-400"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Scale className="h-4 w-4" />
+            <span>Legal</span>
+          </motion.div>
 
-      {/* Terms Sections */}
-      <section className="border-b border-[--color-border] bg-[--color-surface] py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl">
-            <h2 className="mb-12 text-3xl font-bold">Terms of Use</h2>
-            <div className="space-y-8">
-              {termsSections.map((section, index) => (
-                <div
-                  key={index}
-                  className="rounded-2xl border border-[--color-border] bg-[--color-bg] p-8"
-                >
-                  <h3 className="mb-4 text-xl font-semibold">
-                    {section.title}
-                  </h3>
-                  <p className="text-[--color-text-muted]">{section.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-6xl font-black tracking-tight text-slate-900 dark:text-white lg:text-7xl"
+          >
+            Terms & Conditions
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mx-auto mt-6 max-w-2xl text-xl text-slate-600 dark:text-slate-400"
+          >
+            Please read these terms carefully before using our service.
+          </motion.p>
         </div>
-      </section>
 
-      {/* Content Guidelines */}
-      <section className="border-b border-[--color-border] bg-[--color-bg] py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl">
-            <h2 className="mb-12 text-3xl font-bold">Content Guidelines</h2>
-            <div className="rounded-2xl border border-[--color-border] bg-[--color-surface] p-8">
-              <h3 className="mb-6 text-xl font-semibold">
-                Acceptable Content Policy
-              </h3>
-              <p className="mb-6 text-[--color-text-muted]">
-                You are solely responsible for the content you create using our
-                platform. The following types of content are strictly
-                prohibited:
-              </p>
-              <ul className="space-y-3">
-                {contentGuidelines.map((guideline, index) => (
-                  <li
-                    key={index}
-                    className="flex items-start gap-3 text-[--color-text-muted]"
-                  >
-                    <div className="mt-1 text-red-500">✗</div>
-                    <span>{guideline}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Terms */}
-      <section className="border-b border-[--color-border] bg-[--color-surface] py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl">
-            <h2 className="mb-12 text-3xl font-bold">
-              Pricing and Payment Terms
-            </h2>
-            <div className="grid gap-8 md:grid-cols-2">
-              {pricingTerms.map((term, index) => (
-                <div
-                  key={index}
-                  className="rounded-2xl border border-[--color-border] bg-[--color-bg] p-8"
-                >
-                  <h3 className="mb-4 text-lg font-semibold">{term.title}</h3>
-                  <p className="text-[--color-text-muted]">{term.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Information */}
-      <section className="border-b border-[--color-border] bg-[--color-bg] py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="mb-12 text-3xl font-bold">
-              Questions About These Terms?
-            </h2>
-            <p className="mb-8 text-[--color-text-muted]">
-              If you have any questions about these Terms of Service, please
-              contact us:
-            </p>
-            <div className="grid gap-6 md:grid-cols-3">
-              <div className="rounded-2xl border border-[--color-border] bg-[--color-surface] p-6">
-                <h3 className="mb-2 font-semibold">Legal Department</h3>
-                <a
-                  href="mailto:legal@prompttopdf.com"
-                  className="text-[--color-primary] hover:underline"
-                >
-                  legal@prompttopdf.com
-                </a>
-              </div>
-              <div className="rounded-2xl border border-[--color-border] bg-[--color-surface] p-6">
-                <h3 className="mb-2 font-semibold">General Support</h3>
-                <a
-                  href="/contact"
-                  className="text-[--color-primary] hover:underline"
-                >
-                  Contact Form
-                </a>
-              </div>
-              <div className="rounded-2xl border border-[--color-border] bg-[--color-surface] p-6">
-                <h3 className="mb-2 font-semibold">Business Address</h3>
-                <p className="text-sm text-[--color-text-muted]">
-                  123 Innovation Drive
-                  <br />
-                  Tech City, TC 12345
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Updates */}
-      <section className="bg-gradient-to-r from-sky-500 to-cyan-600 py-16 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">Terms Updates</h2>
-          <p className="mx-auto mb-8 max-w-2xl text-xl opacity-90">
-            We may update these Terms of Service from time to time. We will
-            notify you of any changes by posting the new Terms on this page and
-            updating the &quot;Last updated&quot; date.
-          </p>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a
-              href="/contact"
-              className="rounded-xl bg-white px-8 py-4 text-lg font-semibold text-[--color-primary] transition-all duration-200 hover:bg-gray-100"
+        <div className="max-w-4xl mx-auto space-y-6">
+          {sections.map((section, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true }}
+              className="group relative"
+              whileHover={{ y: -4 }}
             >
-              Contact Us
-            </a>
-            <a
-              href="/privacy"
-              className="rounded-xl border-2 border-white/30 bg-white/10 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:bg-white/20"
-            >
-              Privacy Policy
-            </a>
-          </div>
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-sky-600 to-teal-600 rounded-3xl opacity-0 blur transition duration-300 group-hover:opacity-20" />
+              <div className="relative rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-xl">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-teal-500 shadow-lg">
+                      <section.icon className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{section.title}</h2>
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {section.content}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
-      </section>
+      </div>
     </div>
   );
 }
