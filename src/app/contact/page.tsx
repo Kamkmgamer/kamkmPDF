@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import { Mail, Send, CheckCircle } from "lucide-react";
 
 interface ApiResponse {
   error?: string;
@@ -93,133 +95,190 @@ export default function ContactPage() {
   // No URL param check needed since we're handling success inline
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="mx-auto max-w-xl text-center">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          Contact Us
-        </h1>
-        <p className="text-muted-foreground mt-4 text-lg">
-          Have a question? We&apos;d love to hear from you.
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30">
+      {/* Decorative elements */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-blue-400/10 to-cyan-400/10 blur-3xl" />
+        <div className="absolute right-1/4 bottom-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-sky-400/10 to-teal-400/10 blur-3xl" />
       </div>
 
-      {error && (
-        <div className="mx-auto mt-6 max-w-xl rounded-md bg-red-50 p-4 text-center">
-          <p className="text-red-800">{error}</p>
-        </div>
-      )}
+      <div className="relative container mx-auto px-4 py-20">
+        {/* Header */}
+        <div className="mx-auto mb-16 max-w-4xl text-center">
+          <motion.div
+            className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Mail className="h-4 w-4" />
+            <span>Get in Touch</span>
+          </motion.div>
 
-      {success && (
-        <div className="mx-auto mt-6 max-w-xl rounded-md bg-green-50 p-4 text-center">
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold text-green-800">Thank You!</h2>
-            <p className="mt-2 text-green-700">
-              Your message has been sent successfully. We&apos;ll get back to
-              you soon.
+          <motion.h1
+            className="text-5xl font-black tracking-tight text-slate-900 sm:text-6xl lg:text-7xl dark:text-white"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+          >
+            Contact Us
+          </motion.h1>
+          <motion.p
+            className="mt-6 text-xl text-slate-600 dark:text-slate-400"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Have a question? We&apos;d love to hear from you. Send us a message
+            and we&apos;ll respond as soon as possible.
+          </motion.p>
+        </div>
+
+        {error && (
+          <motion.div
+            className="mx-auto mb-8 max-w-2xl rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-900/20"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <p className="font-semibold text-red-800 dark:text-red-400">
+              {error}
             </p>
-          </div>
-          <button
-            onClick={() => {
-              setSuccess(false);
-              setError(null);
-            }}
-            className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-green-700"
-          >
-            Send Another Message
-          </button>
-        </div>
-      )}
+          </motion.div>
+        )}
 
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        className="mx-auto mt-12 max-w-xl"
-      >
-        <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
-          <div>
-            <label htmlFor="first-name" className="block text-sm font-medium">
-              First name
-            </label>
-            <div className="mt-1">
-              <input
-                type="text"
-                name="first-name"
-                id="first-name"
-                autoComplete="given-name"
-                required
-                className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="last-name" className="block text-sm font-medium">
-              Last name
-            </label>
-            <div className="mt-1">
-              <input
-                type="text"
-                name="last-name"
-                id="last-name"
-                autoComplete="family-name"
-                required
-                className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
-              />
-            </div>
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="email" className="block text-sm font-medium">
-              Email
-            </label>
-            <div className="mt-1">
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
-              />
-            </div>
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="subject" className="block text-sm font-medium">
-              Subject (Optional)
-            </label>
-            <div className="mt-1">
-              <input
-                id="subject"
-                name="subject"
-                type="text"
-                autoComplete="subject"
-                className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
-              />
-            </div>
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="message" className="block text-sm font-medium">
-              Message
-            </label>
-            <div className="mt-1">
-              <textarea
-                id="message"
-                name="message"
-                rows={4}
-                required
-                className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-        <div className="mt-8 sm:col-span-2">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="focus:ring-foreground/30 w-full rounded-md bg-[var(--color-primary)] px-8 py-4 text-lg font-bold text-[var(--color-on-primary)] shadow transition-colors duration-300 hover:bg-[var(--color-primary-700)] hover:shadow-lg focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        {success && (
+          <motion.div
+            className="mx-auto mb-8 max-w-2xl rounded-3xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-8 text-center dark:border-green-800 dark:from-green-900/20 dark:to-emerald-900/20"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
           >
-            {isLoading ? "Sending..." : "Send message"}
-          </button>
-        </div>
-      </form>
+            <div className="mb-6">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500">
+                <CheckCircle className="h-8 w-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-green-800 dark:text-green-400">
+                Thank You!
+              </h2>
+              <p className="mt-3 text-lg text-green-700 dark:text-green-300">
+                Your message has been sent successfully. We&apos;ll get back to
+                you soon.
+              </p>
+            </div>
+            <motion.button
+              onClick={() => {
+                setSuccess(false);
+                setError(null);
+              }}
+              className="rounded-2xl bg-green-600 px-6 py-3 text-base font-bold text-white shadow-xl transition-all hover:bg-green-700"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Send Another Message
+            </motion.button>
+          </motion.div>
+        )}
+
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className="mx-auto mt-12 max-w-xl"
+        >
+          <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
+            <div>
+              <label htmlFor="first-name" className="block text-sm font-medium">
+                First name
+              </label>
+              <div className="mt-1">
+                <input
+                  type="text"
+                  name="first-name"
+                  id="first-name"
+                  autoComplete="given-name"
+                  required
+                  className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="last-name" className="block text-sm font-medium">
+                Last name
+              </label>
+              <div className="mt-1">
+                <input
+                  type="text"
+                  name="last-name"
+                  id="last-name"
+                  autoComplete="family-name"
+                  required
+                  className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="email" className="block text-sm font-medium">
+                Email
+              </label>
+              <div className="mt-1">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="subject" className="block text-sm font-medium">
+                Subject (Optional)
+              </label>
+              <div className="mt-1">
+                <input
+                  id="subject"
+                  name="subject"
+                  type="text"
+                  autoComplete="subject"
+                  className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="message" className="block text-sm font-medium">
+                Message
+              </label>
+              <div className="mt-1">
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={4}
+                  required
+                  className="border-border bg-card/60 placeholder:text-muted-foreground/70 focus:border-foreground focus:ring-foreground/30 block w-full rounded-md border px-3 py-2 shadow-sm"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 sm:col-span-2">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-8 py-5 text-lg font-bold text-white shadow-2xl shadow-blue-500/30 transition-all hover:shadow-blue-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isLoading ? (
+                <>
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="h-5 w-5" />
+                  Send Message
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
