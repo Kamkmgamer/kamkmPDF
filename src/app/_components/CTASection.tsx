@@ -48,7 +48,7 @@ export default function CTASection() {
           transition={{ duration: 0.45, delay: 0.2, ease: "easeOut" }}
         >
           <Link
-            href="/dashboard"
+            href={isSignedIn ? "/dashboard" : "/sign-up"}
             className="group flex items-center rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:from-sky-600 hover:to-cyan-700"
           >
             {isSignedIn ? "Go to Dashboard" : "Start Free Trial"}
@@ -68,10 +68,7 @@ export default function CTASection() {
             </span>
           </Link>
         </motion.div>
-
-        <p className="mt-6 text-sm opacity-75">
-          No credit card required • 14-day free trial • Cancel anytime
-        </p>
+        
       </div>
     </section>
   );

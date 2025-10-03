@@ -22,6 +22,7 @@ export default function Footer() {
       { name: "Terms", href: "/terms" },
       { name: "Cookies", href: "/cookies" },
       { name: "GDPR", href: "/gdpr" },
+      { name: "Stats", href: "/stats" },
     ],
   };
 
@@ -160,10 +161,12 @@ export default function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between border-t border-[--color-border] pt-8 md:flex-row">
           <p className="text-sm text-[--color-text-muted]">
-            © 2024 Prompt-to-PDF. All rights reserved.
+            © 2025 Prompt-to-PDF. All rights reserved.
           </p>
           <p className="mt-4 text-sm text-[--color-text-muted] md:mt-0">
-            Made with ❤️ for PDF creators everywhere
+            Made with <span className="text-[--color-text-primary]">❤️</span> for PDF creators everywhere
+            <br />
+            by <span className="text-[--color-text-primary]">Soft-Magic</span> and <span className="text-[--color-text-primary]">KamkmGamer</span>
           </p>
         </div>
       </div>
