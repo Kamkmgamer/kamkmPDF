@@ -4,12 +4,42 @@ import Link from "next/link";
 import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
 import React from "react";
 import { usePathname } from "next/navigation";
-import { File, Menu as MenuIcon, X, Plus } from "lucide-react";
+import { File, Menu as MenuIcon, X, Plus, Sun, Moon } from "lucide-react";
 
 export default function Header() {
   const { isSignedIn, isLoaded } = useAuth();
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+  const [isDark, setIsDark] = React.useState(false);
+
+  // Initialize theme from localStorage and system preference
+  React.useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    const shouldBeDark = stored === "dark" || (!stored && prefersDark);
+
+    setIsDark(shouldBeDark);
+    if (shouldBeDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newIsDark = !isDark;
+    setIsDark(newIsDark);
+
+    if (newIsDark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
 
   const isDashboard = !!(
     pathname &&
@@ -67,7 +97,27 @@ export default function Header() {
           </nav>
         )}
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Cute Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="group relative inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-blue-500/40 active:scale-95"
+            aria-label="Toggle theme"
+          >
+            {/* Sun icon */}
+            <Sun
+              className={`absolute h-5 w-5 text-white transition-all duration-500 ${isDark ? "scale-0 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100"}`}
+            />
+
+            {/* Moon icon */}
+            <Moon
+              className={`absolute h-5 w-5 text-white transition-all duration-500 ${isDark ? "scale-100 rotate-0 opacity-100" : "scale-0 -rotate-90 opacity-0"}`}
+            />
+
+            {/* Sparkle effect on hover */}
+            <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+          </button>
+
           {isLoaded && (
             <>
               {isSignedIn ? (
