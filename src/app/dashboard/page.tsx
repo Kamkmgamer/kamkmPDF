@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "../../_components/DashboardLayout";
 import JobsGallery from "../../_components/JobsGallery";
 import Link from "next/link";
-import { ArrowRight, FilePlus, BookOpen } from "lucide-react";
+import { ArrowRight, FilePlus, BookOpen, Sparkles, Zap } from "lucide-react";
 
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -18,8 +18,13 @@ export default function DashboardPage() {
       <DashboardLayout>
         <div className="flex h-full items-center justify-center p-8">
           <div className="text-center">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-            <p className="mt-4 text-gray-500">Loading your dashboard...</p>
+            <div className="relative mx-auto h-16 w-16">
+              <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-blue-500 border-r-indigo-500"></div>
+              <div className="absolute inset-2 animate-spin rounded-full border-4 border-transparent border-t-sky-500 border-r-indigo-500 [animation-direction:reverse] [animation-duration:1.5s]"></div>
+            </div>
+            <p className="mt-6 animate-pulse bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text font-medium text-transparent">
+              Loading your dashboard...
+            </p>
           </div>
         </div>
       </DashboardLayout>
@@ -33,52 +38,82 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
-        {/* Welcome Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Welcome back, {user?.firstName}!
-          </h1>
-          <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-            Ready to create something amazing?
-          </p>
+      <div className="space-y-8 p-4 sm:p-6 lg:p-8">
+        {/* Welcome Header with Animated Gradient */}
+        <div className="relative overflow-hidden rounded-3xl border border-blue-100/50 bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-50 p-8 shadow-xl shadow-blue-500/5 sm:p-10 dark:border-blue-900/30 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-sky-950/30">
+          {/* Animated background orbs */}
+          <div className="absolute -top-24 -right-24 h-96 w-96 animate-pulse rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-400/20 blur-3xl"></div>
+          <div className="absolute -bottom-24 -left-24 h-96 w-96 animate-pulse rounded-full bg-gradient-to-br from-sky-400/20 to-indigo-400/20 blur-3xl [animation-delay:1s]"></div>
+
+          <div className="relative z-10">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="relative">
+                <Sparkles className="h-8 w-8 animate-pulse text-blue-600 dark:text-blue-400" />
+                <div className="absolute inset-0 animate-ping">
+                  <Sparkles className="h-8 w-8 text-blue-600 opacity-75 dark:text-blue-400" />
+                </div>
+              </div>
+              <h1 className="animate-gradient bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 bg-[length:200%_auto] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
+                Welcome back, {user?.firstName}!
+              </h1>
+            </div>
+            <p className="mt-3 flex items-center gap-2 text-lg font-medium text-gray-700 sm:text-xl dark:text-gray-300">
+              <Zap className="h-5 w-5 animate-bounce text-yellow-500" />
+              Ready to create something amazing?
+            </p>
+          </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-10">
-          <h2 className="mb-4 text-xl font-semibold text-gray-800 dark:text-gray-200">
-            Start Creating
-          </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Quick Actions with Enhanced Cards */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-50 blur-md"></div>
+                <span className="relative inline-block h-8 w-1.5 rounded-full bg-gradient-to-b from-blue-600 to-indigo-600"></span>
+              </div>
+              Start Creating
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <ActionCard
               href="/dashboard/new"
-              icon={<FilePlus className="h-8 w-8 text-blue-500" />}
+              icon={<FilePlus className="h-7 w-7" />}
               title="New from Prompt"
               description="Convert text into a polished PDF document."
+              gradient="from-blue-500 via-indigo-500 to-blue-600"
+              glowColor="blue"
             />
             <ActionCard
               href="/dashboard/templates"
-              icon={<BookOpen className="h-8 w-8 text-sky-500" />}
+              icon={<BookOpen className="h-7 w-7" />}
               title="Browse Templates"
               description="Use a pre-designed template to get started quickly."
+              gradient="from-indigo-500 via-sky-500 to-indigo-600"
+              glowColor="indigo"
             />
           </div>
         </div>
 
-        {/* Recent Documents */}
-        <section aria-labelledby="recent-documents">
-          <div className="mb-4 flex items-center justify-between">
+        {/* Recent Documents with Modern Header */}
+        <section aria-labelledby="recent-documents" className="space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h2
               id="recent-documents"
-              className="text-xl font-semibold text-gray-800 dark:text-gray-200"
+              className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white"
             >
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-sky-600 to-indigo-600 opacity-50 blur-md"></div>
+                <span className="relative inline-block h-8 w-1.5 rounded-full bg-gradient-to-b from-sky-600 to-indigo-600"></span>
+              </div>
               Your Recent Documents
             </h2>
             <Link
               href="/dashboard/new"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+              className="group/btn inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all duration-200 will-change-transform hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/50 active:scale-95"
             >
-              Create New PDF
+              <FilePlus className="h-4 w-4 transition-transform duration-200 group-hover/btn:rotate-90" />
+              <span>Create New PDF</span>
             </Link>
           </div>
           <JobsGallery />
@@ -93,30 +128,59 @@ function ActionCard({
   icon,
   title,
   description,
+  gradient,
+  glowColor,
 }: {
   href: string;
   icon: React.ReactNode;
   title: string;
   description: string;
+  gradient: string;
+  glowColor: string;
 }) {
+  const glowColors = {
+    blue: "shadow-blue-500/50",
+    indigo: "shadow-indigo-500/50",
+  };
+
   return (
     <Link
       href={href}
-      className="group block rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-blue-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500"
+      className={`group/action relative block will-change-transform`}
     >
-      <div className="flex items-center gap-4">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-          {icon}
+      {/* Main card - optimized for performance */}
+      <div
+        className={`relative overflow-hidden rounded-3xl border border-gray-200/80 bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-xl transition-all duration-300 group-hover/action:-translate-y-1 group-hover/action:border-blue-500/50 group-hover/action:shadow-2xl dark:border-gray-700/50 dark:from-gray-900 dark:to-gray-800/50 group-hover/action:${glowColors[glowColor as keyof typeof glowColors]}`}
+      >
+        <div className="relative p-8">
+          {/* Icon container - optimized */}
+          <div className="mb-6">
+            <div className="relative inline-block will-change-transform">
+              {/* Icon background */}
+              <div
+                className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} shadow-lg transition-transform duration-300 group-hover/action:scale-110 group-hover/action:rotate-3`}
+              >
+                <div className="relative text-white">{icon}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900 transition-colors duration-200 group-hover/action:text-blue-600 dark:text-white dark:group-hover/action:text-indigo-400">
+                {title}
+              </h3>
+              <ArrowRight className="h-5 w-5 text-gray-400 opacity-0 transition-all duration-200 will-change-transform group-hover/action:text-indigo-500 group-hover/action:opacity-100 dark:text-gray-500" />
+            </div>
+            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+              {description}
+            </p>
+          </div>
+
+          {/* Bottom gradient bar */}
+          <div className="absolute right-0 bottom-0 left-0 h-1 origin-left scale-x-0 transform bg-gradient-to-r from-blue-600 to-indigo-600 transition-transform duration-300 will-change-transform group-hover/action:scale-x-100"></div>
         </div>
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {title}
-          </h3>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {description}
-          </p>
-        </div>
-        <ArrowRight className="ml-auto h-5 w-5 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 dark:text-gray-500" />
       </div>
     </Link>
   );

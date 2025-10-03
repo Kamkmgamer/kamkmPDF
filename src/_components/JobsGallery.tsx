@@ -36,17 +36,23 @@ export default function JobsGallery() {
   useEffect(() => {
     const handleScroll = () => {
       // Check if user scrolled near bottom (within 500px)
-      const scrolledToBottom = 
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500;
-      
-      if (scrolledToBottom && data && displayCount < data.length && !loadingMore) {
+      const scrolledToBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 500;
+
+      if (
+        scrolledToBottom &&
+        data &&
+        displayCount < data.length &&
+        !loadingMore
+      ) {
         setLoadingMore(true);
-        setDisplayCount(prev => Math.min(prev + 8, data.length)); // Queue 8 more
+        setDisplayCount((prev) => Math.min(prev + 8, data.length)); // Queue 8 more
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [data, displayCount, loadingMore]);
 
   // Reset display count when filters change
@@ -135,32 +141,42 @@ export default function JobsGallery() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* Enhanced Search Bar - Optimized */}
         <div className="relative flex w-full max-w-xl items-center gap-2">
-          <div className="relative flex w-full items-center gap-2 rounded-2xl border border-gray-200/80 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl px-4 py-3 shadow-lg shadow-gray-900/5 transition-all duration-200 focus-within:border-blue-500/50 focus-within:shadow-xl focus-within:shadow-blue-500/10">
+          <div className="relative flex w-full items-center gap-2 rounded-2xl border border-gray-200/80 bg-white/80 px-4 py-3 shadow-lg shadow-gray-900/5 backdrop-blur-xl transition-all duration-200 focus-within:border-blue-500/50 focus-within:shadow-xl focus-within:shadow-blue-500/10 dark:border-gray-700/50 dark:bg-gray-900/80">
             {/* Search icon */}
-            <svg className="h-5 w-5 text-gray-400 dark:text-gray-500 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <svg
+              className="h-5 w-5 text-gray-400 transition-colors duration-200 dark:text-gray-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
-            
+
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search your documents by prompt..."
-              className="flex-1 bg-transparent outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="flex-1 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500"
             />
-            
+
             {!!query && (
               <button
                 aria-label="Clear search"
-                className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150"
+                className="rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition-colors duration-150 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
                 onClick={() => setQuery("")}
               >
                 Clear
               </button>
             )}
-            
+
             <button
               onClick={() => refetch()}
-              className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-md shadow-blue-500/30 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/40 hover:scale-105 active:scale-95 will-change-transform"
+              className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-md shadow-blue-500/30 transition-all duration-200 will-change-transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/40 active:scale-95"
             >
               {isRefetching ? "Searching..." : "Search"}
             </button>
@@ -169,7 +185,7 @@ export default function JobsGallery() {
 
         {/* Enhanced Status Filter */}
         <div className="flex items-center justify-between gap-2">
-          <div className="hidden items-center gap-1.5 rounded-2xl border border-gray-200/80 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-1.5 shadow-lg shadow-gray-900/5 sm:flex">
+          <div className="hidden items-center gap-1.5 rounded-2xl border border-gray-200/80 bg-white/80 p-1.5 shadow-lg shadow-gray-900/5 backdrop-blur-xl sm:flex dark:border-gray-700/50 dark:bg-gray-900/80">
             {(["all", "completed", "processing", "failed"] as Status[]).map(
               (s) => (
                 <button
@@ -178,7 +194,7 @@ export default function JobsGallery() {
                   className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200 will-change-transform ${
                     status === s
                       ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                   }`}
                   aria-pressed={status === s}
                 >
@@ -195,7 +211,7 @@ export default function JobsGallery() {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as Status)}
-              className="rounded-xl border border-gray-200/80 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl px-3 py-2 text-sm font-medium shadow-lg shadow-gray-900/5 dark:[color-scheme:dark]"
+              className="rounded-xl border border-gray-200/80 bg-white/80 px-3 py-2 text-sm font-medium shadow-lg shadow-gray-900/5 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/80 dark:[color-scheme:dark]"
             >
               <option value="all">All</option>
               <option value="completed">Completed</option>
@@ -214,173 +230,186 @@ export default function JobsGallery() {
         <>
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {data.slice(0, loadedCount).map((item) => (
-            <li
-              key={item.fileId}
-              className="group/card relative flex flex-col h-full will-change-transform"
-            >
-              <div className="relative flex flex-col h-full overflow-hidden rounded-3xl border border-gray-200/80 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl shadow-gray-900/5 transition-all duration-300 group-hover/card:shadow-2xl group-hover/card:shadow-blue-500/10 group-hover/card:-translate-y-1 group-hover/card:border-blue-500/30">{/* Isolated hover state */}
-                {/* Visual header with real thumbnail when possible */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
-                {item.jobId ? (
-                  <Link
-                    href={`/pdf/${item.jobId}`}
-                    className="group/link relative block h-full w-full overflow-hidden transition-all duration-300 ease-out"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/0 opacity-0 transition-opacity duration-300 group-hover/link:opacity-100" />
-                    <div className="absolute top-3 right-3 opacity-0 transition-all duration-300 group-hover/link:opacity-100 group-hover/link:scale-110">
-                      <div className="rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 p-2 shadow-lg shadow-blue-500/50 backdrop-blur-sm">
-                        <svg
-                          className="h-4 w-4 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    {item.mimeType?.includes("pdf") ? (
-                      <div className="h-full w-full origin-center transition-transform duration-300 group-hover/link:scale-[1.02]">
-                        <PdfThumbnail fileId={item.fileId} />
-                      </div>
-                    ) : (
-                      <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-                        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/15 text-[--color-primary] transition-transform duration-300 group-hover/link:scale-110">
-                          📄
-                        </div>
-                        <div className="line-clamp-3 text-sm text-[--color-text-muted]">
-                          {item.prompt}
-                        </div>
-                      </div>
-                    )}
-                  </Link>
-                ) : (
-                  <>
-                    {item.mimeType?.includes("pdf") ? (
-                      <div className="h-full w-full origin-center">
-                        <PdfThumbnail fileId={item.fileId} />
-                      </div>
-                    ) : (
-                      <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-                        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/15 text-[--color-primary]">
-                          📄
-                        </div>
-                        <div className="line-clamp-3 text-sm text-[--color-text-muted]">
-                          {item.prompt}
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-                  {/* Top info chips */}
-                  <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-3 text-[10px] font-semibold">
-                    <span className="rounded-xl bg-gradient-to-br from-gray-900/80 to-black/80 px-3 py-1.5 text-white backdrop-blur-md shadow-lg">
-                      {new Date(item.createdAt).toLocaleString()}
-                    </span>
-                    <span className="rounded-xl bg-gradient-to-br from-gray-900/80 to-black/80 px-3 py-1.5 text-white backdrop-blur-md shadow-lg">
-                      {formatSize(item.size)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Title and status */}
-                <div className="relative flex flex-col gap-3 p-4 min-h-0">
-                  <div
-                    className="line-clamp-2 text-base leading-snug font-bold text-gray-900 transition-colors dark:text-gray-50"
-                    title={item.prompt}
-                  >
-                    {item.prompt}
-                  </div>
-                  <div className="flex-shrink-0">
-                    <StatusBadge status={item.status} />
-                  </div>
-                </div>
-
-                {/* Action buttons */}
-                <div className="relative flex items-center justify-between gap-2 border-t border-gray-200/50 dark:border-gray-700/30 p-4 mt-auto">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setPreviewId(item.fileId)}
-                      className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                    >
-                      Preview
-                    </button>
-                    <button
-                      onClick={() => handleDownload(item.fileId, item.prompt)}
-                      disabled={downloadingId === item.fileId}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
-                    >
-                      {downloadingId === item.fileId ? (
-                        <>
-                          <svg
-                            className="h-3 w-3 animate-spin"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                            />
-                          </svg>
-                          Downloading
-                        </>
-                      ) : (
-                        "Download"
-                      )}
-                    </button>
-                  </div>
-                  <div className="flex-shrink-0">
+              <li
+                key={item.fileId}
+                className="group/card relative flex h-full flex-col will-change-transform"
+              >
+                <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200/80 bg-white/80 shadow-xl shadow-gray-900/5 backdrop-blur-xl transition-all duration-300 group-hover/card:-translate-y-1 group-hover/card:border-blue-500/30 group-hover/card:shadow-2xl group-hover/card:shadow-blue-500/10 dark:border-gray-700/50 dark:bg-gray-900/80">
+                  {/* Isolated hover state */}
+                  {/* Visual header with real thumbnail when possible */}
+                  <div className="relative aspect-[3/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
                     {item.jobId ? (
                       <Link
                         href={`/pdf/${item.jobId}`}
-                        className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-md shadow-blue-500/30 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/40 hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 will-change-transform"
+                        className="group/link relative block h-full w-full overflow-hidden transition-all duration-300 ease-out"
                       >
-                        View
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/0 opacity-0 transition-opacity duration-300 group-hover/link:opacity-100" />
+                        <div className="absolute top-3 right-3 opacity-0 transition-all duration-300 group-hover/link:scale-110 group-hover/link:opacity-100">
+                          <div className="rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 p-2 shadow-lg shadow-blue-500/50 backdrop-blur-sm">
+                            <svg
+                              className="h-4 w-4 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                        {item.mimeType?.includes("pdf") ? (
+                          <div className="h-full w-full origin-center transition-transform duration-300 group-hover/link:scale-[1.02]">
+                            <PdfThumbnail fileId={item.fileId} />
+                          </div>
+                        ) : (
+                          <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+                            <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/15 text-[--color-primary] transition-transform duration-300 group-hover/link:scale-110">
+                              📄
+                            </div>
+                            <div className="line-clamp-3 text-sm text-[--color-text-muted]">
+                              {item.prompt}
+                            </div>
+                          </div>
+                        )}
                       </Link>
                     ) : (
-                      <button
-                        disabled
-                        className="cursor-not-allowed rounded-lg bg-gray-400 px-4 py-1.5 text-sm font-semibold text-white opacity-60"
-                        title="Job metadata is missing for this file"
-                      >
-                        View
-                      </button>
+                      <>
+                        {item.mimeType?.includes("pdf") ? (
+                          <div className="h-full w-full origin-center">
+                            <PdfThumbnail fileId={item.fileId} />
+                          </div>
+                        ) : (
+                          <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+                            <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[--color-primary]/15 text-[--color-primary]">
+                              📄
+                            </div>
+                            <div className="line-clamp-3 text-sm text-[--color-text-muted]">
+                              {item.prompt}
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
+                    {/* Top info chips */}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-3 text-[10px] font-semibold">
+                      <span className="rounded-xl bg-gradient-to-br from-gray-900/80 to-black/80 px-3 py-1.5 text-white shadow-lg backdrop-blur-md">
+                        {new Date(item.createdAt).toLocaleString()}
+                      </span>
+                      <span className="rounded-xl bg-gradient-to-br from-gray-900/80 to-black/80 px-3 py-1.5 text-white shadow-lg backdrop-blur-md">
+                        {formatSize(item.size)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Title and status */}
+                  <div className="relative flex min-h-0 flex-col gap-3 p-4">
+                    <div
+                      className="line-clamp-2 text-base leading-snug font-bold text-gray-900 transition-colors dark:text-gray-50"
+                      title={item.prompt}
+                    >
+                      {item.prompt}
+                    </div>
+                    <div className="flex-shrink-0">
+                      <StatusBadge status={item.status} />
+                    </div>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="relative mt-auto flex items-center justify-between gap-2 border-t border-gray-200/50 p-4 dark:border-gray-700/30">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setPreviewId(item.fileId)}
+                        className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:scale-105 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-95 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                      >
+                        Preview
+                      </button>
+                      <button
+                        onClick={() => handleDownload(item.fileId, item.prompt)}
+                        disabled={downloadingId === item.fileId}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:scale-105 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                      >
+                        {downloadingId === item.fileId ? (
+                          <>
+                            <svg
+                              className="h-3 w-3 animate-spin"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                              />
+                            </svg>
+                            Downloading
+                          </>
+                        ) : (
+                          "Download"
+                        )}
+                      </button>
+                    </div>
+                    <div className="flex-shrink-0">
+                      {item.jobId ? (
+                        <Link
+                          href={`/pdf/${item.jobId}`}
+                          className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-md shadow-blue-500/30 transition-all duration-200 will-change-transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-95"
+                        >
+                          View
+                        </Link>
+                      ) : (
+                        <button
+                          disabled
+                          className="cursor-not-allowed rounded-lg bg-gray-400 px-4 py-1.5 text-sm font-semibold text-white opacity-60"
+                          title="Job metadata is missing for this file"
+                        >
+                          View
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-        
-        {/* Load More Indicator */}
-        {(loadingMore || loadedCount < data.length) && (
-          <div className="flex justify-center py-8">
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30">
-                <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                </svg>
-                {loadingMore ? "Preparing PDFs..." : "Scroll for more"}
+              </li>
+            ))}
+          </ul>
+
+          {/* Load More Indicator */}
+          {(loadingMore || loadedCount < data.length) && (
+            <div className="flex justify-center py-8">
+              <div className="text-center">
+                <div className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30">
+                  <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                  {loadingMore ? "Preparing PDFs..." : "Scroll for more"}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </>
+          )}
+        </>
       )}
 
       {/* Preview Modal */}
@@ -435,14 +464,14 @@ function GallerySkeleton() {
       {Array.from({ length: 8 }).map((_, i) => (
         <li
           key={i}
-          className="relative overflow-hidden rounded-3xl border border-gray-200/80 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl"
+          className="relative overflow-hidden rounded-3xl border border-gray-200/80 bg-white/80 shadow-xl backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/80"
         >
           {/* Shimmer animation */}
           <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-          
+
           <div className="animate-pulse">
             <div className="aspect-[3/4] w-full rounded-t-3xl bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800" />
-            <div className="p-4 space-y-3">
+            <div className="space-y-3 p-4">
               <div className="h-5 w-3/4 rounded-lg bg-gray-200 dark:bg-gray-700" />
               <div className="h-6 w-24 rounded-lg bg-gray-200 dark:bg-gray-700" />
             </div>
@@ -455,29 +484,41 @@ function GallerySkeleton() {
 
 function EmptyState() {
   return (
-    <div className="relative overflow-hidden rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 p-16 text-center">
+    <div className="relative overflow-hidden rounded-3xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-white p-16 text-center dark:border-gray-700 dark:from-gray-900 dark:to-gray-800">
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-br from-violet-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
-      
+      <div className="absolute top-0 right-0 h-64 w-64 rounded-full bg-gradient-to-br from-blue-500/5 to-indigo-500/5 blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-gradient-to-br from-violet-500/5 to-pink-500/5 blur-3xl"></div>
+
       <div className="relative z-10">
         <div className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 text-3xl shadow-xl shadow-blue-500/20">
           📄
         </div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No documents yet</h3>
-        <p className="mx-auto max-w-md text-gray-600 dark:text-gray-400 mb-6">
+        <h3 className="mb-3 text-2xl font-bold text-gray-900 dark:text-white">
+          No documents yet
+        </h3>
+        <p className="mx-auto mb-6 max-w-md text-gray-600 dark:text-gray-400">
           Generate your first PDF by creating a new prompt. Your generated PDFs
           will show up here for quick access, downloading, and sharing.
         </p>
         <Link
           href="/dashboard/new"
-          className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 active:scale-95"
+          className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-blue-500/40 active:scale-95"
         >
           <span className="relative z-10">Create Your First PDF</span>
-          <svg className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          <svg
+            className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 7l5 5m0 0l-5 5m5-5H6"
+            />
           </svg>
-          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"></div>
         </Link>
       </div>
     </div>
@@ -485,32 +526,37 @@ function EmptyState() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const statusConfig: Record<string, { bg: string; text: string; icon: string }> = {
-    completed: { 
-      bg: "bg-gradient-to-r from-emerald-500 to-green-500", 
-      text: "text-white", 
-      icon: "✓" 
+  const statusConfig: Record<
+    string,
+    { bg: string; text: string; icon: string }
+  > = {
+    completed: {
+      bg: "bg-gradient-to-r from-emerald-500 to-green-500",
+      text: "text-white",
+      icon: "✓",
     },
-    processing: { 
-      bg: "bg-gradient-to-r from-amber-500 to-orange-500", 
-      text: "text-white", 
-      icon: "⟳" 
+    processing: {
+      bg: "bg-gradient-to-r from-amber-500 to-orange-500",
+      text: "text-white",
+      icon: "⟳",
     },
-    failed: { 
-      bg: "bg-gradient-to-r from-rose-500 to-red-500", 
-      text: "text-white", 
-      icon: "✕" 
+    failed: {
+      bg: "bg-gradient-to-r from-rose-500 to-red-500",
+      text: "text-white",
+      icon: "✕",
     },
   };
-  const config = statusConfig[status] ?? { 
-    bg: "bg-gradient-to-r from-gray-500 to-slate-500", 
-    text: "text-white", 
-    icon: "•" 
+  const config = statusConfig[status] ?? {
+    bg: "bg-gradient-to-r from-gray-500 to-slate-500",
+    text: "text-white",
+    icon: "•",
   };
   const label = status[0]?.toUpperCase() + status.slice(1);
-  
+
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-lg ${config.bg} ${config.text} px-3 py-1.5 text-xs font-semibold shadow-md whitespace-nowrap`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-lg ${config.bg} ${config.text} px-3 py-1.5 text-xs font-semibold whitespace-nowrap shadow-md`}
+    >
       <span className="text-sm">{config.icon}</span>
       <span>{label}</span>
     </span>

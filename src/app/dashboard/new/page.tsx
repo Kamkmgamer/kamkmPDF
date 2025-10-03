@@ -140,15 +140,21 @@ ${prompt.trim()}`
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-4xl p-4 sm:p-6 lg:p-8">
+        {/* Modern Header */}
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Create New PDF
-          </h1>
+          <div>
+            <h1 className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 bg-clip-text text-4xl font-bold tracking-tight text-transparent">
+              Create New PDF
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Transform your ideas into beautiful documents
+            </p>
+          </div>
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="group flex items-center gap-2 rounded-2xl border border-gray-200 bg-white/80 px-4 py-2.5 text-sm font-medium text-gray-700 shadow-lg shadow-gray-900/5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-500/50 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-300"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1" />
             Back
           </button>
         </div>
@@ -179,7 +185,7 @@ ${prompt.trim()}`
             validateAndSetImage={validateAndSetImage}
           />
 
-          <div className="flex items-center justify-end gap-4 pt-4">
+          <div className="flex items-center justify-end gap-4 pt-6">
             <button
               type="button"
               onClick={() => {
@@ -188,14 +194,14 @@ ${prompt.trim()}`
                 setError(null);
                 setTouched(false);
               }}
-              className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="rounded-2xl border border-gray-200 bg-white/80 px-6 py-3 text-sm font-semibold text-gray-800 shadow-lg shadow-gray-900/5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-300 dark:hover:border-gray-600"
             >
               Clear All
             </button>
             <button
               type="submit"
               disabled={submitting || isTooShort || isTooLong}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
             >
               {submitting && (
                 <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
@@ -242,20 +248,23 @@ function PromptEditor({
   error,
 }: PromptEditorProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="relative overflow-hidden rounded-3xl border border-gray-200/80 bg-white/80 p-8 shadow-xl shadow-gray-900/5 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/80">
+      {/* Decorative gradient */}
+      <div className="absolute top-0 right-0 -z-10 h-64 w-64 rounded-full bg-gradient-to-br from-blue-500/5 to-indigo-500/5 blur-3xl"></div>
+
       <label
         htmlFor="prompt"
-        className="block text-lg font-semibold text-gray-900 dark:text-white"
+        className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent"
       >
         Your Prompt
       </label>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
         Describe the document you want to create. Be specific for the best
         results.
       </p>
       <textarea
         id="prompt"
-        className={`mt-4 block w-full resize-y rounded-xl border-gray-300 px-4 py-3 text-base shadow-sm transition focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 ${isTooLong ? "border-red-500 ring-red-500" : ""}`}
+        className={`mt-4 block w-full resize-y rounded-2xl border-2 border-gray-200 bg-white px-5 py-4 text-base shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 ${isTooLong ? "border-red-500 ring-4 ring-red-500/20" : ""}`}
         rows={8}
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
@@ -281,17 +290,20 @@ interface ToneSelectorProps {
 }
 function ToneSelector({ selectedTone, setSelectedTone }: ToneSelectorProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+    <div className="relative overflow-hidden rounded-3xl border border-gray-200/80 bg-white/80 p-8 shadow-xl shadow-gray-900/5 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/80">
+      {/* Decorative gradient */}
+      <div className="absolute bottom-0 left-0 -z-10 h-64 w-64 rounded-full bg-gradient-to-br from-indigo-500/5 to-sky-500/5 blur-3xl"></div>
+
+      <h3 className="bg-gradient-to-r from-indigo-600 to-sky-600 bg-clip-text text-xl font-bold text-transparent">
         Choose a Tone
       </h3>
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {tones.map((tone) => (
           <button
             key={tone}
             type="button"
             onClick={() => setSelectedTone(selectedTone === tone ? null : tone)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${selectedTone === tone ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"}`}
+            className={`rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${selectedTone === tone ? "scale-105 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30" : "bg-gray-100 text-gray-800 hover:scale-105 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"}`}
           >
             {tone}
           </button>
