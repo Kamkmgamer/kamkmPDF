@@ -20,13 +20,13 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30">
       {/* Decorative elements */}
-      <div className="pointer-events-none absolute inset-0">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-blue-400/10 to-cyan-400/10 blur-3xl" />
         <div className="absolute right-1/4 bottom-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-sky-400/10 to-teal-400/10 blur-3xl" />
       </div>
 
       {/* Header */}
-      <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -68,7 +68,7 @@ export default function PricingPage() {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="mt-16 grid gap-6 sm:mt-20 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-6 sm:mt-20 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:max-w-6xl mx-auto">
           {tiers.map((tier, index) => {
             const Icon = tier.icon;
             const isCurrentTier = currentSub?.tier === tier.id;
@@ -86,9 +86,28 @@ export default function PricingPage() {
                 className={`group relative ${tier.popular ? "lg:-mt-4 lg:scale-105" : ""}`}
                 whileHover={{ y: -8, scale: tier.popular ? 1.05 : 1.02 }}
               >
+                {/* Badges positioned outside the card */}
+                {tier.popular && !isCurrentTier && (
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
+                    <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-4 py-1.5 text-xs font-bold text-white shadow-xl">
+                      <Sparkles className="h-3 w-3" />
+                      <span>Most Popular</span>
+                    </div>
+                  </div>
+                )}
+
+                {isCurrentTier && (
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
+                    <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-1.5 text-xs font-bold text-white shadow-xl">
+                      <Check className="h-3 w-3" />
+                      <span>Current Plan</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Glow effect */}
                 <div
-                  className={`absolute -inset-0.5 bg-gradient-to-r ${tier.color} rounded-3xl opacity-0 blur-xl transition duration-500 group-hover:opacity-60`}
+                  className={`absolute -inset-0.5 bg-gradient-to-r ${tier.color} rounded-3xl opacity-0 blur-xl transition duration-500 group-hover:opacity-60 pointer-events-none`}
                 />
 
                 <div
@@ -100,23 +119,6 @@ export default function PricingPage() {
                         : "border-slate-200 dark:border-slate-700"
                   }`}
                 >
-                  {tier.popular && !isCurrentTier && (
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2">
-                      <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-4 py-1.5 text-xs font-bold text-white shadow-xl">
-                        <Sparkles className="h-3 w-3" />
-                        <span>Most Popular</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {isCurrentTier && (
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2">
-                      <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-1.5 text-xs font-bold text-white shadow-xl">
-                        <Check className="h-3 w-3" />
-                        <span>Current Plan</span>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Icon */}
                   <motion.div
@@ -257,7 +259,7 @@ export default function PricingPage() {
             </h2>
           </div>
 
-          <div className="mx-auto mt-12 max-w-3xl space-y-4">
+          <div className="mx-auto mt-12 max-w-3xl space-y-4 overflow-hidden">
             {[
               {
                 q: "Can I change plans anytime?",
