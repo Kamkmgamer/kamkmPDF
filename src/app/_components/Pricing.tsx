@@ -44,7 +44,7 @@ export default function Pricing() {
         </div>
 
         <motion.div
-          className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-4"
+          className="mx-auto grid max-w-7xl gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
@@ -73,16 +73,16 @@ export default function Pricing() {
               />
 
               <div
-                className={`relative flex h-full flex-col overflow-hidden rounded-3xl border bg-white p-8 shadow-2xl transition-all duration-300 dark:bg-slate-800 ${
+                className={`relative flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl border bg-white p-6 sm:p-8 shadow-2xl transition-all duration-300 dark:bg-slate-800 ${
                   plan.popular
                     ? "border-blue-500/50 dark:border-blue-400/50"
                     : "border-slate-200 dark:border-slate-700"
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2">
-                    <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-4 py-1.5 text-xs font-bold text-white shadow-xl">
-                      <Sparkles className="h-3 w-3" />
+                  <div className="absolute -top-4 sm:-top-5 left-1/2 -translate-x-1/2">
+                    <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-xs font-bold text-white shadow-xl whitespace-nowrap">
+                      <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                       <span>Most Popular</span>
                     </div>
                   </div>
@@ -90,33 +90,33 @@ export default function Pricing() {
 
                 {/* Icon */}
                 <motion.div
-                  className={`mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${plan.color} shadow-xl`}
+                  className={`mb-4 sm:mb-6 inline-flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br ${plan.color} shadow-xl`}
                   whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <plan.icon className="h-7 w-7 text-white" />
+                  <plan.icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                 </motion.div>
 
                 {/* Plan name and description */}
-                <h3 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white">
+                <h3 className="mb-2 text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                   {plan.name}
                 </h3>
-                <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
+                <p className="mb-4 sm:mb-6 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                   {plan.description}
                 </p>
 
                 {/* Price */}
-                <div className="mb-6">
-                  <div className="flex items-baseline">
-                    <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-5xl font-black text-transparent dark:from-blue-400 dark:via-cyan-400 dark:to-sky-400">
+                <div className="mb-4 sm:mb-6">
+                  <div className="flex items-baseline flex-wrap gap-1">
+                    <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-4xl sm:text-5xl font-black text-transparent dark:from-blue-400 dark:via-cyan-400 dark:to-sky-400">
                       ${plan.price}
                     </span>
-                    <span className="ml-2 text-slate-600 dark:text-slate-400">
+                    <span className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
                       /month
                     </span>
                   </div>
                   {plan.priceYearly > 0 && (
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                       or ${plan.priceYearly}/year{" "}
                       <span className="font-semibold text-green-600 dark:text-green-400">
                         (save 17%)
@@ -126,20 +126,20 @@ export default function Pricing() {
                 </div>
 
                 {/* Features */}
-                <ul className="mb-8 flex-grow space-y-3">
+                <ul className="mb-6 sm:mb-8 flex-grow space-y-2 sm:space-y-3">
                   {plan.features.slice(0, 6).map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start gap-3">
+                    <li key={featureIndex} className="flex items-start gap-2 sm:gap-3">
                       {feature.included ? (
-                        <div className="mt-0.5 flex-shrink-0 rounded-full bg-green-100 p-1 dark:bg-green-900/30">
-                          <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                        <div className="mt-0.5 flex-shrink-0 rounded-full bg-green-100 p-0.5 sm:p-1 dark:bg-green-900/30">
+                          <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-600 dark:text-green-400" />
                         </div>
                       ) : (
-                        <div className="mt-0.5 flex-shrink-0 rounded-full bg-slate-100 p-1 dark:bg-slate-800">
-                          <X className="h-3 w-3 text-slate-400 dark:text-slate-600" />
+                        <div className="mt-0.5 flex-shrink-0 rounded-full bg-slate-100 p-0.5 sm:p-1 dark:bg-slate-800">
+                          <X className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-slate-400 dark:text-slate-600" />
                         </div>
                       )}
                       <span
-                        className={`text-sm ${feature.included ? "text-slate-700 dark:text-slate-300" : "text-slate-400 line-through dark:text-slate-600"}`}
+                        className={`text-xs sm:text-sm ${feature.included ? "text-slate-700 dark:text-slate-300" : "text-slate-400 line-through dark:text-slate-600"}`}
                       >
                         {feature.text}
                       </span>
@@ -154,14 +154,14 @@ export default function Pricing() {
                 >
                   <Link
                     href={plan.id === "enterprise" ? "/contact" : "/dashboard"}
-                    className={`group/btn relative flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-bold transition-all duration-300 ${
+                    className={`group/btn relative flex w-full items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-5 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 ${
                       plan.popular
                         ? "bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 text-white shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40"
                         : "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
                     }`}
                   >
                     <span>{plan.cta}</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                    <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform group-hover/btn:translate-x-1" />
                   </Link>
                 </motion.div>
               </div>
