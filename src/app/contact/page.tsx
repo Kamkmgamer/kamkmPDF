@@ -102,7 +102,7 @@ export default function ContactPage() {
         <div className="absolute right-1/4 bottom-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-sky-400/10 to-teal-400/10 blur-3xl" />
       </div>
 
-      <div className="relative container mx-auto px-4 py-20">
+      <div className="relative container mx-auto px-4 py-20 max-w-4xl">
         {/* Header */}
         <div className="mx-auto mb-16 max-w-4xl text-center">
           <motion.div
