@@ -1,6 +1,6 @@
 @import "tailwindcss";
 /* Tailwind v4: drive `dark:` utilities by the `.dark` class */
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where(.dark, .dark *)) /* css-ignore */;
 
 @layer base {
   html {
@@ -10,12 +10,16 @@
     scroll-behavior: smooth;
     /* Allow native UI to match current theme (light default, dark when active) */
     color-scheme: light dark;
+    /* Prevent horizontal scroll */
+    overflow-x: hidden;
   }
 
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Prevent horizontal scroll */
+    overflow-x: hidden;
   }
 
   ::selection {
