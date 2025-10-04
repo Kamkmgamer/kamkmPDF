@@ -19,7 +19,7 @@ export default function AboutPage() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative container mx-auto px-6 py-32 text-center">
+      <section className="relative container mx-auto px-6 py-32 text-center max-w-7xl">
         <motion.div
           className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
           initial={{ opacity: 0, scale: 0.9 }}
