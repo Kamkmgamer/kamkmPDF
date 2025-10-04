@@ -141,10 +141,10 @@ export default function JobsGallery() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* Enhanced Search Bar - Optimized */}
         <div className="relative flex w-full max-w-xl items-center gap-2">
-          <div className="relative flex w-full items-center gap-2 rounded-2xl border border-gray-200/80 bg-white/80 px-4 py-3 shadow-lg shadow-gray-900/5 backdrop-blur-xl transition-all duration-200 focus-within:border-blue-500/50 focus-within:shadow-xl focus-within:shadow-blue-500/10 dark:border-gray-700/50 dark:bg-gray-900/80">
+          <div className="relative flex w-full items-center gap-2 rounded-2xl border border-gray-200/80 bg-white/80 px-3 py-2.5 sm:px-4 sm:py-3 shadow-lg shadow-gray-900/5 backdrop-blur-xl transition-all duration-200 focus-within:border-blue-500/50 focus-within:shadow-xl focus-within:shadow-blue-500/10 dark:border-gray-700/50 dark:bg-gray-900/80">
             {/* Search icon */}
             <svg
-              className="h-5 w-5 text-gray-400 transition-colors duration-200 dark:text-gray-500"
+              className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-gray-400 transition-colors duration-200 dark:text-gray-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -160,14 +160,14 @@ export default function JobsGallery() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search your documents by prompt..."
-              className="flex-1 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500"
+              placeholder="Search your documents..."
+              className="flex-1 min-w-0 bg-transparent text-sm sm:text-base text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500"
             />
 
             {!!query && (
               <button
                 aria-label="Clear search"
-                className="rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition-colors duration-150 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                className="hidden sm:block flex-shrink-0 rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition-colors duration-150 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
                 onClick={() => setQuery("")}
               >
                 Clear
@@ -176,7 +176,7 @@ export default function JobsGallery() {
 
             <button
               onClick={() => refetch()}
-              className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-md shadow-blue-500/30 transition-all duration-200 will-change-transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/40 active:scale-95"
+              className="flex-shrink-0 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-1.5 sm:px-4 text-xs sm:text-sm font-semibold text-white shadow-md shadow-blue-500/30 transition-all duration-200 will-change-transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/40 active:scale-95"
             >
               {isRefetching ? "Searching..." : "Search"}
             </button>
