@@ -639,7 +639,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           {/* Stats with modern cards */}
           <motion.div
-            className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6"
+            className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
@@ -656,28 +656,25 @@ export default function Home() {
                 key={index}
                 className="group relative"
                 variants={{
-                  hidden: { opacity: 0, y: 30, scale: 0.9 },
+                  hidden: { opacity: 0, y: 30, scale: 0.95 },
                   visible: { opacity: 1, y: 0, scale: 1 },
                 }}
-                whileHover={{ y: -8, scale: 1.05 }}
+                whileHover={{ y: -6, scale: 1.02 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               >
-                {/* Glow effect */}
-                <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-blue-600 to-cyan-600 opacity-0 blur-xl transition duration-500 group-hover:opacity-40" />
+                <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-sky-400/0 via-sky-400/20 to-blue-500/0 opacity-0 blur-xl transition duration-500 group-hover:opacity-60 dark:from-blue-500/0 dark:via-blue-500/25 dark:to-blue-500/0" />
 
-                <div className="relative rounded-3xl border border-slate-200/50 bg-gradient-to-br from-white to-slate-50 p-8 text-center shadow-2xl transition-all duration-300 dark:border-slate-700/50 dark:from-slate-800 dark:to-slate-900">
-                  <motion.div
-                    className="mb-2 text-4xl font-black tracking-tight md:text-5xl"
-                    whileHover={{ scale: 1.1 }}
+                <div className="relative flex h-full flex-col items-center justify-center rounded-[28px] bg-white p-10 text-center shadow-[0_20px_45px_rgba(15,23,42,0.08)] transition-all duration-300 dark:bg-slate-900 dark:shadow-[0_20px_45px_rgba(15,23,42,0.35)]">
+                  <motion.span
+                    className="text-4xl font-black tracking-tight text-transparent sm:text-5xl bg-clip-text bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500 dark:from-blue-400 dark:via-sky-400 dark:to-cyan-400"
+                    whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-cyan-400 dark:to-sky-400">
-                      {stat.number}
-                    </span>
-                  </motion.div>
-                  <div className="text-sm font-semibold tracking-wide text-slate-600 uppercase dark:text-slate-400">
+                    {stat.number}
+                  </motion.span>
+                  <span className="mt-3 text-xs font-semibold tracking-[0.35em] text-slate-500 uppercase sm:text-sm sm:tracking-[0.25em] dark:text-slate-400">
                     {stat.label}
-                  </div>
+                  </span>
                 </div>
               </motion.div>
             ))}
