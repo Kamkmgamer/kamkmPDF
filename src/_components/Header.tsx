@@ -5,41 +5,13 @@ import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
 import React from "react";
 import { usePathname } from "next/navigation";
 import { File, Menu as MenuIcon, X, Plus, Sun, Moon } from "lucide-react";
+import { useTheme } from "~/providers/ThemeProvider";
 
 export default function Header() {
   const { isSignedIn, isLoaded } = useAuth();
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
-  const [isDark, setIsDark] = React.useState(false);
-
-  // Initialize theme from localStorage and system preference
-  React.useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-    const shouldBeDark = stored === "dark" || (!stored && prefersDark);
-
-    setIsDark(shouldBeDark);
-    if (shouldBeDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newIsDark = !isDark;
-    setIsDark(newIsDark);
-
-    if (newIsDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  };
+  const { theme, toggleTheme } = useTheme();
 
   const isDashboard = !!(
     pathname &&
@@ -106,12 +78,12 @@ export default function Header() {
           >
             {/* Sun icon */}
             <Sun
-              className={`absolute h-5 w-5 text-white transition-all duration-500 ${isDark ? "scale-0 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100"}`}
+              className={`absolute h-5 w-5 text-white transition-all duration-500 ${theme === "dark" ? "scale-0 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100"}`}
             />
 
             {/* Moon icon */}
             <Moon
-              className={`absolute h-5 w-5 text-white transition-all duration-500 ${isDark ? "scale-100 rotate-0 opacity-100" : "scale-0 -rotate-90 opacity-0"}`}
+              className={`absolute h-5 w-5 text-white transition-all duration-500 ${theme === "dark" ? "scale-100 rotate-0 opacity-100" : "scale-0 -rotate-90 opacity-0"}`}
             />
 
             {/* Sparkle effect on hover */}
