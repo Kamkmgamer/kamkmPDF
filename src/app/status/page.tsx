@@ -17,7 +17,7 @@ const services: { name: string; status: StatusType; desc: string }[] = [
 const getStatusIcon = (status: StatusType) => {
   switch (status) {
     case "operational":
-      return <CheckCircle className="text-green-500 w-7 h-7" />;
+      return <CheckCircle className="text-green-100 w-7 h-7" />;
     case "degraded":
       return <AlertTriangle className="text-yellow-500 w-7 h-7" />;
     case "outage":
@@ -65,12 +65,12 @@ export default function StatusPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30">
       {/* Decorative elements */}
-      <div className="pointer-events-none absolute inset-0">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-blue-400/10 to-cyan-400/10 blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-sky-400/10 to-teal-400/10 blur-3xl" />
       </div>
 
-      <div className="relative container mx-auto px-6 py-32">
+      <div className="relative container mx-auto px-6 py-32 max-w-7xl">
         {/* Header */}
         <div className="text-center mb-20">
           <motion.div
@@ -110,7 +110,7 @@ export default function StatusPage() {
         </div>
 
         {/* Services */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-20 overflow-hidden">
           {services.map((service, idx) => (
             <motion.div
               key={service.name}
