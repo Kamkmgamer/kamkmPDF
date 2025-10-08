@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import {
   motion,
@@ -24,6 +25,7 @@ import Pricing from "./_components/Pricing";
 
 export default function Home() {
   const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -36,6 +38,13 @@ export default function Home() {
 
   // Reduced motion preference
   const reduceMotion = useReducedMotion();
+
+  // Redirect signed-in users to dashboard from home
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.replace("/dashboard");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   // Mouse position for parallax effect
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -116,6 +125,10 @@ export default function Home() {
       { name: "Stats", href: "/stats" },
     ],
   };
+
+  if (isLoaded && isSignedIn) {
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30 dark:text-white">
@@ -666,7 +679,7 @@ export default function Home() {
 
                 <div className="relative flex h-full flex-col items-center justify-center rounded-[28px] bg-white p-10 text-center shadow-[0_20px_45px_rgba(15,23,42,0.08)] transition-all duration-300 dark:bg-slate-900 dark:shadow-[0_20px_45px_rgba(15,23,42,0.35)]">
                   <motion.span
-                    className="text-4xl font-black tracking-tight text-transparent sm:text-5xl bg-clip-text bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500 dark:from-blue-400 dark:via-sky-400 dark:to-cyan-400"
+                    className="bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500 bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl dark:from-blue-400 dark:via-sky-400 dark:to-cyan-400"
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.2 }}
                   >
