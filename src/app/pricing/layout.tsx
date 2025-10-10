@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 
+export const revalidate = 86400; // 24h ISR for marketing page
+
 export const metadata: Metadata = {
   title: "Pricing | kamkmPDF",
   description:

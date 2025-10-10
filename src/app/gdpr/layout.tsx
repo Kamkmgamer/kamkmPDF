@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+export const revalidate = 86400; // 24h ISR for marketing page
+
 export const metadata: Metadata = {
   title: "GDPR | kamkmPDF",
   description: "GDPR compliance and data protection practices at kamkmPDF.",

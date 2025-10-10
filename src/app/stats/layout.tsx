@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+export const revalidate = 86400; // 24h ISR for marketing page
+
 export const metadata: Metadata = {
   title: "Stats | kamkmPDF",
   description: "Usage statistics and platform insights.",
