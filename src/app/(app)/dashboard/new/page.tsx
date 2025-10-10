@@ -5,7 +5,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import Image from "next/image";
-import DashboardLayout from "../../../_components/DashboardLayout";
+import DashboardLayout from "~/_components/DashboardLayout";
 import { api } from "~/trpc/react";
 import { ArrowLeft, X } from "lucide-react";
 import QuotaExceededModal from "~/_components/QuotaExceededModal";

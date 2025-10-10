@@ -21,7 +21,7 @@ import {
   Globe,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import Pricing from "./_components/Pricing";
+import Pricing from "~/app/_components/Pricing";
 
 export default function Home() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -393,7 +393,7 @@ export default function Home() {
             {/* Secondary internal links for SEO and quick navigation */}
             <div className="mt-2 mb-12 text-sm text-slate-600 dark:text-slate-400">
               <Link
-                href="/pricing"
+                href="#pricing"
                 className="underline underline-offset-4 hover:text-slate-900 dark:hover:text-white"
               >
                 See pricing

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import DashboardLayout from "../../../../_components/DashboardLayout";
+import DashboardLayout from "~/_components/DashboardLayout";
 import { templates, type Template } from "../templates";
 import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";

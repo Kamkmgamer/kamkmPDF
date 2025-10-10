@@ -7,7 +7,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { UpgradeButton } from "~/_components/UpgradeButton";
 import { api } from "~/trpc/react";
-import { tiers } from "../_data/tiers";
+import { tiers } from "~/app/_data/tiers";
 import { useState } from "react";
 
 export default function PricingPage() {
@@ -26,7 +26,7 @@ export default function PricingPage() {
       </div>
 
       {/* Header */}
-      <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8 overflow-hidden">
+      <div className="relative mx-auto max-w-7xl overflow-hidden px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -68,7 +68,7 @@ export default function PricingPage() {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="mt-16 grid gap-6 sm:mt-20 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:max-w-6xl mx-auto">
+        <div className="mx-auto mt-16 grid gap-6 sm:mt-20 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:max-w-6xl">
           {tiers.map((tier, index) => {
             const Icon = tier.icon;
             const isCurrentTier = currentSub?.tier === tier.id;
@@ -88,7 +88,7 @@ export default function PricingPage() {
               >
                 {/* Badges positioned outside the card */}
                 {tier.popular && !isCurrentTier && (
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
+                  <div className="absolute -top-5 left-1/2 z-10 -translate-x-1/2">
                     <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-4 py-1.5 text-xs font-bold text-white shadow-xl">
                       <Sparkles className="h-3 w-3" />
                       <span>Most Popular</span>
@@ -97,7 +97,7 @@ export default function PricingPage() {
                 )}
 
                 {isCurrentTier && (
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
+                  <div className="absolute -top-5 left-1/2 z-10 -translate-x-1/2">
                     <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-1.5 text-xs font-bold text-white shadow-xl">
                       <Check className="h-3 w-3" />
                       <span>Current Plan</span>
@@ -107,7 +107,7 @@ export default function PricingPage() {
 
                 {/* Glow effect */}
                 <div
-                  className={`absolute -inset-0.5 bg-gradient-to-r ${tier.color} rounded-3xl opacity-0 blur-xl transition duration-500 group-hover:opacity-60 pointer-events-none`}
+                  className={`absolute -inset-0.5 bg-gradient-to-r ${tier.color} pointer-events-none rounded-3xl opacity-0 blur-xl transition duration-500 group-hover:opacity-60`}
                 />
 
                 <div
@@ -119,7 +119,6 @@ export default function PricingPage() {
                         : "border-slate-200 dark:border-slate-700"
                   }`}
                 >
-
                   {/* Icon */}
                   <motion.div
                     className={`mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${tier.color} shadow-xl`}

@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
-import ThankYouEmail from "../../../emails/ThankYouEmail";
-import { audit } from "../../../lib/logger";
-import { contactRateLimit } from "../../../lib/rate-limit";
+import ThankYouEmail from "~/emails/ThankYouEmail";
+import { audit } from "~/lib/logger";
+import { contactRateLimit } from "~/lib/rate-limit";
 import type { Resend } from "resend";
 
 let resend: Resend | null = null;
