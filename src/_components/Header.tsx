@@ -12,6 +12,11 @@ export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isDashboard = !!(
     pathname &&
@@ -78,12 +83,12 @@ export default function Header() {
           >
             {/* Sun icon */}
             <Sun
-              className={`absolute h-5 w-5 text-white transition-all duration-500 ${theme === "dark" ? "scale-0 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100"}`}
+              className={`absolute h-5 w-5 text-white transition-all duration-500 ${mounted && theme === "dark" ? "scale-0 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100"}`}
             />
 
             {/* Moon icon */}
             <Moon
-              className={`absolute h-5 w-5 text-white transition-all duration-500 ${theme === "dark" ? "scale-100 rotate-0 opacity-100" : "scale-0 -rotate-90 opacity-0"}`}
+              className={`absolute h-5 w-5 text-white transition-all duration-500 ${mounted && theme === "dark" ? "scale-100 rotate-0 opacity-100" : "scale-0 -rotate-90 opacity-0"}`}
             />
 
             {/* Sparkle effect on hover */}

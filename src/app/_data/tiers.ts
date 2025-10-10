@@ -1,11 +1,17 @@
-import type React from "react";
-import { Building2, Sparkles, Users, Zap } from "lucide-react";
+import {
+  Building2,
+  Sparkles,
+  Users,
+  Zap,
+  Star,
+  type LucideIcon,
+} from "lucide-react";
 
 export type TierFeature = { text: string; included: boolean };
 export type Tier = {
-  id: "starter" | "professional" | "business" | "enterprise";
+  id: "starter" | "classic" | "professional" | "business" | "enterprise";
   name: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; // lucide icon component
+  icon: LucideIcon; // lucide icon component
   price: number;
   priceYearly: number;
   description: string;
@@ -40,6 +46,29 @@ export const tiers: Tier[] = [
     popular: false,
   },
   {
+    id: "classic",
+    name: "Classic",
+    icon: Star,
+    price: 1,
+    priceYearly: 10,
+    description: "Great for light regular use",
+    color: "from-purple-400 to-purple-600",
+    features: [
+      { text: "50 PDFs per month", included: true },
+      { text: "500 MB permanent storage", included: true },
+      { text: "10+ premium templates", included: true },
+      { text: "Standard AI models", included: true },
+      { text: "No watermarks", included: true },
+      { text: "<90 second processing", included: true },
+      { text: "Version history (5 versions)", included: true },
+      { text: "Email support (48-72h)", included: true },
+      { text: "API access", included: false },
+      { text: "Team collaboration", included: false },
+    ],
+    cta: "Upgrade to Classic",
+    popular: false,
+  },
+  {
     id: "professional",
     name: "Professional",
     icon: Zap,
@@ -48,7 +77,7 @@ export const tiers: Tier[] = [
     description: "For freelancers and professionals",
     color: "from-blue-400 to-blue-600",
     features: [
-      { text: "50 PDFs per month", included: true },
+      { text: "5,000 PDFs per month", included: true },
       { text: "2 GB permanent storage", included: true },
       { text: "20+ premium templates", included: true },
       { text: "Premium AI models (GPT-4 class)", included: true },
