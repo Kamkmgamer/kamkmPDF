@@ -12,6 +12,7 @@ export const paypalConfig = {
   webhookId: env.PAYPAL_WEBHOOK_ID,
   plans: {
     professional: env.PAYPAL_PLAN_ID_PROFESSIONAL,
+    classic: env.PAYPAL_PLAN_ID_CLASSIC,
     business: env.PAYPAL_PLAN_ID_BUSINESS,
     enterprise: env.PAYPAL_PLAN_ID_ENTERPRISE,
   },
@@ -30,7 +31,7 @@ export function getPayPalApiUrl(): string {
  * Get PayPal plan ID for a subscription tier
  */
 export function getPlanIdForTier(
-  tier: "professional" | "business" | "enterprise",
+  tier: "professional" | "classic" | "business" | "enterprise",
 ): string | undefined {
   return paypalConfig.plans[tier];
 }
@@ -40,10 +41,11 @@ export function getPlanIdForTier(
  */
 export function getTierFromPlanId(
   planId: string,
-): "professional" | "business" | "enterprise" | null {
+): "professional" | "classic" | "business" | "enterprise" | null {
   const plans = paypalConfig.plans;
 
   if (planId === plans.professional) return "professional";
+  if (planId === plans.classic) return "classic";
   if (planId === plans.business) return "business";
   if (planId === plans.enterprise) return "enterprise";
 

@@ -280,7 +280,13 @@ export const subscriptionRouter = createTRPCRouter({
   upgradeTier: protectedProcedure
     .input(
       z.object({
-        newTier: z.enum(["starter", "professional", "business", "enterprise"]),
+        newTier: z.enum([
+          "starter",
+          "classic",
+          "professional",
+          "business",
+          "enterprise",
+        ]),
       }),
     )
     .mutation(async ({ ctx, input }) => {

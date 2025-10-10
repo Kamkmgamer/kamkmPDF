@@ -140,7 +140,7 @@ function injectImageIntoHtmlBody(
 export async function generatePdfBuffer(opts: {
   jobId: string;
   prompt?: string;
-  tier?: "starter" | "professional" | "business" | "enterprise";
+  tier?: "starter" | "classic" | "professional" | "business" | "enterprise";
   addWatermark?: boolean;
   image?: { path: string; mime: string; mode: ImageMode } | null;
   onStage?: (stage: GenerationStage, progress: number) => void | Promise<void>;

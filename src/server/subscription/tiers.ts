@@ -5,6 +5,7 @@
 
 export type SubscriptionTier =
   | "starter"
+  | "classic"
   | "professional"
   | "business"
   | "enterprise";
@@ -86,6 +87,43 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       "deepseek/deepseek-chat-v3-0324:free",
       "deepseek/deepseek-r1-distill-llama-70b:free",
       "deepseek/deepseek-r1:free",
+    ],
+  },
+  classic: {
+    id: "classic",
+    name: "Classic",
+    description: "Great for light regular use",
+    price: {
+      monthly: 1,
+      yearly: 10,
+    },
+    quotas: {
+      pdfsPerMonth: 50,
+      storageGB: 0.5, // 500 MB
+      maxFileSize: 5, // 5 MB per PDF
+      teamSeats: 1,
+      templatesAccess: "premium",
+    },
+    features: {
+      watermark: false,
+      priorityProcessing: true,
+      processingSpeed: "<90 seconds",
+      aiModel: "premium",
+      customBranding: false,
+      apiAccess: false,
+      teamCollaboration: false,
+      versionHistory: 5,
+      bulkGeneration: false,
+      analytics: false,
+      support: "email",
+      storageRetention: -1, // permanent
+    },
+    models: [
+      // Premium models for better quality
+      "x-ai/grok-4-fast",
+      "x-ai/grok-code-fast-1",
+      "moonshotai/kimi-k2:free",
+      "deepseek/deepseek-chat-v3.1:free",
     ],
   },
   professional: {
@@ -315,6 +353,7 @@ export function getUpgradeSuggestion(
 function getNextTier(currentTier: SubscriptionTier): SubscriptionTier | null {
   const tierOrder: SubscriptionTier[] = [
     "starter",
+    "classic",
     "professional",
     "business",
     "enterprise",

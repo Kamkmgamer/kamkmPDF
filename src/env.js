@@ -29,6 +29,7 @@ export const env = createEnv({
     PAYPAL_WEBHOOK_ID: z.string().optional(),
     // PayPal Plan IDs
     PAYPAL_PLAN_ID_PROFESSIONAL: z.string().optional(),
+    PAYPAL_PLAN_ID_CLASSIC: z.string().optional(),
     PAYPAL_PLAN_ID_BUSINESS: z.string().optional(),
     PAYPAL_PLAN_ID_ENTERPRISE: z.string().optional(),
   },
@@ -67,6 +68,7 @@ export const env = createEnv({
     PAYPAL_MODE: process.env.PAYPAL_MODE,
     PAYPAL_WEBHOOK_ID: process.env.PAYPAL_WEBHOOK_ID,
     PAYPAL_PLAN_ID_PROFESSIONAL: process.env.PAYPAL_PLAN_ID_PROFESSIONAL,
+    PAYPAL_PLAN_ID_CLASSIC: process.env.PAYPAL_PLAN_ID_CLASSIC,
     PAYPAL_PLAN_ID_BUSINESS: process.env.PAYPAL_PLAN_ID_BUSINESS,
     PAYPAL_PLAN_ID_ENTERPRISE: process.env.PAYPAL_PLAN_ID_ENTERPRISE,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
