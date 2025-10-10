@@ -10,13 +10,13 @@ Status legend: [ ] pending · [~] in progress · [x] done
 - [x] Add global JSON-LD (Organization, SaaSProduct) in `src/app/layout.tsx`
 - [x] Add per-page metadata for Pricing in `src/app/pricing/layout.tsx`
 - [x] Add `NEXT_PUBLIC_SITE_URL` to `.env.example`
-- [ ] LLMs.txt via `src/app/llms.ts`
-- [ ] Create OG image assets: `/public/og/home.png`, `/public/og/pricing.png`
+- [x] LLMs.txt via `src/app/llms.txt/route.ts`
+- [x] Create OG image assets: served via dynamic routes `src/app/og/home.png/route.ts` and `src/app/og/pricing.png/route.ts`
 
 ## Page Metadata (Week 1–2)
 
-- [ ] Add segment layouts with metadata for: `about`, `contact`, `security`, `gdpr`, `privacy`, `terms`, `help`, `status`, `stats`, `cookies`
-- [ ] Add FAQPage JSON-LD where applicable (e.g., pricing)
+- [x] Add segment layouts with metadata for: `about`, `contact`, `security`, `gdpr`, `privacy`, `terms`, `help`, `status`, `stats`, `cookies`
+- [x] Add FAQPage JSON-LD where applicable (e.g., pricing)
 
 ## Technical SEO (Week 2)
 
