@@ -118,13 +118,11 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       storageRetention: -1, // permanent
     },
     models: [
-      // Premium models for better quality (will use paid models in production)
-      // For development, we'll use the best free models
-      "openrouter/sonoma-dusk-alpha",
-      "openrouter/sonoma-sky-alpha",
-      "x-ai/grok-4-fast:free",
+      // Premium models for better quality
+      "x-ai/grok-4-fast",
+      "x-ai/grok-code-fast-1",
+      "moonshotai/kimi-k2:free",
       "deepseek/deepseek-chat-v3.1:free",
-      "openai/gpt-oss-120b:free",
     ],
   },
   business: {
@@ -158,9 +156,9 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     },
     models: [
       // Premium models with priority access
-      "openrouter/sonoma-dusk-alpha",
-      "openrouter/sonoma-sky-alpha",
-      "x-ai/grok-4-fast:free",
+      "x-ai/grok-4-fast",
+      "x-ai/grok-code-fast-1",
+      "moonshotai/kimi-k2:free",
       "deepseek/deepseek-chat-v3.1:free",
     ],
   },
@@ -195,8 +193,10 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     },
     models: [
       // Best available models
-      "openrouter/sonoma-dusk-alpha",
-      "openrouter/sonoma-sky-alpha",
+      "x-ai/grok-4-fast",
+      "x-ai/grok-code-fast-1",
+      "moonshotai/kimi-k2:free",
+      "deepseek/deepseek-chat-v3.1:free",
     ],
   },
 };

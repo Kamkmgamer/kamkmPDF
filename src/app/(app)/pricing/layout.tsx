@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import type { ReactNode } from "react";
 
 export const revalidate = 86400; // 24h ISR for marketing page
 
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
 
 export default function PricingLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{ children: ReactNode }>) {
   // FAQPage JSON-LD matching visible content in pricing page
   const faq = {
     "@context": "https://schema.org",

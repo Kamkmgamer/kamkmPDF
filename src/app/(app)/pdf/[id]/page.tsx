@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { PDFViewerPage } from "~/app/(app)/pdf/[id]/_components/PDFViewerPage";
+import { PDFViewerPage } from "./_components/PDFViewerPage";
 
 interface PageProps {
   params: Promise<{ id: string }>;
