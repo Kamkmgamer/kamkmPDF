@@ -25,6 +25,9 @@ export interface TierConfig {
     teamSeats: number;
     templatesAccess: "basic" | "premium" | "unlimited";
   };
+  limits: {
+    maxPromptCharacters: number;
+  };
   features: {
     watermark: boolean;
     priorityProcessing: boolean;
@@ -57,6 +60,9 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       maxFileSize: 2, // 2 MB per PDF
       teamSeats: 1,
       templatesAccess: "basic",
+    },
+    limits: {
+      maxPromptCharacters: 2000,
     },
     features: {
       watermark: true,
@@ -104,6 +110,9 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       teamSeats: 1,
       templatesAccess: "premium",
     },
+    limits: {
+      maxPromptCharacters: 4000,
+    },
     features: {
       watermark: false,
       priorityProcessing: true,
@@ -140,6 +149,9 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       maxFileSize: 10, // 10 MB per PDF
       teamSeats: 1,
       templatesAccess: "premium",
+    },
+    limits: {
+      maxPromptCharacters: 8000,
     },
     features: {
       watermark: false,
@@ -178,6 +190,9 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       teamSeats: 5,
       templatesAccess: "unlimited",
     },
+    limits: {
+      maxPromptCharacters: 16000,
+    },
     features: {
       watermark: false,
       priorityProcessing: true,
@@ -214,6 +229,9 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       maxFileSize: 100, // 100 MB per PDF
       teamSeats: -1, // unlimited
       templatesAccess: "unlimited",
+    },
+    limits: {
+      maxPromptCharacters: 32000,
     },
     features: {
       watermark: false,

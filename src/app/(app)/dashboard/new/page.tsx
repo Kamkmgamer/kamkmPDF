@@ -50,7 +50,8 @@ export default function NewPromptPage() {
 
   // Constants and validation
   const charCount = prompt.length;
-  const maxChars = 2000;
+  const maxChars =
+    subscription?.tierConfig?.limits?.maxPromptCharacters ?? 2000;
   const isTooLong = charCount > maxChars;
   const isTooShort = prompt.trim().length === 0;
 
