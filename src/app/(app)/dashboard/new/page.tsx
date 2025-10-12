@@ -103,12 +103,19 @@ ${prompt.trim()}`
           throw new Error(data?.error ?? `Upload failed (${res.status})`);
         }
         const data = (await res.json()) as { ok: boolean; id?: string };
-        if (data?.id) router.push(`/pdf/${data.id}`);
-        else throw new Error("No job id returned");
+        if (data?.id) {
+          // Clear localStorage on successful submission
+          localStorage.removeItem("dashboard:new:prompt");
+          router.push(`/pdf/${data.id}`);
+        } else throw new Error("No job id returned");
       } else {
         // Handle text-only job
         const job = await createJob.mutateAsync({ prompt: finalPrompt });
-        if (job?.id) router.push(`/pdf/${job.id}`);
+        if (job?.id) {
+          // Clear localStorage on successful submission
+          localStorage.removeItem("dashboard:new:prompt");
+          router.push(`/pdf/${job.id}`);
+        }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -194,6 +201,8 @@ ${prompt.trim()}`
                 resetImage();
                 setError(null);
                 setTouched(false);
+                // Clear localStorage when user clears all
+                localStorage.removeItem("dashboard:new:prompt");
               }}
               className="rounded-2xl border border-gray-200 bg-white/80 px-6 py-3 text-sm font-semibold text-gray-800 shadow-lg shadow-gray-900/5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-300 dark:hover:border-gray-600"
             >
@@ -442,13 +451,12 @@ function useAuthGuard(
 }
 
 function useAutosave(prompt: string, setPrompt: (p: string) => void) {
+  // Only save to localStorage, don't restore on mount
+  // Users should start with a clean slate when creating new PDFs
   React.useEffect(() => {
-    const saved = localStorage.getItem("dashboard:new:prompt");
-    if (saved && !prompt) setPrompt(saved);
-  }, [prompt, setPrompt]);
-
-  React.useEffect(() => {
-    localStorage.setItem("dashboard:new:prompt", prompt);
+    if (prompt.trim()) {
+      localStorage.setItem("dashboard:new:prompt", prompt);
+    }
   }, [prompt]);
 }
 
