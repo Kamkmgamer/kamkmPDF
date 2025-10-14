@@ -22,7 +22,7 @@ export default function DashboardLayout({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   return (
-    <div className="relative min-h-screen bg-[--color-bg] text-[--color-text-primary]">
+    <div className="bg-[--color-bg] text-[--color-text-primary]">
       {/* Soft gradient and grid background (with dark mode + subtle motion) */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         {/* Radial color washes */}
