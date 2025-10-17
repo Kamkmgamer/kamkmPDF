@@ -14,9 +14,7 @@ import {
   ArrowRight,
   Star,
   FileText,
-  Download,
   Rocket,
-  Globe,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
