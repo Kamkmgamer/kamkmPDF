@@ -10,7 +10,7 @@ import { LoadingStates } from "./LoadingStates";
 import { ErrorBoundary, ErrorBoundaryWrapper } from "./ErrorBoundary";
 import { ThumbnailsSidebar } from "./ThumbnailsSidebar";
 import { ShareModal } from "./ShareModal";
-import { ConfirmModal } from "./ConfirmModal";
+import { RegenerateModal, type RegenerateData } from "./RegenerateModal";
 import { toastPrompt } from "~/_components/ToastPrompt";
 
 // Dynamically import PDFViewer with SSR disabled to prevent DOMMatrix issues
@@ -38,7 +38,7 @@ interface PDFViewerPageProps {
 export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   const router = useRouter();
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showRegenerateModal, setShowRegenerateModal] = useState(false);
   const [showThumbnails, setShowThumbnails] = useState(false);
   const [shareUrl, setShareUrl] = useState<string>("");
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -85,6 +85,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
 
   const shareMutation = api.files.createShareLink.useMutation();
   const regenerateMutation = api.jobs.recreate.useMutation();
+  const { data: subscription } = api.subscription.getCurrent.useQuery();
 
   // Handle download with custom filename toast prompt
   const handleDownload = async () => {
@@ -141,60 +142,58 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   };
 
   // Handle regenerate with live status updates
-  const handleRegenerate = async () => {
+  const handleRegenerate = async (data: RegenerateData) => {
     try {
       setIsRegenerating(true);
       setRegenerationStatus("Starting regeneration...");
 
-      // Start the regeneration
-      await regenerateMutation.mutateAsync(jobId);
-      setShowConfirmModal(false);
+      let newJobId: string;
+
+      // Check if we have images to upload
+      if (data.images && data.images.length > 0) {
+        // Use form data API for image uploads
+        const formData = new FormData();
+        formData.append("jobId", jobId);
+        formData.append("mode", data.mode);
+        if (data.newPrompt) {
+          formData.append("newPrompt", data.newPrompt);
+        }
+        data.images.forEach((image) => {
+          formData.append("images", image);
+        });
+
+        const response = await fetch("/api/jobs/regenerate-with-images", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = (await response.json()) as { error?: string };
+          throw new Error(errorData.error ?? "Failed to regenerate");
+        }
+
+        const result = (await response.json()) as { id: string };
+        newJobId = result.id;
+      } else {
+        // Use tRPC mutation for text-only regeneration
+        const result = await regenerateMutation.mutateAsync({
+          jobId,
+          mode: data.mode,
+          newPrompt: data.newPrompt,
+        });
+        newJobId = result?.id ?? jobId;
+      }
+
+      setShowRegenerateModal(false);
       setRegenerationStatus("Regeneration started. Checking status...");
 
-      // Poll for status updates
-      const pollInterval = setInterval(() => {
-        void (async () => {
-          try {
-            const result = await refetch();
-            const updatedJob = result.data;
-
-            if (updatedJob?.status === "processing") {
-              setRegenerationStatus("Processing your PDF...");
-            } else if (updatedJob?.status === "queued") {
-              setRegenerationStatus("Queued for processing...");
-            } else if (updatedJob?.status === "completed") {
-              setRegenerationStatus("Regeneration completed!");
-              setIsRegenerating(false);
-              clearInterval(pollInterval);
-            } else if (updatedJob?.status === "failed") {
-              setRegenerationStatus("Regeneration failed. Please try again.");
-              setIsRegenerating(false);
-              clearInterval(pollInterval);
-            }
-          } catch (error) {
-            console.error("Error polling job status:", error);
-            setRegenerationStatus(
-              "Error checking status. Please refresh the page.",
-            );
-            setIsRegenerating(false);
-            clearInterval(pollInterval);
-          }
-        })();
-      }, 2000); // Poll every 2 seconds
-
-      // Stop polling after 5 minutes as a safety measure
-      setTimeout(() => {
-        clearInterval(pollInterval);
-        if (isRegenerating) {
-          setRegenerationStatus(
-            "Status check timed out. Please refresh the page.",
-          );
-          setIsRegenerating(false);
-        }
-      }, 300000); // 5 minutes
+      // Navigate to the new job
+      router.push(`/pdf/${newJobId}`);
     } catch (error) {
       console.error("Regenerate failed:", error);
-      setRegenerationStatus("Failed to start regeneration. Please try again.");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to start regeneration";
+      setRegenerationStatus(errorMessage);
       setIsRegenerating(false);
     }
   };
@@ -322,7 +321,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
           onDownload={handleDownload}
           onPrint={handlePrint}
           onShare={handleShare}
-          onRegenerate={() => setShowConfirmModal(true)}
+          onRegenerate={() => setShowRegenerateModal(true)}
           onToggleThumbnails={() => setShowThumbnails(!showThumbnails)}
           isRegenerating={isRegenerating}
         />
@@ -375,12 +374,20 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
           shareUrl={shareUrl}
         />
 
-        <ConfirmModal
-          isOpen={showConfirmModal}
-          onClose={() => setShowConfirmModal(false)}
-          onConfirm={handleRegenerate}
-          title="Regenerate PDF"
-          message="Are you sure you want to regenerate this PDF? This will create a new version."
+        <RegenerateModal
+          isOpen={showRegenerateModal}
+          onClose={() => setShowRegenerateModal(false)}
+          onRegenerate={handleRegenerate}
+          job={job}
+          userCredits={
+            subscription
+              ? subscription.tierConfig.quotas.pdfsPerMonth === -1
+                ? -1
+                : subscription.tierConfig.quotas.pdfsPerMonth -
+                  subscription.pdfsUsedThisMonth
+              : 0
+          }
+          isRegenerating={isRegenerating}
         />
       </div>
     );

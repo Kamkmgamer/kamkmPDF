@@ -450,7 +450,7 @@ function useAuthGuard(
   }, [isLoaded, isSignedIn, router]);
 }
 
-function useAutosave(prompt: string, setPrompt: (p: string) => void) {
+function useAutosave(prompt: string, _setPrompt: (p: string) => void) {
   // Only save to localStorage, don't restore on mount
   // Users should start with a clean slate when creating new PDFs
   React.useEffect(() => {

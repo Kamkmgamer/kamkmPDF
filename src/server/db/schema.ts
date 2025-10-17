@@ -41,6 +41,12 @@ export const jobs = createTable("job", (d) => ({
   // Live progress tracking (0-100) and current stage label
   progress: d.integer().default(0).notNull(),
   stage: d.varchar({ length: 64 }),
+  // HTML storage for regeneration
+  generatedHtml: d.text(),
+  imageUrls: d.jsonb().$type<string[]>(),
+  // Regeneration tracking
+  regenerationCount: d.integer().default(0).notNull(),
+  parentJobId: d.text(),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -82,7 +88,7 @@ export const userSubscriptions = createTable("user_subscription", (d) => ({
   tier: d.varchar({ length: 32 }).default("starter").notNull(), // starter, professional, business, enterprise
   status: d.varchar({ length: 32 }).default("active").notNull(), // active, cancelled, expired
   paypalSubscriptionId: d.text(), // PayPal subscription ID for paid tiers
-  pdfsUsedThisMonth: d.integer().default(0).notNull(),
+  pdfsUsedThisMonth: d.real().default(0).notNull(), // Changed to real to support fractional credits (0.5)
   storageUsedBytes: d.bigint({ mode: "number" }).default(0).notNull(),
   periodStart: d
     .timestamp({ withTimezone: true })

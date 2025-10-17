@@ -137,12 +137,19 @@ export const jobsRouter = createTRPCRouter({
   }),
 
   recreate: protectedProcedure
-    .input(z.string())
+    .input(
+      z.object({
+        jobId: z.string(),
+        mode: z.enum(["same", "edit"]),
+        newPrompt: z.string().optional(),
+        imageUrls: z.array(z.string()).optional(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       const existingJob = await db
         .select()
         .from(jobs)
-        .where(eq(jobs.id, input))
+        .where(eq(jobs.id, input.jobId))
         .limit(1);
 
       if (!existingJob[0]) {
@@ -159,13 +166,80 @@ export const jobsRouter = createTRPCRouter({
         });
       }
 
+      // Get user subscription
+      const subscription = await db
+        .select()
+        .from(userSubscriptions)
+        .where(eq(userSubscriptions.userId, ctx.userId))
+        .limit(1);
+
+      const sub = subscription[0];
+      if (!sub) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Subscription not found",
+        });
+      }
+
+      // Determine credit cost
+      const creditCost = input.mode === "edit" ? 0.5 : 1;
+      const tier = sub.tier as SubscriptionTier;
+      const tierConfig = getTierConfig(tier);
+
+      // Check quota (treat 0.5 credit as half a PDF)
+      const effectivePdfCount =
+        sub.pdfsUsedThisMonth + (creditCost === 0.5 ? 0.5 : 1);
+      // -1 means unlimited, skip quota check
+      if (
+        tierConfig.quotas.pdfsPerMonth !== -1 &&
+        effectivePdfCount > tierConfig.quotas.pdfsPerMonth
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `You've reached your monthly limit of ${tierConfig.quotas.pdfsPerMonth} PDFs. Please upgrade your plan to continue.`,
+        });
+      }
+
+      // Build the new prompt
+      let finalPrompt = existingJob[0].prompt ?? "";
+      if (input.mode === "edit" && input.newPrompt) {
+        finalPrompt = `${finalPrompt}\n\n[EDIT INSTRUCTIONS]:\n${input.newPrompt}`;
+      }
+
+      // Create new job
       const newId = randomUUID();
       await db.insert(jobs).values({
         id: newId,
-        prompt: existingJob[0].prompt,
+        prompt: finalPrompt,
         userId: ctx.userId,
         status: "queued",
+        generatedHtml: existingJob[0].generatedHtml, // Pass base HTML
+        imageUrls:
+          input.imageUrls as unknown as typeof jobs.$inferInsert.imageUrls,
+        regenerationCount: (existingJob[0].regenerationCount ?? 0) + 1,
+        parentJobId: input.jobId,
       });
+
+      // Update usage (increment by credit cost as fraction)
+      await db
+        .update(userSubscriptions)
+        .set({
+          pdfsUsedThisMonth: effectivePdfCount,
+        })
+        .where(eq(userSubscriptions.userId, ctx.userId));
+
+      // Trigger worker
+      try {
+        const base = env.NEXT_PUBLIC_APP_URL;
+        const url = new URL("/api/worker/drain", base).toString();
+        const headers: Record<string, string> = {};
+        if (process.env.PDFPROMPT_WORKER_SECRET) {
+          headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+        }
+        void fetch(url, { headers }).catch(() => undefined);
+      } catch {
+        // ignore
+      }
 
       const created = await db
         .select()
