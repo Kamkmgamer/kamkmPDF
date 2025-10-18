@@ -2,6 +2,13 @@ import { healthRouter } from "~/server/api/routers/health";
 import { jobsRouter } from "~/server/api/routers/jobs";
 import { filesRouter } from "~/server/api/routers/files";
 import { subscriptionRouter } from "~/server/api/routers/subscription";
+import { versionsRouter } from "~/server/api/routers/versions";
+import { apiKeysRouter } from "~/server/api/routers/apiKeys";
+import { teamsRouter } from "~/server/api/routers/teams";
+import { brandingRouter } from "~/server/api/routers/branding";
+import { webhooksRouter } from "~/server/api/routers/webhooks";
+import { analyticsRouter } from "~/server/api/routers/analytics";
+import { bulkRouter } from "~/server/api/routers/bulk";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -14,6 +21,13 @@ export const appRouter = createTRPCRouter({
   jobs: jobsRouter,
   files: filesRouter,
   subscription: subscriptionRouter,
+  versions: versionsRouter,
+  apiKeys: apiKeysRouter,
+  teams: teamsRouter,
+  branding: brandingRouter,
+  webhooks: webhooksRouter,
+  analytics: analyticsRouter,
+  bulk: bulkRouter,
 });
 
 // export type definition of API

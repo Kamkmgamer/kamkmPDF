@@ -115,3 +115,91 @@ export const usageHistory = createTable("usage_history", (d) => ({
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 }));
+
+// Version history for PDF files (supports rollback and comparison)
+export const fileVersions = createTable("file_version", (d) => ({
+  id: d.text().primaryKey(),
+  fileId: d
+    .text()
+    .references(() => files.id)
+    .notNull(),
+  userId: d.text().notNull(),
+  versionNumber: d.integer().notNull(), // Sequential version number
+  jobId: d.text().references(() => jobs.id), // Job that created this version
+  prompt: d.text(), // The prompt used for this version
+  fileKey: d.text().notNull(), // Storage key for this version
+  fileUrl: d.text().notNull(), // URL to access this version
+  fileSize: d.integer().default(0),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+}));
+
+// Team members table for Business+ tiers
+export const teamMembers = createTable("team_member", (d) => ({
+  id: d.text().primaryKey(),
+  teamOwnerId: d.text().notNull(), // User who owns the subscription
+  memberUserId: d.text().notNull(), // User who is a team member
+  role: d.varchar({ length: 32 }).default("member").notNull(), // admin, member, viewer
+  inviteEmail: d.text(), // Email used for invitation
+  status: d.varchar({ length: 32 }).default("pending").notNull(), // pending, active, revoked
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+}));
+
+// API keys for Business+ tiers
+export const apiKeys = createTable("api_key", (d) => ({
+  id: d.text().primaryKey(),
+  userId: d.text().notNull(),
+  name: d.varchar({ length: 128 }).notNull(), // User-defined name for the key
+  keyHash: d.text().notNull().unique(), // Hashed API key
+  keyPrefix: d.text().notNull(), // First 8 chars for display (e.g., "sk_live_...")
+  permissions: d
+    .jsonb()
+    .$type<string[]>()
+    .default(sql`'[]'`), // Array of permissions
+  lastUsedAt: d.timestamp({ withTimezone: true }),
+  expiresAt: d.timestamp({ withTimezone: true }),
+  isActive: d.boolean().default(true).notNull(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+}));
+
+// Webhooks for Enterprise tier
+export const webhooks = createTable("webhook", (d) => ({
+  id: d.text().primaryKey(),
+  userId: d.text().notNull(),
+  url: d.text().notNull(),
+  events: d.jsonb().$type<string[]>().notNull(), // Array of event types to listen for
+  secret: d.text().notNull(), // For webhook signature verification
+  isActive: d.boolean().default(true).notNull(),
+  lastTriggeredAt: d.timestamp({ withTimezone: true }),
+  failureCount: d.integer().default(0).notNull(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+}));
+
+// Custom branding settings for Business+ tiers
+export const brandingSettings = createTable("branding_setting", (d) => ({
+  id: d.text().primaryKey(),
+  userId: d.text().notNull().unique(),
+  logoUrl: d.text(),
+  companyName: d.varchar({ length: 256 }),
+  primaryColor: d.varchar({ length: 7 }), // Hex color code
+  secondaryColor: d.varchar({ length: 7 }),
+  customDomain: d.text(),
+  hidePlatformBranding: d.boolean().default(false).notNull(),
+  footerText: d.text(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+}));
