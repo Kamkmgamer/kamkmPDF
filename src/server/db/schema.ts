@@ -87,9 +87,10 @@ export const userSubscriptions = createTable("user_subscription", (d) => ({
   userId: d.text().notNull().unique(),
   tier: d.varchar({ length: 32 }).default("starter").notNull(), // starter, professional, business, enterprise
   status: d.varchar({ length: 32 }).default("active").notNull(), // active, cancelled, expired
-  paypalSubscriptionId: d.text(), // PayPal subscription ID for paid tiers
+  polarSubscriptionId: d.text(), // Polar.sh subscription ID for paid tiers
   pdfsUsedThisMonth: d.real().default(0).notNull(), // Changed to real to support fractional credits (0.5)
   storageUsedBytes: d.bigint({ mode: "number" }).default(0).notNull(),
+  creditsBalance: d.integer().default(0).notNull(), // One-time credit purchases that never expire
   periodStart: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -197,6 +198,36 @@ export const brandingSettings = createTable("branding_setting", (d) => ({
   customDomain: d.text(),
   hidePlatformBranding: d.boolean().default(false).notNull(),
   footerText: d.text(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+}));
+
+// Polar.sh product configuration
+export const polarProducts = createTable("polar_product", (d) => ({
+  id: d.text().primaryKey(),
+  tier: d.varchar({ length: 32 }).notNull().unique(), // professional, classic, business, enterprise
+  productId: d.text().notNull(), // Polar product ID (e.g., prod_xxxxx)
+  name: d.varchar({ length: 128 }).notNull(),
+  description: d.text(),
+  isActive: d.boolean().default(true).notNull(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+}));
+
+// Credit packages for one-time purchases
+export const creditProducts = createTable("credit_product", (d) => ({
+  id: d.text().primaryKey(), // credits_50, credits_500, credits_1000
+  name: d.varchar({ length: 255 }).notNull(),
+  credits: d.integer().notNull(),
+  productId: d.text().notNull().unique(), // Polar product ID
+  price: d.real().notNull(), // Price in dollars
+  isActive: d.boolean().default(true).notNull(),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
