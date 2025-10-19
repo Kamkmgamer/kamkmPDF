@@ -5,7 +5,7 @@
 
 import { Webhooks } from "@polar-sh/nextjs";
 import { db } from "~/server/db";
-import { userSubscriptions, usageHistory } from "~/server/db/schema";
+import { userSubscriptions, usageHistory, creditProducts } from "~/server/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { getTierFromProductId } from "~/server/polar/config";
 import { randomUUID } from "crypto";
@@ -63,8 +63,10 @@ async function handleWebhookEvent(payload: PolarWebhookPayload) {
     case "checkout.updated":
       console.log("[Polar Webhook] Checkout updated:", data.id);
       if (data.status === "confirmed") {
-        // Check if this is a credit purchase (has customer_metadata)
-        if (data.customer_metadata?.packageId) {
+        // Check if this is a credit purchase by looking up the product
+        const isCreditPurchase = await checkIfCreditProduct(data.product_id);
+        
+        if (isCreditPurchase) {
           await handleCreditPurchase(data);
         } else if (data.customer_id) {
           await handleCheckoutConfirmed(data);
@@ -314,26 +316,55 @@ async function handleSubscriptionCancelled(data: PolarEventData) {
 }
 
 /**
+ * Check if a product is a credit product
+ */
+async function checkIfCreditProduct(productId?: string): Promise<boolean> {
+  if (!productId) return false;
+
+  const creditProduct = await db.query.creditProducts.findFirst({
+    where: eq(creditProducts.productId, productId),
+  });
+
+  return !!creditProduct;
+}
+
+/**
  * Handle credit purchase
  */
 async function handleCreditPurchase(data: PolarEventData) {
-  const userId = data.customer_metadata?.userId;
-  const packageId = data.customer_metadata?.packageId;
-  const credits = parseInt(data.customer_metadata?.credits ?? "0");
+  // Look up the credit product by product ID
+  const creditProduct = await db.query.creditProducts.findFirst({
+    where: eq(creditProducts.productId, data.product_id ?? ""),
+  });
 
-  if (!userId || !packageId || !credits) {
-    console.error("[Polar Webhook] Missing credit purchase data");
+  if (!creditProduct) {
+    console.error("[Polar Webhook] Credit product not found for product ID:", data.product_id);
     return;
   }
 
-  console.log(`[Polar Webhook] Processing credit purchase: ${credits} credits for user ${userId}`);
+  // Get user ID from customer email or customer ID
+  const userEmail = data.customer_email;
+  if (!userEmail) {
+    console.error("[Polar Webhook] No customer email in checkout data");
+    return;
+  }
+
+  // Find user by email (you'll need to implement this based on your auth system)
+  // For now, we'll use customer_id as userId
+  const userId = data.customer_id;
+  if (!userId) {
+    console.error("[Polar Webhook] No customer ID in checkout data");
+    return;
+  }
+
+  console.log(`[Polar Webhook] Processing credit purchase: ${creditProduct.credits} credits for user ${userId}`);
 
   // Update user's credit balance
   await db.execute(
     sql`
       UPDATE pdfprompt_user_subscription
       SET 
-        credits_balance = COALESCE(credits_balance, 0) + ${credits},
+        credits_balance = COALESCE(credits_balance, 0) + ${creditProduct.credits},
         updated_at = CURRENT_TIMESTAMP
       WHERE user_id = ${userId}
     `
@@ -344,13 +375,14 @@ async function handleCreditPurchase(data: PolarEventData) {
     id: randomUUID(),
     userId,
     action: "credits_purchased",
-    amount: credits,
+    amount: creditProduct.credits,
     metadata: {
-      packageId,
+      packageId: creditProduct.id,
       checkoutId: data.id,
+      productId: data.product_id,
     },
     createdAt: new Date(),
   });
 
-  console.log(`[Polar Webhook] Added ${credits} credits to user ${userId}`);
+  console.log(`[Polar Webhook] Added ${creditProduct.credits} credits to user ${userId}`);
 }
