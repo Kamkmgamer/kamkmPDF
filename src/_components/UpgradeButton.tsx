@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 
 interface UpgradeButtonProps {
-  tier: "professional" | "business" | "enterprise";
+  tier: "professional" | "classic" | "business" | "enterprise";
   children: React.ReactNode;
   variant?: "primary" | "secondary";
 }
@@ -15,45 +15,51 @@ export function UpgradeButton({
   variant = "primary",
 }: UpgradeButtonProps) {
   const [loading, setLoading] = useState(false);
-  const { userId, getToken } = useAuth();
+  const { userId } = useAuth();
 
   const handleUpgrade = async () => {
+    console.log("[UpgradeButton] Starting upgrade for tier:", tier);
+    console.log("[UpgradeButton] User ID:", userId);
+
     if (!userId) {
+      console.log("[UpgradeButton] No user ID, redirecting to sign-up");
       window.location.href = "/sign-up";
+      return;
+    }
+
+    // Enterprise requires contact
+    if (tier === "enterprise") {
+      console.log("[UpgradeButton] Enterprise tier, redirecting to contact");
+      window.location.href = "/contact";
       return;
     }
 
     setLoading(true);
 
     try {
-      const token = await getToken();
-
-      const response = await fetch("/api/paypal/create-subscription", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ tier }),
-      });
+      // Fetch product ID from database
+      console.log("[UpgradeButton] Fetching product ID for tier:", tier);
+      const response = await fetch(`/api/products/${tier}`);
 
       if (!response.ok) {
-        const error = (await response.json()) as { error?: string };
-        throw new Error(error.error ?? "Failed to create subscription");
+        console.error("[UpgradeButton] Product API failed:", response.status);
+        throw new Error("Failed to fetch product");
       }
 
-      const { approvalUrl } = (await response.json()) as {
-        approvalUrl?: string;
-      };
+      const data = (await response.json()) as { productId?: string };
+      console.log("[UpgradeButton] Product data:", data);
 
-      if (approvalUrl) {
-        // Redirect to PayPal for payment
-        window.location.href = approvalUrl;
-      } else {
-        throw new Error("No approval URL received");
+      if (!data.productId) {
+        console.error("[UpgradeButton] No product ID in response");
+        throw new Error("Product ID not found");
       }
+
+      // Redirect to Polar checkout
+      const checkoutUrl = `/api/polar/create-checkout?products=${data.productId}`;
+      console.log("[UpgradeButton] Redirecting to:", checkoutUrl);
+      window.location.href = checkoutUrl;
     } catch (error) {
-      console.error("Upgrade failed:", error);
+      console.error("[UpgradeButton] Upgrade failed:", error);
       alert(
         error instanceof Error
           ? error.message
@@ -64,7 +70,7 @@ export function UpgradeButton({
   };
 
   const baseClasses =
-    "w-full block rounded-lg px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-center font-semibold transition-all";
+    "w-full block rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 lg:px-6 lg:py-3 text-xs sm:text-sm lg:text-base text-center font-semibold transition-all";
   const variantClasses =
     variant === "primary"
       ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
