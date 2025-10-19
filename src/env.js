@@ -22,16 +22,9 @@ export const env = createEnv({
     PDFPROMPT_MAX_JOBS_PER_INVOCATION: z.string().optional(),
     PDFPROMPT_MAX_MS_PER_INVOCATION: z.string().optional(),
     PDFPROMPT_BATCH_SIZE: z.string().optional(),
-    // PayPal configuration
-    PAYPAL_CLIENT_ID: z.string().min(1),
-    PAYPAL_CLIENT_SECRET: z.string().min(1),
-    PAYPAL_MODE: z.enum(["sandbox", "live"]).default("sandbox"),
-    PAYPAL_WEBHOOK_ID: z.string().optional(),
-    // PayPal Plan IDs
-    PAYPAL_PLAN_ID_PROFESSIONAL: z.string().optional(),
-    PAYPAL_PLAN_ID_CLASSIC: z.string().optional(),
-    PAYPAL_PLAN_ID_BUSINESS: z.string().optional(),
-    PAYPAL_PLAN_ID_ENTERPRISE: z.string().optional(),
+    // Polar.sh configuration (optional - only needed for subscriptions and credit purchases)
+    POLAR_ACCESS_TOKEN: z.string().optional(),
+    POLAR_WEBHOOK_SECRET: z.string().optional(),
   },
 
   /**
@@ -42,7 +35,6 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
-    NEXT_PUBLIC_PAYPAL_CLIENT_ID: z.string().min(1),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -63,18 +55,11 @@ export const env = createEnv({
     PDFPROMPT_MAX_MS_PER_INVOCATION:
       process.env.PDFPROMPT_MAX_MS_PER_INVOCATION,
     PDFPROMPT_BATCH_SIZE: process.env.PDFPROMPT_BATCH_SIZE,
-    PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
-    PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
-    PAYPAL_MODE: process.env.PAYPAL_MODE,
-    PAYPAL_WEBHOOK_ID: process.env.PAYPAL_WEBHOOK_ID,
-    PAYPAL_PLAN_ID_PROFESSIONAL: process.env.PAYPAL_PLAN_ID_PROFESSIONAL,
-    PAYPAL_PLAN_ID_CLASSIC: process.env.PAYPAL_PLAN_ID_CLASSIC,
-    PAYPAL_PLAN_ID_BUSINESS: process.env.PAYPAL_PLAN_ID_BUSINESS,
-    PAYPAL_PLAN_ID_ENTERPRISE: process.env.PAYPAL_PLAN_ID_ENTERPRISE,
+    POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
+    POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    NEXT_PUBLIC_PAYPAL_CLIENT_ID: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

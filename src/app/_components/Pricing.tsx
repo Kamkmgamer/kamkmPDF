@@ -26,8 +26,48 @@ export default function Pricing() {
   );
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const auth = useAuth();
   const isSignedIn = auth?.isSignedIn ?? false;
+
+  const handleUpgrade = async (tierId: string) => {
+    // Starter is free, redirect to sign up or dashboard
+    if (tierId === "starter") {
+      window.location.href = isSignedIn ? "/dashboard" : "/sign-up";
+      return;
+    }
+
+    // Enterprise requires contact
+    if (tierId === "enterprise") {
+      window.location.href = "/contact";
+      return;
+    }
+
+    // For paid tiers, redirect to Polar checkout
+    setLoadingTier(tierId);
+    
+    try {
+      // Fetch product ID from database
+      const response = await fetch(`/api/products/${tierId}`);
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch product");
+      }
+
+      const data = (await response.json()) as { productId?: string };
+
+      if (!data.productId) {
+        throw new Error("Product ID not found");
+      }
+
+      // Redirect to Polar checkout
+      window.location.href = `/api/polar/create-checkout?products=${data.productId}`;
+    } catch (error) {
+      console.error("Failed to start checkout:", error);
+      alert("Failed to start checkout. Please try again.");
+      setLoadingTier(null);
+    }
+  };
 
   const faqs = [
     {
@@ -44,7 +84,7 @@ export default function Pricing() {
     },
     {
       q: "What payment methods do you accept?",
-      a: "We accept all major credit cards, PayPal, and wire transfers for Enterprise plans.",
+      a: "We accept all major credit cards and wire transfers for Enterprise plans. Payments are securely processed through Polar.sh.",
     },
   ];
 
@@ -195,12 +235,7 @@ export default function Pricing() {
               billingCycle === "yearly" ? plan.priceYearly : plan.price;
             const displayPrice =
               billingCycle === "yearly" ? (price / 12).toFixed(2) : price;
-            const ctaHref =
-              plan.id === "enterprise"
-                ? "/contact"
-                : isSignedIn
-                  ? "/dashboard"
-                  : "/sign-up";
+            const isLoading = loadingTier === plan.id;
 
             // Responsive grid layout classes
             const layoutClasses =
@@ -345,27 +380,34 @@ export default function Pricing() {
 
                   {/* CTA Button */}
                   <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                    whileTap={{ scale: isLoading ? 1 : 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
                   >
-                    <Link
-                      href={ctaHref}
-                      className={`group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg px-4 py-2.5 text-xs font-bold transition-all duration-200 will-change-[box-shadow] ${
+                    <button
+                      onClick={() => handleUpgrade(plan.id)}
+                      disabled={isLoading}
+                      className={`group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg px-4 py-2.5 text-xs font-bold transition-all duration-200 will-change-[box-shadow] disabled:cursor-not-allowed disabled:opacity-50 ${
                         plan.popular
                           ? "bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 text-white shadow-lg shadow-blue-500/50 hover:shadow-xl hover:shadow-blue-500/70"
                           : "border border-slate-300 bg-slate-100/50 text-slate-900 hover:border-slate-400 hover:bg-slate-200/50 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white dark:hover:border-slate-500 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                        initial={{ x: "-100%" }}
-                        whileHover={{ x: "100%" }}
-                        transition={{ duration: 0.6 }}
-                      />
-                      <span className="relative z-10">{plan.cta}</span>
-                      <ArrowRight className="relative z-10 h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
-                    </Link>
+                      {!isLoading && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                          initial={{ x: "-100%" }}
+                          whileHover={{ x: "100%" }}
+                          transition={{ duration: 0.6 }}
+                        />
+                      )}
+                      <span className="relative z-10">
+                        {isLoading ? "Loading..." : plan.cta}
+                      </span>
+                      {!isLoading && (
+                        <ArrowRight className="relative z-10 h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
+                      )}
+                    </button>
                   </motion.div>
 
                   {/* Trust Badge for Popular Plan */}

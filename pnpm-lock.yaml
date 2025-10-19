@@ -11,9 +11,12 @@ importers:
       '@clerk/nextjs':
         specifier: ^6.33.0
         version: 6.33.0(next@15.5.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@paypal/checkout-server-sdk':
-        specifier: ^1.0.3
-        version: 1.0.3
+      '@polar-sh/nextjs':
+        specifier: ^0.4.9
+        version: 0.4.9(next@15.5.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
+      '@polar-sh/sdk':
+        specifier: ^0.12.0
+        version: 0.12.0(zod@3.25.76)
       '@react-email/components':
         specifier: ^0.5.5
         version: 0.5.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -129,6 +132,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.1.9
         version: 19.1.9(@types/react@19.1.14)
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
       drizzle-kit:
         specifier: ^0.30.6
         version: 0.30.6
@@ -1132,17 +1138,31 @@ packages:
     resolution: {integrity: sha512-JD6DerIKdJGmRp4jQyX5FlrQjA4tjOw1cvfsPAZXfOOEErMUHjPcPSICS+6WnM0nB0efSFARh0KAZss+bvExOA==}
     engines: {node: '>=14'}
 
-  '@paypal/checkout-server-sdk@1.0.3':
-    resolution: {integrity: sha512-UEdq8akEdMz0Vs4qoQFU2gMp8PpyE/HKyMwiZuK4vIWUKl8jfd1fWKjQN5cDFm9NkFUIp5U7h++rdMOVj9WMNA==}
-    engines: {node: '>=8'}
-    deprecated: 'Package no longer supported. The author suggests using the @paypal/paypal-server-sdk package instead: https://www.npmjs.com/package/@paypal/paypal-server-sdk. Contact Support at https://www.npmjs.com/support for more info.'
-
-  '@paypal/paypalhttp@1.0.1':
-    resolution: {integrity: sha512-DC7AHxTT7drF6dUi3YaFdPVuT15sIkpD5H2eHmdtFgxM4UanS1o1ZDfMhR9mpxd8o+X6pz2r+EZVRRq+n1cssQ==}
-    engines: {node: '>=4'}
-
   '@petamoriken/float16@3.9.2':
     resolution: {integrity: sha512-VgffxawQde93xKxT3qap3OH+meZf7VaSB5Sqd4Rqc+FP5alWbpOyan/7tRbOAvynjpG3GpdtAuGU/NdhQpmrog==}
+
+  '@polar-sh/adapter-utils@0.2.8':
+    resolution: {integrity: sha512-VRCYectPSc8H63hYsGMNJK9rGy4WjpwL0G7LvnVHHYCpxBadkn90eWssS0AyaOsYaUiqCwwGcJd609UoDk3IQA==}
+
+  '@polar-sh/nextjs@0.4.9':
+    resolution: {integrity: sha512-3oePCaOFyBpmauFsekjsiGsclxzTVfib0vL91cQbuBlse0dTPgnA8BtuQoZWW5TY+ivaA3kiyuRKnTJr92SxYw==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      next: ^15.0.0 || ^15.2.0-canary.*
+
+  '@polar-sh/sdk@0.12.0':
+    resolution: {integrity: sha512-E+nfBQde4zbSI3H3b0Iu1gDs+UkQF7dTlExqLQx+gAge+xno44c0K+mDTgQbxAT4D0TDNQX6aS/l+SkCtRzqyQ==}
+    peerDependencies:
+      zod: '>= 3'
+
+  '@polar-sh/sdk@0.35.4':
+    resolution: {integrity: sha512-vv4Ptl5jNsHIZoLvzKr0wR+dGXJOpz8VWOOTEGqaiYx6YJvzIvrayg52qp8ZtBjsRBkySLZS2EVTV3wDHTACwA==}
+    hasBin: true
+    peerDependencies:
+      '@modelcontextprotocol/sdk': '>=1.5.0 <1.10.0'
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
 
   '@puppeteer/browsers@2.10.10':
     resolution: {integrity: sha512-3ZG500+ZeLql8rE0hjfhkycJjDj0pI/btEh3L9IkWUYcOrgP0xCNRq3HbtbqOPbvDhFaAWD88pDFtlLv8ns8gA==}
@@ -2380,6 +2400,10 @@ packages:
 
   domutils@3.2.2:
     resolution: {integrity: sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw==}
+
+  dotenv@17.2.3:
+    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
+    engines: {node: '>=12'}
 
   drizzle-kit@0.30.6:
     resolution: {integrity: sha512-U4wWit0fyZuGuP7iNmRleQyK2V8wCuv57vf5l3MnG4z4fzNTjY/U13M8owyQ5RavqvqxBifWORaR3wIUzlN64g==}
@@ -5351,13 +5375,30 @@ snapshots:
 
   '@opentelemetry/semantic-conventions@1.37.0': {}
 
-  '@paypal/checkout-server-sdk@1.0.3':
-    dependencies:
-      '@paypal/paypalhttp': 1.0.1
-
-  '@paypal/paypalhttp@1.0.1': {}
-
   '@petamoriken/float16@3.9.2': {}
+
+  '@polar-sh/adapter-utils@0.2.8':
+    dependencies:
+      '@polar-sh/sdk': 0.35.4
+    transitivePeerDependencies:
+      - '@modelcontextprotocol/sdk'
+
+  '@polar-sh/nextjs@0.4.9(next@15.5.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1))':
+    dependencies:
+      '@polar-sh/adapter-utils': 0.2.8
+      '@polar-sh/sdk': 0.35.4
+      next: 15.5.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+    transitivePeerDependencies:
+      - '@modelcontextprotocol/sdk'
+
+  '@polar-sh/sdk@0.12.0(zod@3.25.76)':
+    dependencies:
+      zod: 3.25.76
+
+  '@polar-sh/sdk@0.35.4':
+    dependencies:
+      standardwebhooks: 1.0.0
+      zod: 3.25.76
 
   '@puppeteer/browsers@2.10.10':
     dependencies:
@@ -6509,6 +6550,8 @@ snapshots:
       dom-serializer: 2.0.0
       domelementtype: 2.3.0
       domhandler: 5.0.3
+
+  dotenv@17.2.3: {}
 
   drizzle-kit@0.30.6:
     dependencies:

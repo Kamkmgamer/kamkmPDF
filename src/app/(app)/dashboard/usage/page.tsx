@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Crown,
   ArrowUpRight,
+  Zap,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 
@@ -74,12 +75,23 @@ export default function UsagePage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 sm:mb-10"
         >
-          <h1 className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
-            Usage & Billing
-          </h1>
-          <p className="mt-2 text-base text-gray-600 sm:mt-3 sm:text-lg dark:text-gray-300">
-            Monitor your usage and manage your subscription
-          </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
+                Usage & Billing
+              </h1>
+              <p className="mt-2 text-base text-gray-600 sm:mt-3 sm:text-lg dark:text-gray-300">
+                Monitor your usage and manage your subscription
+              </p>
+            </div>
+            <Link
+              href="/credits"
+              className="group inline-flex items-center gap-2 self-start rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:from-blue-700 hover:to-cyan-700 hover:shadow-xl sm:self-auto sm:text-base"
+            >
+              <Zap className="h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
+              <span>Buy Credits</span>
+            </Link>
+          </div>
         </motion.div>
 
         {/* Current Plan Card - Ultra Premium */}
