@@ -26,7 +26,7 @@ export const versionsRouter = createTRPCRouter({
         .where(eq(files.id, input.fileId))
         .limit(1);
 
-      if (!file[0] || file[0].userId !== userId) {
+      if (file[0]?.userId !== userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have permission to access this file",
@@ -149,7 +149,7 @@ export const versionsRouter = createTRPCRouter({
         .where(eq(fileVersions.id, input.versionId))
         .limit(1);
 
-      if (!version[0] || version[0].userId !== userId) {
+      if (version[0]?.userId !== userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have permission to restore this version",

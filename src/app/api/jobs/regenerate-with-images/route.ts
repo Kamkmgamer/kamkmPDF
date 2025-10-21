@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       .where(eq(jobs.id, jobId))
       .limit(1);
 
-    if (!existingJob[0] || existingJob[0].userId !== userId) {
+    if (!existingJob[0] || existingJob[0]?.userId !== userId) {
       return NextResponse.json(
         { ok: false, error: "Job not found" },
         { status: 404 },

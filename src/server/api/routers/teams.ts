@@ -152,7 +152,7 @@ export const teamsRouter = createTRPCRouter({
         .where(eq(teamMembers.id, input.memberId))
         .limit(1);
 
-      if (!member[0] || member[0].teamOwnerId !== userId) {
+      if (member[0]?.teamOwnerId !== userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have permission to remove this member",
@@ -186,7 +186,7 @@ export const teamsRouter = createTRPCRouter({
         .where(eq(teamMembers.id, input.memberId))
         .limit(1);
 
-      if (!member[0] || member[0].teamOwnerId !== userId) {
+      if (member[0]?.teamOwnerId !== userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have permission to update this member",
