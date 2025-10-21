@@ -51,11 +51,14 @@ export async function GET(
         );
       }
     } else {
-      // Otherwise, require authenticated owner
-      const auth = getAuth(req as unknown as NextRequest);
-      if (!auth?.userId || (ownerId && auth.userId !== ownerId)) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      // For files with an owner, require authentication and ownership
+      if (ownerId) {
+        const auth = getAuth(req as unknown as NextRequest);
+        if (!auth?.userId || auth.userId !== ownerId) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
       }
+      // For files without an owner (guest-generated), allow download without authentication
     }
 
     const downloadName = sanitizeFilename(desiredFilenameRaw);

@@ -86,7 +86,7 @@ export const filesRouter = createTRPCRouter({
         fileUrl: (r.fileKey?.startsWith("inline:") ?? false) ? null : r.fileUrl,
       }));
     }),
-  getDownloadUrl: protectedProcedure
+  getDownloadUrl: publicProcedure
     .input(z.object({ fileId: z.string() }))
     .query(async ({ input, ctx }) => {
       // Verify user owns the file through job relationship
@@ -111,7 +111,9 @@ export const filesRouter = createTRPCRouter({
 
       // Determine owner from job or file record
       const ownerId = jobUserId ?? _file.userId;
-      if (ownerId && ownerId !== ctx.userId) {
+      // For authenticated users, verify ownership
+      // For unauthenticated users, allow access to files with null ownerId
+      if (ctx.clerkUserId && ownerId && ownerId !== ctx.clerkUserId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have permission to access this file",

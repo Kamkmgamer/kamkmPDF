@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { useAuth } from "@clerk/nextjs";
 import { api } from "~/trpc/react";
 import { Toolbar } from "./Toolbar";
 import type { GenerationStage } from "~/types/pdf";
@@ -12,6 +13,7 @@ import { ThumbnailsSidebar } from "./ThumbnailsSidebar";
 import { ShareModal } from "./ShareModal";
 import { RegenerateModal, type RegenerateData } from "./RegenerateModal";
 import { toastPrompt } from "~/_components/ToastPrompt";
+import SignInPromptModal from "~/_components/SignInPromptModal";
 
 // Dynamically import PDFViewer with SSR disabled to prevent DOMMatrix issues
 const PDFViewer = dynamic(
@@ -37,6 +39,7 @@ interface PDFViewerPageProps {
 
 export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   const router = useRouter();
+  const { isSignedIn } = useAuth();
   const [showShareModal, setShowShareModal] = useState(false);
   const [showRegenerateModal, setShowRegenerateModal] = useState(false);
   const [showThumbnails, setShowThumbnails] = useState(false);
@@ -44,6 +47,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenerationStatus, setRegenerationStatus] = useState<string>("");
   const [showReadyBanner, setShowReadyBanner] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
   const prevStatusRef = useRef<string | null>(null);
 
   // Fetch job data
@@ -121,6 +125,14 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
 
       const url = `/api/files/${job.resultFileId}/download?filename=${encodeURIComponent(filename)}`;
       window.open(url, "_blank");
+      
+      // Show sign-in modal for unauthenticated users after download
+      if (!isSignedIn) {
+        // Small delay to let the download start
+        setTimeout(() => {
+          setShowSignInModal(true);
+        }, 500);
+      }
     } catch (error) {
       console.error("Download failed:", error);
     }
@@ -388,6 +400,11 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
               : 0
           }
           isRegenerating={isRegenerating}
+        />
+
+        <SignInPromptModal
+          isOpen={showSignInModal}
+          onClose={() => setShowSignInModal(false)}
         />
       </div>
     );

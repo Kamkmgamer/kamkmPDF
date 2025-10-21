@@ -28,66 +28,69 @@ export const jobsRouter = createTRPCRouter({
       return res;
     }),
 
-  create: protectedProcedure
+  create: publicProcedure
     .input(z.object({ prompt: z.string().min(1).max(32000) }))
     .mutation(async ({ input, ctx }) => {
-      const userId = ctx.userId;
+      const userId = ctx.clerkUserId ?? null;
 
-      // Check subscription and quota
-      let subscription = await db
-        .select()
-        .from(userSubscriptions)
-        .where(eq(userSubscriptions.userId, userId))
-        .limit(1);
-
-      // Create subscription if doesn't exist
-      if (!subscription[0]) {
-        const subId = randomUUID();
-        const now = new Date();
-        const periodEnd = new Date(now);
-        periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-        await db.insert(userSubscriptions).values({
-          id: subId,
-          userId,
-          tier: "starter",
-          status: "active",
-          pdfsUsedThisMonth: 0,
-          storageUsedBytes: 0,
-          periodStart: now,
-          periodEnd,
-        });
-
-        subscription = await db
+      // For authenticated users, check subscription and quota
+      if (userId) {
+        let subscription = await db
           .select()
           .from(userSubscriptions)
           .where(eq(userSubscriptions.userId, userId))
           .limit(1);
-      }
 
-      const sub = subscription[0];
-      if (!sub) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get subscription",
-        });
-      }
+        // Create subscription if doesn't exist
+        if (!subscription[0]) {
+          const subId = randomUUID();
+          const now = new Date();
+          const periodEnd = new Date(now);
+          periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-      // Check if user has exceeded quota
-      const tier = sub.tier as SubscriptionTier;
-      const tierConfig = getTierConfig(tier);
-      const exceeded = hasExceededQuota(
-        tier,
-        sub.pdfsUsedThisMonth,
-        "pdfsPerMonth",
-      );
+          await db.insert(userSubscriptions).values({
+            id: subId,
+            userId,
+            tier: "starter",
+            status: "active",
+            pdfsUsedThisMonth: 0,
+            storageUsedBytes: 0,
+            periodStart: now,
+            periodEnd,
+          });
 
-      if (exceeded) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: `You've reached your monthly limit of ${tierConfig.quotas.pdfsPerMonth} PDFs. Please upgrade your plan to continue.`,
-        });
+          subscription = await db
+            .select()
+            .from(userSubscriptions)
+            .where(eq(userSubscriptions.userId, userId))
+            .limit(1);
+        }
+
+        const sub = subscription[0];
+        if (!sub) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to get subscription",
+          });
+        }
+
+        // Check if user has exceeded quota
+        const tier = sub.tier as SubscriptionTier;
+        const tierConfig = getTierConfig(tier);
+        const exceeded = hasExceededQuota(
+          tier,
+          sub.pdfsUsedThisMonth,
+          "pdfsPerMonth",
+        );
+
+        if (exceeded) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `You've reached your monthly limit of ${tierConfig.quotas.pdfsPerMonth} PDFs. Please upgrade your plan to continue.`,
+          });
+        }
       }
+      // For unauthenticated users (guests), skip quota checks and allow PDF generation
 
       // Create the job
       const id = randomUUID();
@@ -115,7 +118,7 @@ export const jobsRouter = createTRPCRouter({
       return created[0] ?? null;
     }),
 
-  get: protectedProcedure.input(z.string()).query(async ({ input, ctx }) => {
+  get: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
     const res = await db.select().from(jobs).where(eq(jobs.id, input)).limit(1);
 
     if (!res[0]) {
@@ -125,8 +128,9 @@ export const jobsRouter = createTRPCRouter({
       });
     }
 
-    // Check if user owns the job
-    if (res[0].userId !== ctx.userId) {
+    // For authenticated users, check if they own the job
+    // For unauthenticated users, allow access to jobs with null userId
+    if (ctx.clerkUserId && res[0].userId !== ctx.clerkUserId) {
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "You don't have permission to access this job",

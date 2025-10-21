@@ -109,12 +109,8 @@ ${prompt.trim()}`
         if (data?.id) {
           // Clear localStorage on successful submission
           localStorage.removeItem("home:prompt");
-          // Show sign-in modal for unauthenticated users
-          if (!isSignedIn) {
-            setShowSignInModal(true);
-          } else {
-            router.push(`/pdf/${data.id}`);
-          }
+          // Navigate to PDF page for both authenticated and unauthenticated users
+          router.push(`/pdf/${data.id}`);
         } else throw new Error("No job id returned");
       } else {
         // Handle text-only job
@@ -122,12 +118,8 @@ ${prompt.trim()}`
         if (job?.id) {
           // Clear localStorage on successful submission
           localStorage.removeItem("home:prompt");
-          // Show sign-in modal for unauthenticated users
-          if (!isSignedIn) {
-            setShowSignInModal(true);
-          } else {
-            router.push(`/pdf/${job.id}`);
-          }
+          // Navigate to PDF page for both authenticated and unauthenticated users
+          router.push(`/pdf/${job.id}`);
         }
       }
     } catch (err) {

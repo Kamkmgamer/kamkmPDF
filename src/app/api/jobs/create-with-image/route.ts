@@ -23,12 +23,7 @@ export async function POST(req: Request) {
   try {
     const auth = getAuth(req as unknown as NextRequest);
     const userId = auth?.userId ?? null;
-    if (!userId) {
-      return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
-        { status: 401 },
-      );
-    }
+    // Allow both authenticated and unauthenticated users
 
     const ct = req.headers.get("content-type") ?? "";
     if (!ct.toLowerCase().includes("multipart/form-data")) {

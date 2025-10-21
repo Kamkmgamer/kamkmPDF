@@ -54,13 +54,13 @@ export default function SignInPromptModal({
 
                 {/* Title */}
                 <h2 className="mt-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-                  Your PDF is Ready!
+                  Your PDF is Downloaded!
                 </h2>
 
                 {/* Description */}
                 <p className="mt-3 text-center text-gray-600 dark:text-gray-300">
-                  Sign in or create an account to save and download your
-                  generated PDF.
+                  Sign in or create an account to save your PDFs and access them
+                  anytime.
                 </p>
 
                 {/* Benefits */}
