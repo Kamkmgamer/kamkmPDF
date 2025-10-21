@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Footer from "~/app/_components/Footer";
 
 export const revalidate = 86400; // 24h ISR for marketing page
 
@@ -26,5 +27,10 @@ export default function AboutLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <Footer />
+    </>
+  );
 }

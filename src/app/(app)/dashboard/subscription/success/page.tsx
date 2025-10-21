@@ -61,7 +61,7 @@ export default function SubscriptionSuccessPage() {
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"></div>
               </Link>
               <Link
-                href="/dashboard/new"
+                href="/"
                 className="block w-full rounded-2xl border border-gray-200 bg-white/80 px-6 py-3.5 font-semibold text-gray-700 shadow-lg shadow-gray-900/5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-500/50 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-300"
               >
                 Create Your First PDF

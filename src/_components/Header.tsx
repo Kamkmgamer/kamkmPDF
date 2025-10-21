@@ -65,7 +65,7 @@ export default function Header() {
               Pricing
             </Link>
             <Link
-              href="/dashboard/new"
+              href="/"
               className="group inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:shadow-xl"
             >
               <Plus className="h-4 w-4" />
@@ -184,7 +184,7 @@ export default function Header() {
                   Pricing
                 </Link>
                 <Link
-                  href="/dashboard/new"
+                  href="/"
                   className="rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-4 py-3 text-center text-lg font-semibold text-white shadow-md"
                   onClick={() => setOpen(false)}
                 >

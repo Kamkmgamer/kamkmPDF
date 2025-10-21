@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Footer from "~/app/_components/Footer";
 
 export const metadata: Metadata = {
   title: "Terms of Service | kamkmPDF",
@@ -23,5 +24,10 @@ export default function TermsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <Footer />
+    </>
+  );
 }

@@ -3,6 +3,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import ThemeProvider from "~/providers/ThemeProvider";
 import Header from "~/_components/Header";
 import UsageWarningBanner from "~/_components/UsageWarningBanner";
+import ConditionalFooter from "~/_components/ConditionalFooter";
 
 export default function AppGroupLayout({
   children,
@@ -20,6 +21,7 @@ export default function AppGroupLayout({
             <Header />
             <UsageWarningBanner />
             <div className="flex-1">{children}</div>
+            <ConditionalFooter />
           </div>
         </ThemeProvider>
       </TRPCReactProvider>

@@ -115,7 +115,7 @@ export default function Hero() {
             )}
 
             <Link
-              href="/dashboard/new"
+              href="/"
               className="rounded-xl border-2 border-[--color-border] bg-white/80 px-8 py-4 text-lg font-semibold text-[--color-text-primary] transition-all duration-200 hover:bg-white hover:shadow-lg dark:border-white/30 dark:bg-transparent dark:hover:bg-white/20 dark:hover:shadow-xl"
               style={{ boxShadow: "var(--shadow-sm)" }}
             >

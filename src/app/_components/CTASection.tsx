@@ -58,7 +58,7 @@ export default function CTASection() {
           </Link>
 
           <Link
-            href="/dashboard/new"
+            href="/"
             className="group flex items-center rounded-xl border-2 border-white/30 bg-white/10 px-8 py-4 text-lg font-semibold text-white shadow-sm transition-all duration-200 hover:bg-white/15 hover:shadow-lg"
             style={{ boxShadow: "var(--shadow-sm)" }}
           >
@@ -68,7 +68,6 @@ export default function CTASection() {
             </span>
           </Link>
         </motion.div>
-        
       </div>
     </section>
   );

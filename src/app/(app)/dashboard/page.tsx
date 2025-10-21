@@ -79,7 +79,7 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
             <ActionCard
-              href="/dashboard/new"
+              href="/"
               icon={<FilePlus className="h-7 w-7" />}
               title="New from Prompt"
               description="Convert text into a polished PDF document."
@@ -111,7 +111,7 @@ export default function DashboardPage() {
               Your Recent Documents
             </h2>
             <Link
-              href="/dashboard/new"
+              href="/"
               className="group/btn inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all duration-200 will-change-transform hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/50 active:scale-95"
             >
               <FilePlus className="h-4 w-4 transition-transform duration-200 group-hover/btn:rotate-90" />
