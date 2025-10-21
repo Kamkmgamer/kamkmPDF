@@ -46,8 +46,11 @@ export default function PricingPage() {
           <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl dark:text-white">
             Simple, transparent pricing
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400">
+          <p className="mx-auto mt-4 max-w-2xl text-base text-slate-600 sm:text-lg md:text-xl dark:text-slate-400">
             Choose the plan that fits your needs. Upgrade or downgrade anytime.
+            <span className="mt-2 block text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+              Every tier starts with a 15-day free trial
+            </span>
           </p>
 
           {currentSub && (
@@ -68,7 +71,7 @@ export default function PricingPage() {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="mx-auto mt-12 grid gap-4 sm:mt-16 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 max-w-[90rem]">
+        <div className="mx-auto mt-12 grid max-w-[90rem] grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-5">
           {tiers.map((tier, index) => {
             const Icon = tier.icon;
             const isCurrentTier = currentSub?.tier === tier.id;
@@ -111,7 +114,7 @@ export default function PricingPage() {
                 />
 
                 <div
-                  className={`relative flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl border bg-white p-4 sm:p-6 lg:p-8 shadow-xl sm:shadow-2xl transition-all duration-300 dark:bg-slate-800 ${
+                  className={`relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white p-4 shadow-xl transition-all duration-300 sm:rounded-3xl sm:p-6 sm:shadow-2xl lg:p-8 dark:bg-slate-800 ${
                     tier.popular
                       ? "border-blue-500/50 dark:border-blue-400/50"
                       : isCurrentTier
@@ -121,33 +124,33 @@ export default function PricingPage() {
                 >
                   {/* Icon */}
                   <motion.div
-                    className={`mb-4 sm:mb-6 inline-flex h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br ${tier.color} shadow-lg sm:shadow-xl`}
+                    className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br sm:mb-6 sm:h-12 sm:w-12 sm:rounded-2xl lg:h-14 lg:w-14 ${tier.color} shadow-lg sm:shadow-xl`}
                     whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <Icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-white" />
+                    <Icon className="h-5 w-5 text-white sm:h-6 sm:w-6 lg:h-7 lg:w-7" />
                   </motion.div>
 
                   {/* Tier Name */}
-                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
                     {tier.name}
                   </h3>
-                  <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                  <p className="mt-1 text-xs text-slate-600 sm:mt-2 sm:text-sm dark:text-slate-400">
                     {tier.description}
                   </p>
 
                   {/* Price */}
                   <div className="mt-4 mb-4 sm:mt-6 sm:mb-6">
-                    <div className="flex items-baseline flex-wrap gap-x-1 sm:gap-x-2">
-                      <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-3xl sm:text-4xl lg:text-5xl font-black text-transparent dark:from-blue-400 dark:via-cyan-400 dark:to-sky-400">
+                    <div className="flex flex-wrap items-baseline gap-x-1 sm:gap-x-2">
+                      <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-3xl font-black text-transparent sm:text-4xl lg:text-5xl dark:from-blue-400 dark:via-cyan-400 dark:to-sky-400">
                         ${tier.price}
                       </span>
-                      <span className="text-sm sm:text-base text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                      <span className="text-sm whitespace-nowrap text-slate-600 sm:text-base dark:text-slate-400">
                         /month
                       </span>
                     </div>
                     {tier.priceYearly > 0 && (
-                      <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                      <p className="mt-1 text-xs text-slate-600 sm:mt-2 sm:text-sm dark:text-slate-400">
                         or ${tier.priceYearly}/year{" "}
                         <span className="font-semibold text-green-600 dark:text-green-400">
                           (save 17%)
@@ -157,16 +160,16 @@ export default function PricingPage() {
                   </div>
 
                   {/* Features */}
-                  <ul className="mb-6 sm:mb-8 flex-1 space-y-2 sm:space-y-3">
+                  <ul className="mb-6 flex-1 space-y-2 sm:mb-8 sm:space-y-3">
                     {tier.features.slice(0, 6).map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 sm:gap-3">
                         {feature.included ? (
                           <div className="mt-0.5 flex-shrink-0 rounded-full bg-green-100 p-0.5 sm:p-1 dark:bg-green-900/30">
-                            <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-600 dark:text-green-400" />
+                            <Check className="h-2.5 w-2.5 text-green-600 sm:h-3 sm:w-3 dark:text-green-400" />
                           </div>
                         ) : (
                           <div className="mt-0.5 flex-shrink-0 rounded-full bg-slate-100 p-0.5 sm:p-1 dark:bg-slate-800">
-                            <X className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-slate-400 dark:text-slate-600" />
+                            <X className="h-2.5 w-2.5 text-slate-400 sm:h-3 sm:w-3 dark:text-slate-600" />
                           </div>
                         )}
                         <span
@@ -186,34 +189,34 @@ export default function PricingPage() {
                     {isCurrentTier ? (
                       <Link
                         href="/dashboard"
-                        className="flex w-full items-center justify-center gap-1 sm:gap-2 rounded-lg sm:rounded-xl lg:rounded-2xl bg-slate-100 px-2 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 text-xs sm:text-sm lg:text-base font-bold text-slate-900 transition-all duration-300 hover:bg-slate-200 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+                        className="flex w-full items-center justify-center gap-1 rounded-lg bg-slate-100 px-2 py-2 text-xs font-bold text-slate-900 transition-all duration-300 hover:bg-slate-200 sm:gap-2 sm:rounded-xl sm:px-4 sm:py-3 sm:text-sm lg:rounded-2xl lg:px-6 lg:py-4 lg:text-base dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
                       >
                         <span className="whitespace-nowrap">Manage Plan</span>
-                        <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
                       </Link>
                     ) : tier.id === "starter" ? (
                       <Link
                         href={isSignedIn ? "/dashboard" : "/sign-up"}
-                        className={`flex w-full items-center justify-center gap-1 sm:gap-2 rounded-lg sm:rounded-xl lg:rounded-2xl px-2 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 text-xs sm:text-sm lg:text-base font-bold transition-all duration-300 ${
+                        className={`flex w-full items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-bold transition-all duration-300 sm:gap-2 sm:rounded-xl sm:px-4 sm:py-3 sm:text-sm lg:rounded-2xl lg:px-6 lg:py-4 lg:text-base ${
                           tier.popular
-                            ? "bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 text-white shadow-lg sm:shadow-xl shadow-blue-500/30 hover:shadow-xl sm:hover:shadow-2xl hover:shadow-blue-500/40"
+                            ? "bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 sm:shadow-xl sm:hover:shadow-2xl"
                             : "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
                         }`}
                       >
                         <span className="whitespace-nowrap">{tier.cta}</span>
-                        <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
                       </Link>
                     ) : tier.id === "enterprise" ? (
                       <Link
                         href="/contact"
-                        className={`flex w-full items-center justify-center gap-1 sm:gap-2 rounded-lg sm:rounded-xl lg:rounded-2xl px-2 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 text-xs sm:text-sm lg:text-base font-bold transition-all duration-300 ${
+                        className={`flex w-full items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-bold transition-all duration-300 sm:gap-2 sm:rounded-xl sm:px-4 sm:py-3 sm:text-sm lg:rounded-2xl lg:px-6 lg:py-4 lg:text-base ${
                           tier.popular
-                            ? "bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 text-white shadow-lg sm:shadow-xl shadow-blue-500/30 hover:shadow-xl sm:hover:shadow-2xl hover:shadow-blue-500/40"
+                            ? "bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 sm:shadow-xl sm:hover:shadow-2xl"
                             : "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
                         }`}
                       >
                         <span className="whitespace-nowrap">Contact Sales</span>
-                        <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
                       </Link>
                     ) : (
                       <div className="w-full">
@@ -243,7 +246,7 @@ export default function PricingPage() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-16 sm:mt-24 lg:mt-32"
         >
-          <div className="mb-8 sm:mb-12 text-center">
+          <div className="mb-8 text-center sm:mb-12">
             <motion.div
               className="mb-4 inline-flex items-center gap-2 rounded-full bg-sky-100 px-4 py-2 text-sm font-semibold text-sky-600 dark:bg-sky-900/30 dark:text-sky-400"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -253,12 +256,12 @@ export default function PricingPage() {
               <HelpCircle className="h-4 w-4" />
               <span>FAQ</span>
             </motion.div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-black text-slate-900 sm:text-3xl lg:text-4xl dark:text-white">
               Frequently Asked Questions
             </h2>
           </div>
 
-          <div className="mx-auto mt-8 sm:mt-12 max-w-3xl space-y-3 sm:space-y-4 overflow-hidden">
+          <div className="mx-auto mt-8 max-w-3xl space-y-3 overflow-hidden sm:mt-12 sm:space-y-4">
             {[
               {
                 q: "Can I change plans anytime?",
@@ -287,10 +290,10 @@ export default function PricingPage() {
                 <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-blue-600 to-sky-600 opacity-0 blur transition duration-300 group-hover:opacity-20" />
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="relative w-full rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 text-left transition-all duration-300 hover:border-blue-500/50 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-blue-400/50"
+                  className="relative w-full rounded-xl border border-slate-200 bg-white p-4 text-left transition-all duration-300 hover:border-blue-500/50 sm:rounded-2xl sm:p-6 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-blue-400/50"
                 >
                   <div className="flex items-center justify-between">
-                    <h3 className="pr-4 sm:pr-8 text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                    <h3 className="pr-4 text-base font-bold text-slate-900 sm:pr-8 sm:text-lg dark:text-white">
                       {faq.q}
                     </h3>
                     <motion.div
@@ -312,7 +315,7 @@ export default function PricingPage() {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <p className="mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-400">
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:mt-4 sm:text-base dark:text-slate-400">
                       {faq.a}
                     </p>
                   </motion.div>
@@ -327,7 +330,7 @@ export default function PricingPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="relative mt-16 mb-12 sm:mt-24 sm:mb-16 lg:mt-32 lg:mb-20 overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-sky-600 p-6 sm:p-10 lg:p-12 text-center"
+          className="relative mt-16 mb-12 overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-cyan-600 to-sky-600 p-6 text-center sm:mt-24 sm:mb-16 sm:rounded-3xl sm:p-10 lg:mt-32 lg:mb-20 lg:p-12"
         >
           {/* Animated background */}
           <div className="absolute inset-0 opacity-30">
@@ -336,21 +339,21 @@ export default function PricingPage() {
           </div>
 
           <div className="relative">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">
+            <h2 className="text-2xl font-black text-white sm:text-3xl lg:text-4xl">
               Still have questions?
             </h2>
-            <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base lg:text-lg text-white/90">
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-white/90 sm:mt-4 sm:text-base lg:text-lg">
               Our team is here to help. Contact us for a personalized demo or to
               discuss custom Enterprise solutions.
             </p>
-            <div className="mt-6 sm:mt-8 flex flex-col justify-center gap-3 sm:gap-4 sm:flex-row">
+            <div className="mt-6 flex flex-col justify-center gap-3 sm:mt-8 sm:flex-row sm:gap-4">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
                   href="/contact"
-                  className="inline-flex items-center gap-2 rounded-xl sm:rounded-2xl bg-white px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-bold text-blue-600 shadow-lg sm:shadow-xl transition-all hover:bg-blue-50"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-blue-600 shadow-lg transition-all hover:bg-blue-50 sm:rounded-2xl sm:px-8 sm:py-4 sm:text-base sm:shadow-xl"
                 >
                   <span>Contact Sales</span>
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -362,7 +365,7 @@ export default function PricingPage() {
               >
                 <Link
                   href="/help"
-                  className="inline-flex items-center gap-2 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/10 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-bold text-white backdrop-blur-xl transition-all hover:bg-white/20"
+                  className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-xl transition-all hover:bg-white/20 sm:rounded-2xl sm:px-8 sm:py-4 sm:text-base"
                 >
                   <span>View Documentation</span>
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />

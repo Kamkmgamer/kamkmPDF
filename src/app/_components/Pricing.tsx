@@ -45,11 +45,11 @@ export default function Pricing() {
 
     // For paid tiers, redirect to Polar checkout
     setLoadingTier(tierId);
-    
+
     try {
       // Fetch product ID from database
       const response = await fetch(`/api/products/${tierId}`);
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch product");
       }
@@ -160,6 +160,9 @@ export default function Pricing() {
           >
             From hobbyists to enterprises, we&apos;ve got a plan that scales
             with your ambitions.
+            <span className="mt-2 block text-sm text-emerald-600 dark:text-emerald-400">
+              Every tier starts with a 15-day free trial
+            </span>
             <span className="mt-2 block text-sm text-cyan-600 dark:text-cyan-400">
               ✨ 30-day money-back guarantee on all plans
             </span>
