@@ -38,7 +38,7 @@ export default function QuotaExceededModal({
 
   const suggestedTiers = {
     starter: { name: "Professional", price: 12, pdfs: 50, storage: 2 },
-    professional: { name: "Business", price: 79, pdfs: 500, storage: 50 },
+    professional: { name: "Business", price: 79, pdfs: 50000, storage: 50 },
     business: {
       name: "Enterprise",
       price: 500,

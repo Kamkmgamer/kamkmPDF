@@ -2,7 +2,7 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { sql } from "drizzle-orm";
-import { index, pgTableCreator } from "drizzle-orm/pg-core";
+import { index, pgTableCreator, uniqueIndex } from "drizzle-orm/pg-core";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -206,19 +206,29 @@ export const brandingSettings = createTable("branding_setting", (d) => ({
 }));
 
 // Polar.sh product configuration
-export const polarProducts = createTable("polar_product", (d) => ({
-  id: d.text().primaryKey(),
-  tier: d.varchar({ length: 32 }).notNull().unique(), // professional, classic, business, enterprise
-  productId: d.text().notNull(), // Polar product ID (e.g., prod_xxxxx)
-  name: d.varchar({ length: 128 }).notNull(),
-  description: d.text(),
-  isActive: d.boolean().default(true).notNull(),
-  createdAt: d
-    .timestamp({ withTimezone: true })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-}));
+export const polarProducts = createTable(
+  "polar_product",
+  (d) => ({
+    id: d.text().primaryKey(),
+    tier: d.varchar({ length: 32 }).notNull(), // professional, classic, business, enterprise
+    billingCycle: d.varchar({ length: 16 }).notNull().default("monthly"), // monthly or yearly
+    productId: d.text().notNull(), // Polar product ID (e.g., prod_xxxxx)
+    name: d.varchar({ length: 128 }).notNull(),
+    description: d.text(),
+    isActive: d.boolean().default(true).notNull(),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  }),
+  (table) => ({
+    tierBillingIdx: uniqueIndex("tier_billing_idx").on(
+      table.tier,
+      table.billingCycle,
+    ),
+  }),
+);
 
 // Credit packages for one-time purchases
 export const creditProducts = createTable("credit_product", (d) => ({
