@@ -11,6 +11,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    TRPC_LOG_DEV_ERRORS: z.enum(["true", "false"]).default("false"),
     CLERK_SECRET_KEY: z.string().min(1),
     // UploadThing (required for external storage)
     UPLOADTHING_TOKEN: z.string().min(1),
@@ -57,6 +58,7 @@ export const env = createEnv({
     PDFPROMPT_BATCH_SIZE: process.env.PDFPROMPT_BATCH_SIZE,
     POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
     POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
+    TRPC_LOG_DEV_ERRORS: process.env.TRPC_LOG_DEV_ERRORS,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
