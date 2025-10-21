@@ -5,12 +5,14 @@ import { useAuth } from "@clerk/nextjs";
 
 interface UpgradeButtonProps {
   tier: "professional" | "classic" | "business" | "enterprise";
+  billingCycle?: "monthly" | "yearly";
   children: React.ReactNode;
   variant?: "primary" | "secondary";
 }
 
 export function UpgradeButton({
   tier,
+  billingCycle = "monthly",
   children,
   variant = "primary",
 }: UpgradeButtonProps) {
@@ -18,7 +20,12 @@ export function UpgradeButton({
   const { userId } = useAuth();
 
   const handleUpgrade = async () => {
-    console.log("[UpgradeButton] Starting upgrade for tier:", tier);
+    console.log(
+      "[UpgradeButton] Starting upgrade for tier:",
+      tier,
+      "billing:",
+      billingCycle,
+    );
     console.log("[UpgradeButton] User ID:", userId);
 
     if (!userId) {
@@ -38,8 +45,15 @@ export function UpgradeButton({
 
     try {
       // Fetch product ID from database
-      console.log("[UpgradeButton] Fetching product ID for tier:", tier);
-      const response = await fetch(`/api/products/${tier}`);
+      console.log(
+        "[UpgradeButton] Fetching product ID for tier:",
+        tier,
+        "billing:",
+        billingCycle,
+      );
+      const response = await fetch(
+        `/api/products/${tier}?billingCycle=${billingCycle}`,
+      );
 
       if (!response.ok) {
         console.error("[UpgradeButton] Product API failed:", response.status);

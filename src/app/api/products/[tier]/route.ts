@@ -5,22 +5,33 @@
 
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
-import { polarProducts } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ tier: string }> }
+  { params }: { params: Promise<{ tier: string }> },
 ) {
   try {
     const { tier } = await params;
+    const { searchParams } = new URL(request.url);
+    const billingCycle = searchParams.get("billingCycle") ?? "monthly";
 
     // Validate tier
-    const validTiers = ["starter", "classic", "professional", "business", "enterprise"];
+    const validTiers = [
+      "starter",
+      "classic",
+      "professional",
+      "business",
+      "enterprise",
+    ];
     if (!validTiers.includes(tier)) {
+      return NextResponse.json({ error: "Invalid tier" }, { status: 400 });
+    }
+
+    // Validate billing cycle
+    if (!["monthly", "yearly"].includes(billingCycle)) {
       return NextResponse.json(
-        { error: "Invalid tier" },
-        { status: 400 }
+        { error: "Invalid billing cycle" },
+        { status: 400 },
       );
     }
 
@@ -28,6 +39,7 @@ export async function GET(
     if (tier === "starter") {
       return NextResponse.json({
         tier,
+        billingCycle,
         productId: null,
         name: "Starter Plan",
         description: "Free tier for testing",
@@ -37,18 +49,20 @@ export async function GET(
 
     // Fetch product from database
     const product = await db.query.polarProducts.findFirst({
-      where: eq(polarProducts.tier, tier),
+      where: (table, { eq, and }) =>
+        and(eq(table.tier, tier), eq(table.billingCycle, billingCycle)),
     });
 
     if (!product?.isActive) {
       return NextResponse.json(
         { error: "Product not found or inactive" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     return NextResponse.json({
       tier: product.tier,
+      billingCycle: product.billingCycle,
       productId: product.productId,
       name: product.name,
       description: product.description,
@@ -58,7 +72,7 @@ export async function GET(
     console.error("[Products API] Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

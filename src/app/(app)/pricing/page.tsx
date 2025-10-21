@@ -16,6 +16,9 @@ export default function PricingPage() {
     enabled: isSignedIn,
   });
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
+    "monthly",
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30">
@@ -53,6 +56,38 @@ export default function PricingPage() {
             </span>
           </p>
 
+          {/* Billing Cycle Toggle */}
+          <motion.div
+            className="mx-auto mt-8 inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white p-1.5 dark:border-slate-700 dark:bg-slate-800"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <button
+              onClick={() => setBillingCycle("monthly")}
+              className={`relative rounded-full px-6 py-2 text-sm font-semibold transition-all ${
+                billingCycle === "monthly"
+                  ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle("yearly")}
+              className={`relative rounded-full px-6 py-2 text-sm font-semibold transition-all ${
+                billingCycle === "yearly"
+                  ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
+            >
+              Yearly
+              <span className="ml-2 rounded-full px-2 py-0.5 text-xs text-teal-100 dark:text-teal-200">
+                Save 17%
+              </span>
+            </button>
+          </motion.div>
+
           {currentSub && (
             <motion.div
               className="mt-8 inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-3 text-sm font-bold text-white shadow-xl"
@@ -71,7 +106,7 @@ export default function PricingPage() {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="mx-auto mt-12 grid max-w-[90rem] grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="mx-auto mt-12 grid max-w-7xl grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {tiers.map((tier, index) => {
             const Icon = tier.icon;
             const isCurrentTier = currentSub?.tier === tier.id;
@@ -141,19 +176,23 @@ export default function PricingPage() {
 
                   {/* Price */}
                   <div className="mt-4 mb-4 sm:mt-6 sm:mb-6">
-                    <div className="flex flex-wrap items-baseline gap-x-1 sm:gap-x-2">
-                      <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-3xl font-black text-transparent sm:text-4xl lg:text-5xl dark:from-blue-400 dark:via-cyan-400 dark:to-sky-400">
-                        ${tier.price}
+                    <div className="flex flex-col">
+                      <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-3xl leading-none font-black text-transparent sm:text-4xl lg:text-5xl dark:from-blue-400 dark:via-cyan-400 dark:to-sky-400">
+                        $
+                        {billingCycle === "yearly"
+                          ? tier.priceYearly.toLocaleString()
+                          : tier.price}
                       </span>
-                      <span className="text-sm whitespace-nowrap text-slate-600 sm:text-base dark:text-slate-400">
-                        /month
+                      <span className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                        /{billingCycle === "yearly" ? "year" : "month"}
                       </span>
                     </div>
-                    {tier.priceYearly > 0 && (
-                      <p className="mt-1 text-xs text-slate-600 sm:mt-2 sm:text-sm dark:text-slate-400">
-                        or ${tier.priceYearly}/year{" "}
+                    {billingCycle === "yearly" && tier.priceYearly > 0 && (
+                      <p className="mt-2 text-xs leading-tight text-slate-600 sm:text-sm dark:text-slate-400">
                         <span className="font-semibold text-green-600 dark:text-green-400">
-                          (save 17%)
+                          Save $
+                          {(tier.price * 12 - tier.priceYearly).toFixed(0)} vs
+                          monthly
                         </span>
                       </p>
                     )}
@@ -227,6 +266,7 @@ export default function PricingPage() {
                               | "business"
                               | "enterprise"
                           }
+                          billingCycle={billingCycle}
                         >
                           Upgrade
                         </UpgradeButton>

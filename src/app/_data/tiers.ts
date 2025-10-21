@@ -1,11 +1,4 @@
-import {
-  Building2,
-  Sparkles,
-  Users,
-  Zap,
-  Star,
-  type LucideIcon,
-} from "lucide-react";
+import { Sparkles, Users, Zap, Star, type LucideIcon } from "lucide-react";
 
 export type TierFeature = { text: string; included: boolean };
 export type Tier = {
@@ -112,29 +105,6 @@ export const tiers: Tier[] = [
       { text: "Team collaboration (5 seats)", included: true },
     ],
     cta: "Upgrade to Business",
-    popular: false,
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    icon: Building2,
-    price: 500,
-    priceYearly: 5000,
-    description: "Custom solutions for large organizations",
-    color: "from-orange-400 to-orange-600",
-    features: [
-      { text: "Unlimited PDFs", included: true },
-      { text: "Unlimited storage", included: true },
-      { text: "Custom templates", included: true },
-      { text: "Custom AI models", included: true },
-      { text: "White-label options", included: true },
-      { text: "<15 second processing", included: true },
-      { text: "Unlimited version history", included: true },
-      { text: "Dedicated account manager", included: true },
-      { text: "Full API access + webhooks", included: true },
-      { text: "Unlimited seats + SSO", included: true },
-    ],
-    cta: "Contact Sales",
     popular: false,
   },
 ];
