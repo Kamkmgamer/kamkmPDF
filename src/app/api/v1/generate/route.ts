@@ -54,9 +54,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (prompt.length > 8000) {
+    if (prompt.length > 32000) {
       return NextResponse.json(
-        { error: "prompt must be less than 8000 characters" },
+        { error: "prompt must be less than 32000 characters" },
         { status: 400 },
       );
     }
