@@ -184,7 +184,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       yearly: 790, // 17% discount
     },
     quotas: {
-      pdfsPerMonth: 500,
+      pdfsPerMonth: 50000,
       storageGB: 50,
       maxFileSize: 25, // 25 MB per PDF
       teamSeats: 5,

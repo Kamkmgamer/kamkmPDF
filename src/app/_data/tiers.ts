@@ -100,7 +100,7 @@ export const tiers: Tier[] = [
     description: "For teams and small businesses",
     color: "from-sky-400 to-sky-600",
     features: [
-      { text: "500 PDFs per month (pooled)", included: true },
+      { text: "50,000 PDFs per month (pooled)", included: true },
       { text: "50 GB shared storage", included: true },
       { text: "Unlimited templates", included: true },
       { text: "Premium AI models + priority", included: true },
