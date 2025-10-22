@@ -311,7 +311,7 @@ export default function Hero() {
           {/* Secondary internal links for SEO and quick navigation */}
           <div className="mt-2 mb-12 text-sm text-slate-600 dark:text-slate-400">
             <Link
-              href="#pricing"
+              href="/pricing"
               className="underline underline-offset-4 hover:text-slate-900 dark:hover:text-white"
             >
               See pricing

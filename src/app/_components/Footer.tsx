@@ -4,7 +4,7 @@ export default function Footer() {
   const footerLinks = {
     product: [
       { name: "Features", href: "#features" },
-      { name: "Pricing", href: "#pricing" },
+      { name: "Pricing", href: "/pricing" },
       { name: "Templates", href: "/dashboard/templates" },
     ],
     company: [
