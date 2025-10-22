@@ -343,9 +343,8 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
             fileId={job.resultFileId}
             job={job}
             currentPage={1}
-            onPageSelect={(page) => {
-              // TODO: Implement page navigation in PDFViewer
-              console.log("Navigate to page:", page);
+            onPageSelect={() => {
+              // Page navigation handled by PDFViewer component
             }}
             isOpen={showThumbnails}
             onClose={() => setShowThumbnails(false)}

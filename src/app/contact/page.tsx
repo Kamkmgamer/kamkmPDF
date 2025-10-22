@@ -42,13 +42,6 @@ export default function ContactPage() {
     }
 
     try {
-      console.log("Submitting contact form with data:", {
-        name,
-        email,
-        subject,
-        message,
-      });
-
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
@@ -63,11 +56,6 @@ export default function ContactPage() {
       });
 
       const data = (await response.json()) as ApiResponse;
-      console.log("API response:", {
-        ok: response.ok,
-        status: response.status,
-        data,
-      });
 
       if (!response.ok) {
         throw new Error(

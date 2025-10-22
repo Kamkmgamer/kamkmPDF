@@ -20,23 +20,13 @@ export function UpgradeButton({
   const { userId } = useAuth();
 
   const handleUpgrade = async () => {
-    console.log(
-      "[UpgradeButton] Starting upgrade for tier:",
-      tier,
-      "billing:",
-      billingCycle,
-    );
-    console.log("[UpgradeButton] User ID:", userId);
-
     if (!userId) {
-      console.log("[UpgradeButton] No user ID, redirecting to sign-up");
       window.location.href = "/sign-up";
       return;
     }
 
     // Enterprise requires contact
     if (tier === "enterprise") {
-      console.log("[UpgradeButton] Enterprise tier, redirecting to contact");
       window.location.href = "/contact";
       return;
     }
@@ -45,12 +35,6 @@ export function UpgradeButton({
 
     try {
       // Fetch product ID from database
-      console.log(
-        "[UpgradeButton] Fetching product ID for tier:",
-        tier,
-        "billing:",
-        billingCycle,
-      );
       const response = await fetch(
         `/api/products/${tier}?billingCycle=${billingCycle}`,
       );
@@ -61,7 +45,6 @@ export function UpgradeButton({
       }
 
       const data = (await response.json()) as { productId?: string };
-      console.log("[UpgradeButton] Product data:", data);
 
       if (!data.productId) {
         console.error("[UpgradeButton] No product ID in response");
@@ -70,7 +53,6 @@ export function UpgradeButton({
 
       // Redirect to Polar checkout
       const checkoutUrl = `/api/polar/create-checkout?products=${data.productId}`;
-      console.log("[UpgradeButton] Redirecting to:", checkoutUrl);
       window.location.href = checkoutUrl;
     } catch (error) {
       console.error("[UpgradeButton] Upgrade failed:", error);
