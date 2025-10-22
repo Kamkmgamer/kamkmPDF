@@ -19,6 +19,7 @@ import {
   Clock,
 } from "lucide-react";
 import { tiers } from "../_data/tiers";
+import { EnterpriseSection } from "~/_components/EnterpriseSection";
 
 export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
@@ -232,7 +233,7 @@ export default function Pricing() {
             },
           }}
         >
-          {tiers.filter(tier => tier.publiclyVisible === true).map((plan) => {
+          {tiers.filter(tier => tier.publiclyVisible === true && tier.id !== "enterprise").map((plan) => {
             const Icon = plan.icon;
             const price =
               billingCycle === "yearly" ? plan.priceYearly : plan.price;
@@ -565,6 +566,11 @@ export default function Pricing() {
             </div>
           </div>
         </motion.div>
+
+        {/* Enterprise Section */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <EnterpriseSection />
+        </div>
       </div>
     </section>
   );

@@ -3,7 +3,6 @@
 import React from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import Image from "next/image";
 import { api } from "~/trpc/react";
 import { X } from "lucide-react";

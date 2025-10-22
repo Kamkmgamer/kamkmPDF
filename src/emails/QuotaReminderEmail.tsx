@@ -202,22 +202,6 @@ const warningBox = {
   marginBottom: "24px",
 };
 
-const warningText = {
-  color: "#92400e",
-  fontSize: "18px",
-  lineHeight: "1.6",
-  margin: "0 0 8px 0",
-  textAlign: "center" as const,
-};
-
-const warningSubtext = {
-  color: "#92400e",
-  fontSize: "15px",
-  lineHeight: "1.6",
-  margin: "0",
-  textAlign: "center" as const,
-};
-
 const buttonContainer = {
   textAlign: "center" as const,
   marginBottom: "24px",

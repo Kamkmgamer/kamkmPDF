@@ -6,6 +6,7 @@ import { Check, X, Sparkles, ArrowRight, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { UpgradeButton } from "~/_components/UpgradeButton";
+import { EnterpriseSection } from "~/_components/EnterpriseSection";
 import { api } from "~/trpc/react";
 import { tiers } from "~/app/_data/tiers";
 import { useState } from "react";
@@ -110,8 +111,8 @@ export default function PricingPage() {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="mx-auto mt-12 grid max-w-7xl grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-          {tiers.filter(tier => tier.publiclyVisible === true).map((tier, index) => {
+        <div className="mx-auto mt-12 grid max-w-7xl grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+          {tiers.filter(tier => tier.publiclyVisible === true && tier.id !== "enterprise").map((tier, index) => {
             const Icon = tier.icon;
             const isCurrentTier = currentSub?.tier === tier.id;
 
@@ -369,6 +370,9 @@ export default function PricingPage() {
             ))}
           </div>
         </motion.div>
+
+        {/* Enterprise Section */}
+        <EnterpriseSection />
 
         {/* CTA Section */}
         <motion.div
