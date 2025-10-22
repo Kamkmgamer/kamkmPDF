@@ -8,7 +8,7 @@ import JobsGallery from "~/_components/JobsGallery";
 import Onboarding from "~/_components/Onboarding";
 import { ProPlusBanner } from "~/_components/ProPlusBanner";
 import Link from "next/link";
-import { ArrowRight, FilePlus, BookOpen, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, FilePlus, BookOpen, Sparkles, Zap, Gift } from "lucide-react";
 
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -80,7 +80,7 @@ export default function DashboardPage() {
               Start Creating
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
             <ActionCard
               href="/"
               icon={<FilePlus className="h-7 w-7" />}
@@ -95,6 +95,14 @@ export default function DashboardPage() {
               title="Browse Templates"
               description="Use a pre-designed template to get started quickly."
               gradient="from-indigo-500 via-sky-500 to-indigo-600"
+              glowColor="indigo"
+            />
+            <ActionCard
+              href="/referrals"
+              icon={<Gift className="h-7 w-7" />}
+              title="Refer & Earn"
+              description="Invite friends and earn 50 credits per referral."
+              gradient="from-purple-500 via-pink-500 to-purple-600"
               glowColor="indigo"
             />
           </div>
@@ -151,13 +159,13 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className={`group/action relative block will-change-transform`}
+      className={`group/action relative block h-full will-change-transform`}
     >
       {/* Main card - optimized for performance */}
       <div
-        className={`relative overflow-hidden rounded-2xl border border-gray-200/80 bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-xl transition-all duration-300 group-hover/action:-translate-y-1 group-hover/action:border-blue-500/50 group-hover/action:shadow-2xl sm:rounded-3xl dark:border-gray-700/50 dark:from-gray-900 dark:to-gray-800/50 group-hover/action:${glowColors[glowColor as keyof typeof glowColors]}`}
+        className={`relative h-full overflow-hidden rounded-2xl border border-gray-200/80 bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-xl transition-all duration-300 group-hover/action:-translate-y-1 group-hover/action:border-blue-500/50 group-hover/action:shadow-2xl sm:rounded-3xl dark:border-gray-700/50 dark:from-gray-900 dark:to-gray-800/50 group-hover/action:${glowColors[glowColor as keyof typeof glowColors]}`}
       >
-        <div className="relative p-6 sm:p-8">
+        <div className="relative flex h-full flex-col p-6 sm:p-8">
           {/* Icon container - optimized */}
           <div className="mb-4 sm:mb-6">
             <div className="relative inline-block will-change-transform">
@@ -171,7 +179,7 @@ function ActionCard({
           </div>
 
           {/* Content */}
-          <div className="space-y-1.5 sm:space-y-2">
+          <div className="flex-1 space-y-1.5 sm:space-y-2">
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-lg font-bold text-gray-900 transition-colors duration-200 group-hover/action:text-blue-600 sm:text-xl dark:text-white dark:group-hover/action:text-indigo-400">
                 {title}

@@ -5,8 +5,8 @@
 
 import { Webhooks } from "@polar-sh/nextjs";
 import { db } from "~/server/db";
-import { userSubscriptions, usageHistory, creditProducts } from "~/server/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { userSubscriptions, usageHistory, creditProducts, referrals, referralRewards } from "~/server/db/schema";
+import { eq, sql, and } from "drizzle-orm";
 import { getTierFromProductId } from "~/server/polar/config";
 import { randomUUID } from "crypto";
 import { env } from "~/env";
@@ -96,6 +96,20 @@ async function handleWebhookEvent(payload: PolarWebhookPayload) {
 }
 
 /**
+ * Generate a unique referral code based on user ID
+ */
+function generateReferralCode(userId: string): string {
+  const hash = userId.split('').reduce((acc, char) => {
+    return ((acc << 5) - acc) + char.charCodeAt(0);
+  }, 0);
+  
+  const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
+  const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
+  
+  return `REF${code}${timestamp}`;
+}
+
+/**
  * Handle checkout confirmed
  */
 async function handleCheckoutConfirmed(data: PolarEventData) {
@@ -140,7 +154,8 @@ async function handleCheckoutConfirmed(data: PolarEventData) {
       })
       .where(eq(userSubscriptions.userId, userId));
   } else {
-    // Create new subscription
+    // Create new subscription with referral code
+    const referralCode = generateReferralCode(userId);
     await db.insert(userSubscriptions).values({
       id: randomUUID(),
       userId,
@@ -149,6 +164,7 @@ async function handleCheckoutConfirmed(data: PolarEventData) {
       polarSubscriptionId: data.id,
       pdfsUsedThisMonth: 0,
       storageUsedBytes: 0,
+      referralCode,
       periodStart: now,
       periodEnd,
       cancelAtPeriodEnd: false,
@@ -173,6 +189,9 @@ async function handleCheckoutConfirmed(data: PolarEventData) {
   console.log(
     `[Polar Webhook] Activated ${tier} subscription for user ${userId}`,
   );
+
+  // Process referral reward if applicable
+  await processReferralReward(userId, tier);
 }
 
 /**
@@ -221,7 +240,8 @@ async function handleSubscriptionActivated(data: PolarEventData) {
       })
       .where(eq(userSubscriptions.userId, userId));
   } else {
-    // Create new subscription
+    // Create new subscription with referral code
+    const referralCode = generateReferralCode(userId);
     await db.insert(userSubscriptions).values({
       id: randomUUID(),
       userId,
@@ -230,6 +250,7 @@ async function handleSubscriptionActivated(data: PolarEventData) {
       polarSubscriptionId: data.id,
       pdfsUsedThisMonth: 0,
       storageUsedBytes: 0,
+      referralCode,
       periodStart: now,
       periodEnd,
       cancelAtPeriodEnd: false,
@@ -254,6 +275,9 @@ async function handleSubscriptionActivated(data: PolarEventData) {
   console.log(
     `[Polar Webhook] Activated ${tier} subscription for user ${userId}`,
   );
+
+  // Process referral reward if applicable
+  await processReferralReward(userId, tier);
 }
 
 /**
@@ -326,6 +350,87 @@ async function checkIfCreditProduct(productId?: string): Promise<boolean> {
   });
 
   return !!creditProduct;
+}
+
+/**
+ * Process referral rewards when a user subscribes to a paid tier
+ */
+async function processReferralReward(userId: string, tier: string) {
+  // Only reward for paid tiers (not starter)
+  if (tier === "starter") {
+    console.log(`[Referral] Skipping reward for starter tier`);
+    return;
+  }
+
+  // Check if this user was referred
+  const referral = await db
+    .select()
+    .from(referrals)
+    .where(
+      and(
+        eq(referrals.referredUserId, userId),
+        eq(referrals.status, "pending")
+      )
+    )
+    .limit(1);
+
+  if (!referral[0]) {
+    console.log(`[Referral] No pending referral found for user ${userId}`);
+    return;
+  }
+
+  const referralRecord = referral[0];
+  const referrerId = referralRecord.referrerId;
+  const referralId = referralRecord.id;
+  const creditsToAward = 50;
+
+  console.log(`[Referral] Processing reward: ${creditsToAward} credits for referrer ${referrerId}`);
+
+  // Update referral status
+  await db
+    .update(referrals)
+    .set({
+      status: "rewarded",
+      completedAt: new Date(),
+      rewardedAt: new Date(),
+    })
+    .where(eq(referrals.id, referralId));
+
+  // Award credits to referrer
+  await db.execute(
+    sql`
+      UPDATE pdfprompt_user_subscription
+      SET 
+        credits_balance = COALESCE(credits_balance, 0) + ${creditsToAward},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE user_id = ${referrerId}
+    `
+  );
+
+  // Create reward record
+  await db.insert(referralRewards).values({
+    id: randomUUID(),
+    referralId,
+    userId: referrerId,
+    creditsAwarded: creditsToAward,
+    createdAt: new Date(),
+  });
+
+  // Log the reward
+  await db.insert(usageHistory).values({
+    id: randomUUID(),
+    userId: referrerId,
+    action: "referral_reward",
+    amount: creditsToAward,
+    metadata: {
+      referralId,
+      referredUserId: userId,
+      tier,
+    },
+    createdAt: new Date(),
+  });
+
+  console.log(`[Referral] Successfully awarded ${creditsToAward} credits to user ${referrerId}`);
 }
 
 /**

@@ -47,6 +47,14 @@ export const jobsRouter = createTRPCRouter({
           const now = new Date();
           const periodEnd = new Date(now);
           periodEnd.setMonth(periodEnd.getMonth() + 1);
+          
+          // Generate referral code
+          const hash = userId.split('').reduce((acc, char) => {
+            return ((acc << 5) - acc) + char.charCodeAt(0);
+          }, 0);
+          const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
+          const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
+          const referralCode = `REF${code}${timestamp}`;
 
           await db.insert(userSubscriptions).values({
             id: subId,
@@ -55,6 +63,7 @@ export const jobsRouter = createTRPCRouter({
             status: "active",
             pdfsUsedThisMonth: 0,
             storageUsedBytes: 0,
+            referralCode,
             periodStart: now,
             periodEnd,
           });

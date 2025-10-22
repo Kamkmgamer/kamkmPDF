@@ -91,6 +91,7 @@ export const userSubscriptions = createTable("user_subscription", (d) => ({
   pdfsUsedThisMonth: d.real().default(0).notNull(), // Changed to real to support fractional credits (0.5)
   storageUsedBytes: d.bigint({ mode: "number" }).default(0).notNull(),
   creditsBalance: d.integer().default(0).notNull(), // One-time credit purchases that never expire
+  referralCode: d.text().unique().notNull(), // Unique referral code for this user (e.g., "JOHN2024")
   periodStart: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -295,4 +296,31 @@ export const emailPreferences = createTable("email_preference", (d) => ({
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+}));
+
+// Referral tracking - stores who referred whom
+export const referrals = createTable("referral", (d) => ({
+  id: d.text().primaryKey(),
+  referrerId: d.text().notNull(), // User who sent the referral
+  referredUserId: d.text().notNull().unique(), // User who was referred (can only be referred once)
+  referralCode: d.text().notNull(), // The code that was used
+  status: d.varchar({ length: 32 }).default("pending").notNull(), // pending, completed, rewarded
+  completedAt: d.timestamp({ withTimezone: true }), // When the referred user subscribed to a paid tier
+  rewardedAt: d.timestamp({ withTimezone: true }), // When the referrer received their credits
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+}));
+
+// Referral rewards history - tracks all credits earned from referrals
+export const referralRewards = createTable("referral_reward", (d) => ({
+  id: d.text().primaryKey(),
+  referralId: d.text().references(() => referrals.id).notNull(),
+  userId: d.text().notNull(), // User who received the reward
+  creditsAwarded: d.integer().notNull(), // Number of credits awarded (typically 50)
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 }));

@@ -14,6 +14,20 @@ import {
   TIER_CONFIGS,
 } from "~/server/subscription/tiers";
 
+/**
+ * Generate a unique referral code based on user ID
+ */
+function generateReferralCode(userId: string): string {
+  const hash = userId.split('').reduce((acc, char) => {
+    return ((acc << 5) - acc) + char.charCodeAt(0);
+  }, 0);
+  
+  const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
+  const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
+  
+  return `REF${code}${timestamp}`;
+}
+
 export const subscriptionRouter = createTRPCRouter({
   /**
    * Get current user's subscription details
@@ -34,6 +48,7 @@ export const subscriptionRouter = createTRPCRouter({
       const now = new Date();
       const periodEnd = new Date(now);
       periodEnd.setMonth(periodEnd.getMonth() + 1);
+      const referralCode = generateReferralCode(userId);
 
       await db.insert(userSubscriptions).values({
         id,
@@ -42,6 +57,7 @@ export const subscriptionRouter = createTRPCRouter({
         status: "active",
         pdfsUsedThisMonth: 0,
         storageUsedBytes: 0,
+        referralCode,
         periodStart: now,
         periodEnd,
       });
