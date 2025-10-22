@@ -5,7 +5,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { api } from "~/trpc/react";
-import { X } from "lucide-react";
+import { X, Lightbulb, FileText, Briefcase, DollarSign, FlaskConical, Sparkles } from "lucide-react";
 import QuotaExceededModal from "~/_components/QuotaExceededModal";
 import SignInPromptModal from "~/_components/SignInPromptModal";
 
@@ -167,9 +167,17 @@ ${prompt.trim()}`
             <h1 className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 bg-clip-text text-4xl font-bold tracking-tight text-transparent">
               Create Your PDF
             </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Transform your ideas into beautiful documents with AI
+            <p className="mt-3 text-lg text-gray-700 dark:text-gray-300">
+              Instantly turn any idea into a ready-to-download PDF with AI — resumes, reports, proposals, and more.
             </p>
+            {!isSignedIn && (
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 ring-2 ring-green-200 dark:bg-green-900/30 dark:text-green-400 dark:ring-green-800">
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Generate up to 3 PDFs for free — no signup required
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
@@ -225,6 +233,14 @@ ${prompt.trim()}`
               </button>
             </div>
           </form>
+
+          {/* Frequently Generated PDFs */}
+          <FrequentlyGeneratedPDFs setPrompt={setPrompt} />
+
+          {/* Soft Upgrade CTA */}
+          {(!isSignedIn || subscription?.tier === "starter") && (
+            <SoftUpgradeCTA isSignedIn={isSignedIn} />
+          )}
         </div>
       </main>
 
@@ -283,6 +299,10 @@ function PromptEditor({
       <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
         Describe the document you want to create. Be specific for the best
         results.
+      </p>
+      <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400">
+        <Lightbulb className="h-3.5 w-3.5" />
+        Try it free — no sign-in required for 3 PDFs
       </p>
       <textarea
         id="prompt"
@@ -513,6 +533,134 @@ function useImageHandling(
   };
 
   return { validateAndSetImage, resetImage };
+}
+
+interface FrequentlyGeneratedPDFsProps {
+  setPrompt: (prompt: string) => void;
+}
+function FrequentlyGeneratedPDFs({ setPrompt }: FrequentlyGeneratedPDFsProps) {
+  const templates = [
+    {
+      title: "Professional Resume",
+      Icon: FileText,
+      color: "from-blue-500 to-cyan-500",
+      prompt: "Create a professional resume for a software engineer with 5 years of experience in React, TypeScript, and Node.js. Include sections for work experience, education, skills, and projects.",
+    },
+    {
+      title: "Business Proposal",
+      Icon: Briefcase,
+      color: "from-purple-500 to-pink-500",
+      prompt: "Create a business proposal for a web development agency offering services to small businesses. Include executive summary, service offerings, pricing structure, and case studies.",
+    },
+    {
+      title: "Invoice Template",
+      Icon: DollarSign,
+      color: "from-green-500 to-emerald-500",
+      prompt: "Create a professional invoice template for freelance services. Include company details, client information, itemized services, subtotal, tax, and total amount due.",
+    },
+    {
+      title: "Research Report",
+      Icon: FlaskConical,
+      color: "from-orange-500 to-red-500",
+      prompt: "Create a research report analyzing market trends in artificial intelligence and machine learning. Include introduction, methodology, findings, data visualizations, and conclusions.",
+    },
+  ];
+
+  return (
+    <div className="mt-12">
+      <div className="mb-6 text-center">
+        <h2 className="bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-2xl font-bold text-transparent dark:from-gray-300 dark:to-gray-100">
+          Frequently Generated PDFs
+        </h2>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          Get started quickly with these popular templates
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {templates.map((template, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => {
+              setPrompt(template.prompt);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+          >
+            <div className={`absolute inset-0 bg-gradient-to-br ${template.color} opacity-0 transition-opacity duration-300 group-hover:opacity-10`}></div>
+            <div className="relative">
+              <div className={`inline-flex rounded-xl bg-gradient-to-br ${template.color} p-2.5`}>
+                <template.Icon className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="mt-3 text-base font-bold text-gray-900 dark:text-white">
+                {template.title}
+              </h3>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Click to use template
+              </p>
+              <div className="mt-3 flex items-center text-xs font-semibold text-blue-600 dark:text-blue-400">
+                Generate
+                <svg className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface SoftUpgradeCTAProps {
+  isSignedIn: boolean;
+}
+function SoftUpgradeCTA({ isSignedIn }: SoftUpgradeCTAProps) {
+  return (
+    <div className="mt-12 rounded-3xl border-2 border-blue-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 text-center shadow-xl dark:border-blue-800/50 dark:from-blue-950/30 dark:to-indigo-950/30">
+      <div className="mx-auto max-w-2xl">
+        <h3 className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-2xl font-bold text-transparent">
+          {isSignedIn ? "Enjoying kamkmPDF?" : "Ready for More?"}
+        </h3>
+        <p className="mt-3 text-base text-gray-700 dark:text-gray-300">
+          {isSignedIn 
+            ? "Upgrade to remove watermarks, access the API, and generate unlimited PDFs."
+            : "Sign up to unlock watermark-free exports, priority generation, and access to all templates."}
+        </p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="flex items-center gap-2 rounded-lg bg-white/80 px-4 py-2 text-sm font-semibold text-gray-700 backdrop-blur-sm dark:bg-gray-800/80 dark:text-gray-300">
+            <svg className="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            No watermarks
+          </div>
+          <div className="flex items-center gap-2 rounded-lg bg-white/80 px-4 py-2 text-sm font-semibold text-gray-700 backdrop-blur-sm dark:bg-gray-800/80 dark:text-gray-300">
+            <svg className="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            Priority speed
+          </div>
+          <div className="flex items-center gap-2 rounded-lg bg-white/80 px-4 py-2 text-sm font-semibold text-gray-700 backdrop-blur-sm dark:bg-gray-800/80 dark:text-gray-300">
+            <svg className="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            API access
+          </div>
+        </div>
+        <div className="mt-6">
+          <a
+            href="/pricing"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-base font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          >
+            {isSignedIn ? "View Pricing" : "Get Started"}
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function toneSystemPrefix(tone: Tone) {
