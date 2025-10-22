@@ -13,6 +13,12 @@ export default tseslint.config(
   },
   ...compat.extends("next/core-web-vitals"),
   {
+    files: ["src/emails/**/*.tsx"],
+    rules: {
+      "react/no-unescaped-entities": "off",
+    },
+  },
+  {
     files: ["**/*.ts", "**/*.tsx"],
     plugins: {
       drizzle,

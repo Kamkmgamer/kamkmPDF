@@ -244,3 +244,55 @@ export const creditProducts = createTable("credit_product", (d) => ({
     .notNull(),
   updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
 }));
+
+// Email campaigns for automated marketing funnels
+export const emailCampaigns = createTable("email_campaign", (d) => ({
+  id: d.text().primaryKey(),
+  userId: d.text().notNull(),
+  campaignType: d.varchar({ length: 64 }).notNull(), // free_user_funnel, churned_user_funnel
+  emailType: d.varchar({ length: 64 }).notNull(), // welcome, quota_reminder, classic_offer, cancellation, winback, final_winback
+  scheduledFor: d.timestamp({ withTimezone: true }).notNull(), // When to send the email
+  sentAt: d.timestamp({ withTimezone: true }), // When it was actually sent
+  status: d.varchar({ length: 32 }).default("scheduled").notNull(), // scheduled, sent, failed, cancelled
+  metadata: d.jsonb().$type<{
+    pdfsUsed?: number;
+    pdfsRemaining?: number;
+    previousTier?: string;
+    endDate?: string;
+  }>(), // Additional data for email personalization
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+}));
+
+// Email campaign events for tracking opens, clicks, conversions
+export const emailCampaignEvents = createTable("email_campaign_event", (d) => ({
+  id: d.text().primaryKey(),
+  campaignId: d.text().references(() => emailCampaigns.id).notNull(),
+  userId: d.text().notNull(),
+  eventType: d.varchar({ length: 64 }).notNull(), // sent, opened, clicked, converted, unsubscribed
+  eventData: d.jsonb().$type<{
+    link?: string;
+    tier?: string;
+    revenue?: number;
+  }>(), // Additional event data
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+}));
+
+// User email preferences and unsubscribe tracking
+export const emailPreferences = createTable("email_preference", (d) => ({
+  id: d.text().primaryKey(),
+  userId: d.text().notNull().unique(),
+  unsubscribedFromMarketing: d.boolean().default(false).notNull(),
+  unsubscribedFromProduct: d.boolean().default(false).notNull(),
+  unsubscribedAt: d.timestamp({ withTimezone: true }),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+}));

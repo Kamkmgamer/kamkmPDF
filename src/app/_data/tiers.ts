@@ -1,4 +1,4 @@
-import { Sparkles, Users, Zap, Star, type LucideIcon } from "lucide-react";
+import { Sparkles, Users, Zap, Star, Crown, type LucideIcon } from "lucide-react";
 
 export type TierFeature = { text: string; included: boolean };
 export type Tier = {
@@ -12,23 +12,25 @@ export type Tier = {
   features: TierFeature[];
   cta: string;
   popular: boolean;
+  publiclyVisible: boolean; // Whether to show on pricing page
 };
 
 export const tiers: Tier[] = [
   {
     id: "starter",
-    name: "Starter",
+    name: "Free",
     icon: Sparkles,
     price: 0,
     priceYearly: 0,
-    description: "Perfect for exploring and casual use",
+    description: "Perfect for testing and exploring",
     color: "from-gray-400 to-gray-600",
+    publiclyVisible: true,
     features: [
-      { text: "5 PDFs per month", included: true },
+      { text: "3 PDFs per month", included: true },
       { text: "50 MB storage (30 days)", included: true },
       { text: "Basic templates (3)", included: true },
       { text: "Free AI models", included: true },
-      { text: "Watermark on exports", included: false },
+      { text: "Watermark on PDFs", included: false },
       { text: "2-5 minute processing", included: false },
       { text: "Community support", included: true },
       { text: "Premium templates", included: false },
@@ -42,10 +44,11 @@ export const tiers: Tier[] = [
     id: "classic",
     name: "Classic",
     icon: Star,
-    price: 1,
-    priceYearly: 10,
-    description: "Great for light regular use",
+    price: 5,
+    priceYearly: 50,
+    description: "Exclusive offer for valued users",
     color: "from-purple-400 to-purple-600",
+    publiclyVisible: false, // Hidden - only via email campaigns
     features: [
       { text: "50 PDFs per month", included: true },
       { text: "500 MB permanent storage", included: true },
@@ -69,6 +72,7 @@ export const tiers: Tier[] = [
     priceYearly: 120,
     description: "For freelancers and professionals",
     color: "from-blue-400 to-blue-600",
+    publiclyVisible: true,
     features: [
       { text: "5,000 PDFs per month", included: true },
       { text: "2 GB permanent storage", included: true },
@@ -92,6 +96,7 @@ export const tiers: Tier[] = [
     priceYearly: 790,
     description: "For teams and small businesses",
     color: "from-sky-400 to-sky-600",
+    publiclyVisible: true,
     features: [
       { text: "50,000 PDFs per month (pooled)", included: true },
       { text: "50 GB shared storage", included: true },
@@ -105,6 +110,30 @@ export const tiers: Tier[] = [
       { text: "Team collaboration (5 seats)", included: true },
     ],
     cta: "Upgrade to Business",
+    popular: false,
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    icon: Crown,
+    price: 500,
+    priceYearly: 5000,
+    description: "Custom solutions for large organizations",
+    color: "from-purple-500 to-pink-600",
+    publiclyVisible: true,
+    features: [
+      { text: "Unlimited PDFs", included: true },
+      { text: "Unlimited storage", included: true },
+      { text: "Custom templates", included: true },
+      { text: "Best AI models + custom training", included: true },
+      { text: "White-label options", included: true },
+      { text: "<15 second processing", included: true },
+      { text: "Unlimited version history", included: true },
+      { text: "Dedicated account manager", included: true },
+      { text: "Full API access + webhooks", included: true },
+      { text: "Unlimited team seats + SSO", included: true },
+    ],
+    cta: "Contact Sales",
     popular: false,
   },
 ];

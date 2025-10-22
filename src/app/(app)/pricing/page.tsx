@@ -107,7 +107,7 @@ export default function PricingPage() {
 
         {/* Pricing Cards */}
         <div className="mx-auto mt-12 grid max-w-7xl grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-          {tiers.map((tier, index) => {
+          {tiers.filter(tier => tier.publiclyVisible === true).map((tier, index) => {
             const Icon = tier.icon;
             const isCurrentTier = currentSub?.tier === tier.id;
 

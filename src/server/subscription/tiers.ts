@@ -14,6 +14,7 @@ export interface TierConfig {
   id: SubscriptionTier;
   name: string;
   description: string;
+  publiclyVisible: boolean; // Whether tier shows on pricing page
   price: {
     monthly: number;
     yearly: number;
@@ -48,14 +49,15 @@ export interface TierConfig {
 export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
   starter: {
     id: "starter",
-    name: "Starter",
-    description: "Perfect for exploring and casual use",
+    name: "Free",
+    description: "Perfect for testing and exploring",
+    publiclyVisible: true,
     price: {
       monthly: 0,
       yearly: 0,
     },
     quotas: {
-      pdfsPerMonth: 5,
+      pdfsPerMonth: 3,
       storageGB: 0.05, // 50 MB
       maxFileSize: 2, // 2 MB per PDF
       teamSeats: 1,
@@ -98,10 +100,11 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
   classic: {
     id: "classic",
     name: "Classic",
-    description: "Great for light regular use",
+    description: "Exclusive offer for our valued users",
+    publiclyVisible: false, // Hidden tier - only accessible via email campaigns
     price: {
-      monthly: 1,
-      yearly: 10,
+      monthly: 5,
+      yearly: 50,
     },
     quotas: {
       pdfsPerMonth: 50,
@@ -139,6 +142,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     id: "professional",
     name: "Professional",
     description: "For freelancers and professionals who need quality",
+    publiclyVisible: true,
     price: {
       monthly: 12,
       yearly: 120, // 17% discount
@@ -179,6 +183,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     id: "business",
     name: "Business",
     description: "For teams and small businesses",
+    publiclyVisible: true,
     price: {
       monthly: 79,
       yearly: 790, // 17% discount
@@ -219,6 +224,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     id: "enterprise",
     name: "Enterprise",
     description: "Custom solutions for large organizations",
+    publiclyVisible: true,
     price: {
       monthly: 500, // starting price, custom quotes
       yearly: 5000,
@@ -391,4 +397,18 @@ function getNextTier(currentTier: SubscriptionTier): SubscriptionTier | null {
 export function formatPrice(price: number): string {
   if (price === 0) return "Free";
   return `$${price}`;
+}
+
+/**
+ * Get only publicly visible tiers for pricing page
+ */
+export function getPublicTiers(): TierConfig[] {
+  return Object.values(TIER_CONFIGS).filter(tier => tier.publiclyVisible);
+}
+
+/**
+ * Get all tiers including hidden ones (for admin/internal use)
+ */
+export function getAllTiers(): TierConfig[] {
+  return Object.values(TIER_CONFIGS);
 }

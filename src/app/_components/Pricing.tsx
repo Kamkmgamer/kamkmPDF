@@ -220,7 +220,7 @@ export default function Pricing() {
 
         {/* Pricing Cards - Responsive Grid Layout */}
         <motion.div
-          className="mx-auto mb-24 grid max-w-7xl grid-cols-1 gap-6 pt-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+          className="mx-auto mb-24 grid max-w-7xl grid-cols-1 gap-6 pt-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
@@ -232,7 +232,7 @@ export default function Pricing() {
             },
           }}
         >
-          {tiers.map((plan) => {
+          {tiers.filter(tier => tier.publiclyVisible === true).map((plan) => {
             const Icon = plan.icon;
             const price =
               billingCycle === "yearly" ? plan.priceYearly : plan.price;
