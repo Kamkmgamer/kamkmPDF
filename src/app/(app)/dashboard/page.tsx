@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "~/_components/DashboardLayout";
 import JobsGallery from "~/_components/JobsGallery";
 import Onboarding from "~/_components/Onboarding";
+import { ProPlusBanner } from "~/_components/ProPlusBanner";
 import Link from "next/link";
 import { ArrowRight, FilePlus, BookOpen, Sparkles, Zap } from "lucide-react";
 
@@ -41,6 +42,8 @@ export default function DashboardPage() {
     <DashboardLayout>
       <Onboarding />
       <div className="space-y-8 p-4 sm:p-6 lg:p-8">
+        {/* Pro+ Banner */}
+        <ProPlusBanner />
         {/* Welcome Header with Animated Gradient */}
         <div className="relative overflow-hidden rounded-2xl border border-blue-100/50 bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-50 p-6 shadow-xl shadow-blue-500/5 sm:rounded-3xl sm:p-8 lg:p-10 dark:border-blue-900/30 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-sky-950/30">
           {/* Animated background orbs */}

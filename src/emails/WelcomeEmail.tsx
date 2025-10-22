@@ -76,7 +76,7 @@ export default function WelcomeEmail({ name, pdfsRemaining = 3 }: WelcomeEmailPr
 
           {/* Upgrade Teaser */}
           <Text style={text}>
-            <strong>Want more?</strong> Upgrade to Professional for unlimited PDFs, no watermarks, and premium AI models.
+            <strong>Want more?</strong> Upgrade to Professional or Pro+ for unlimited PDFs, no watermarks, and premium AI models with priority processing.
           </Text>
 
           <Section style={buttonContainer}>

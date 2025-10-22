@@ -1,8 +1,8 @@
-import { Sparkles, Users, Zap, Star, Crown, type LucideIcon } from "lucide-react";
+import { Sparkles, Users, Zap, Star, Crown, Rocket, type LucideIcon } from "lucide-react";
 
 export type TierFeature = { text: string; included: boolean };
 export type Tier = {
-  id: "starter" | "classic" | "professional" | "business" | "enterprise";
+  id: "starter" | "classic" | "professional" | "pro_plus" | "business" | "enterprise";
   name: string;
   icon: LucideIcon; // lucide icon component
   price: number;
@@ -68,8 +68,8 @@ export const tiers: Tier[] = [
     id: "professional",
     name: "Professional",
     icon: Zap,
-    price: 12,
-    priceYearly: 120,
+    price: 15,
+    priceYearly: 150,
     description: "For freelancers and professionals",
     color: "from-blue-400 to-blue-600",
     publiclyVisible: true,
@@ -86,6 +86,30 @@ export const tiers: Tier[] = [
       { text: "Team collaboration", included: false },
     ],
     cta: "Upgrade to Pro",
+    popular: false,
+  },
+  {
+    id: "pro_plus",
+    name: "Pro+",
+    icon: Rocket,
+    price: 30,
+    priceYearly: 300,
+    description: "Best for power users",
+    color: "from-amber-400 via-yellow-500 to-orange-500",
+    publiclyVisible: true,
+    features: [
+      { text: "10,000 PDFs per month (2x Pro)", included: true },
+      { text: "5 GB permanent storage", included: true },
+      { text: "Unlimited templates + early access", included: true },
+      { text: "Premium AI models + priority queue", included: true },
+      { text: "AI watermark removal", included: true },
+      { text: "<45 second processing", included: true },
+      { text: "Version history (25 versions)", included: true },
+      { text: "Priority support (12h response)", included: true },
+      { text: "API access (full)", included: true },
+      { text: "Bulk generation tools", included: true },
+    ],
+    cta: "Upgrade to Pro+",
     popular: true,
   },
   {

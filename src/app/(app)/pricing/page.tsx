@@ -82,7 +82,11 @@ export default function PricingPage() {
               }`}
             >
               Yearly
-              <span className="ml-2 rounded-full px-2 py-0.5 text-xs text-teal-100 dark:text-teal-200">
+              <span className={`relative rounded-full px-6 py-2 text-sm font-semibold transition-all ${
+                billingCycle === "yearly"
+                  ? "bg-clear"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}>
                 Save 17%
               </span>
             </button>
@@ -263,6 +267,7 @@ export default function PricingPage() {
                           tier={
                             tier.id as
                               | "professional"
+                              | "pro_plus"
                               | "business"
                               | "enterprise"
                           }

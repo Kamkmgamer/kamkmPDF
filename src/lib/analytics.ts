@@ -113,10 +113,37 @@ export function trackClassicOfferConversion(offerType: "exclusive" | "winback" |
   });
 }
 
+// Pro+ specific tracking
+export function trackProPlusUpgrade(fromTier: string, billingCycle: "monthly" | "yearly") {
+  trackEvent("pro_plus_upgrade", {
+    from_tier: fromTier,
+    to_tier: "pro_plus",
+    billing_cycle: billingCycle,
+    value: billingCycle === "yearly" ? 300 : 30,
+    currency: "USD",
+  });
+}
+
+export function trackProPlusDowngrade(toTier: string, reason?: string) {
+  trackEvent("pro_plus_downgrade", {
+    from_tier: "pro_plus",
+    to_tier: toTier,
+    reason: reason ?? "not_specified",
+  });
+}
+
+export function trackProPlusFeatureUsage(feature: "bulk_generation" | "api_access" | "watermark_removal") {
+  trackEvent("pro_plus_feature_used", {
+    feature,
+    tier: "pro_plus",
+  });
+}
+
 // Dashboard for conversion rates
 export interface ConversionMetrics {
   freeSignups: number;
   proUpgrades: number;
+  proPlusUpgrades: number;
   classicUpgrades: number;
   businessUpgrades: number;
   churnedUsers: number;

@@ -7,6 +7,7 @@ export type SubscriptionTier =
   | "starter"
   | "classic"
   | "professional"
+  | "pro_plus"
   | "business"
   | "enterprise";
 
@@ -144,8 +145,8 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     description: "For freelancers and professionals who need quality",
     publiclyVisible: true,
     price: {
-      monthly: 12,
-      yearly: 120, // 17% discount
+      monthly: 15,
+      yearly: 150, // 17% discount
     },
     quotas: {
       pdfsPerMonth: 5000,
@@ -173,6 +174,47 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     },
     models: [
       // Premium models for better quality
+      "x-ai/grok-4-fast",
+      "x-ai/grok-code-fast-1",
+      "moonshotai/kimi-k2:free",
+      "deepseek/deepseek-chat-v3.1:free",
+    ],
+  },
+  pro_plus: {
+    id: "pro_plus",
+    name: "Pro+",
+    description: "Best for power users who need maximum capacity",
+    publiclyVisible: true,
+    price: {
+      monthly: 30,
+      yearly: 300, // 17% discount
+    },
+    quotas: {
+      pdfsPerMonth: 10000, // Double of Professional
+      storageGB: 5, // 2.5x of Professional
+      maxFileSize: 15, // 15 MB per PDF
+      teamSeats: 1,
+      templatesAccess: "unlimited",
+    },
+    limits: {
+      maxPromptCharacters: 12000,
+    },
+    features: {
+      watermark: false, // AI watermark removal
+      priorityProcessing: true,
+      processingSpeed: "<45 seconds", // Faster than Professional
+      aiModel: "premium",
+      customBranding: false,
+      apiAccess: true, // API access included
+      teamCollaboration: false,
+      versionHistory: 25,
+      bulkGeneration: true, // Bulk generation enabled
+      analytics: true, // Analytics enabled
+      support: "priority", // Priority support
+      storageRetention: -1, // permanent
+    },
+    models: [
+      // Premium models with priority access
       "x-ai/grok-4-fast",
       "x-ai/grok-code-fast-1",
       "moonshotai/kimi-k2:free",
@@ -379,6 +421,7 @@ function getNextTier(currentTier: SubscriptionTier): SubscriptionTier | null {
     "starter",
     "classic",
     "professional",
+    "pro_plus",
     "business",
     "enterprise",
   ];

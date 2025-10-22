@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 
 interface UpgradeButtonProps {
-  tier: "professional" | "classic" | "business" | "enterprise";
+  tier: "professional" | "classic" | "pro_plus" | "business" | "enterprise";
   billingCycle?: "monthly" | "yearly";
   children: React.ReactNode;
   variant?: "primary" | "secondary";

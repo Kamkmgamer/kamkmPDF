@@ -53,12 +53,13 @@ export default function QuotaReminderEmail({
 
           {/* Usage Alert */}
           <Section style={warningBox}>
-            <Text style={warningText}>
-              <strong>⚠️ Almost at your limit!</strong>
+            <Text style={text}>
+              You're running low on PDFs! You've used {pdfsUsed} of your {pdfsTotal} monthly PDFs.
             </Text>
-            <Text style={warningSubtext}>
-              You've used <strong>{pdfsUsed} of {pdfsTotal}</strong> free PDFs this month.
-              <br />
+            <Text style={text}>
+              Upgrade to <strong>Professional</strong> for 5,000 PDFs per month, or <strong>Pro+</strong> for 10,000 PDFs with AI watermark removal and priority processing!
+            </Text>
+            <Text style={text}>
               Only <strong>{pdfsRemaining} PDF{pdfsRemaining !== 1 ? 's' : ''}</strong> remaining.
             </Text>
           </Section>
