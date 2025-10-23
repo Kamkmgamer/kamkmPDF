@@ -201,7 +201,7 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
             <p className="text-red-600 dark:text-red-400">{error}</p>
           </div>
         ) : documentFile ? (
-          <div className="w-full space-y-6 sm:space-y-8">
+          <div className="mx-auto w-full max-w-full">
             <Document
               file={documentFile}
               onLoadSuccess={onDocumentLoadSuccess}
@@ -223,14 +223,14 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
               }
             >
               {Array.from({ length: totalPages }, (_, index) => (
-                <div key={index + 1} className="flex w-full justify-center">
-                  <div className="rounded-lg bg-white p-2 shadow-xl ring-1 ring-gray-200 sm:p-3 dark:bg-gray-800 dark:ring-gray-700">
+                <div key={index + 1} className="mb-4 flex w-full justify-center last:mb-0 sm:mb-6">
+                  <div className="bg-white shadow-md dark:bg-gray-800">
                     <Page
                       pageNumber={index + 1}
                       width={getPageWidth()}
                       renderTextLayer={true}
                       renderAnnotationLayer={true}
-                      className="mx-auto max-w-full"
+                      className="max-w-full"
                       loading={
                         <div className="flex min-h-[400px] items-center justify-center p-4 text-center sm:min-h-[600px]">
                           <div>
