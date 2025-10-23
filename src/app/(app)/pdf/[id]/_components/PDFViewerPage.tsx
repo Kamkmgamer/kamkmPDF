@@ -224,11 +224,11 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   if (error || !job) {
     return (
       <ErrorBoundary>
-        <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
-          <div className="max-w-md text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
+          <div className="w-full max-w-md text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 sm:h-16 sm:w-16 dark:bg-red-900">
               <svg
-                className="h-8 w-8 text-red-600 dark:text-red-400"
+                className="h-7 w-7 text-red-600 sm:h-8 sm:w-8 dark:text-red-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -241,15 +241,15 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
                 />
               </svg>
             </div>
-            <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="mb-2 text-lg font-semibold text-gray-900 sm:text-xl dark:text-gray-100">
               Job not found
             </h2>
-            <p className="mb-6 text-gray-600 dark:text-gray-400">
+            <p className="mb-6 px-2 text-sm text-gray-600 sm:text-base dark:text-gray-400">
               {error?.message ?? "The requested job could not be found."}
             </p>
             <button
               onClick={() => refetch()}
-              className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 active:scale-95 sm:text-base"
             >
               Try Again
             </button>
@@ -264,22 +264,22 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
     // If we're regenerating, show the regeneration status
     if (isRegenerating) {
       return (
-        <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
-          <div className="max-w-md text-center">
-            <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-b-2 border-blue-600"></div>
-            <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
+          <div className="w-full max-w-md text-center">
+            <div className="mx-auto mb-4 h-14 w-14 animate-spin rounded-full border-b-2 border-blue-600 sm:h-16 sm:w-16"></div>
+            <h2 className="mb-2 text-lg font-semibold text-gray-900 sm:text-xl dark:text-gray-100">
               Regenerating PDF
             </h2>
-            <p className="mb-4 text-gray-600 dark:text-gray-400">
+            <p className="mb-4 px-2 text-sm text-gray-600 sm:text-base dark:text-gray-400">
               {regenerationStatus}
             </p>
-            <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+            <div className="mx-auto h-2 w-full max-w-xs rounded-full bg-gray-200 dark:bg-gray-700">
               <div
                 className="h-2 animate-pulse rounded-full bg-blue-600"
                 style={{ width: "60%" }}
               ></div>
             </div>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-3 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
               This may take a few moments...
             </p>
           </div>
@@ -323,8 +323,8 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
     return (
       <div className="flex min-h-screen flex-col overflow-x-hidden bg-gray-50 dark:bg-gray-900">
         {showReadyBanner && (
-          <div className="z-10 w-full bg-green-50 px-3 py-2 text-center text-sm text-green-700 shadow-sm sm:px-4 dark:bg-green-900/30 dark:text-green-200">
-            PDF ready. You can view, download, or share it now.
+          <div className="z-10 w-full bg-green-50 px-4 py-3 text-center text-xs font-medium text-green-700 shadow-sm sm:py-2 sm:text-sm dark:bg-green-900/30 dark:text-green-200">
+            ✓ PDF ready. You can view, download, or share it now.
           </div>
         )}
         <Toolbar
@@ -355,22 +355,22 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
 
             {/* Regeneration Status Overlay */}
             {isRegenerating && (
-              <div className="bg-opacity-50 absolute inset-0 z-50 flex items-center justify-center bg-black p-4">
-                <div className="mx-4 w-full max-w-sm rounded-lg bg-white p-4 text-center shadow-xl sm:max-w-md sm:p-6 dark:bg-gray-800">
-                  <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-b-2 border-blue-600 sm:mb-4 sm:h-12 sm:w-12"></div>
-                  <h3 className="mb-2 text-base font-semibold text-gray-900 sm:text-lg dark:text-gray-100">
+              <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+                <div className="w-full max-w-sm rounded-xl bg-white p-6 text-center shadow-2xl sm:max-w-md sm:p-8 dark:bg-gray-800">
+                  <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600 sm:mb-5 sm:h-14 sm:w-14"></div>
+                  <h3 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl dark:text-gray-100">
                     Regenerating PDF
                   </h3>
-                  <p className="mb-3 text-sm text-gray-600 sm:mb-4 sm:text-base dark:text-gray-400">
+                  <p className="mb-4 text-sm text-gray-600 sm:mb-5 sm:text-base dark:text-gray-400">
                     {regenerationStatus}
                   </p>
-                  <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+                  <div className="mx-auto h-2 w-full max-w-xs rounded-full bg-gray-200 dark:bg-gray-700">
                     <div
                       className="h-2 animate-pulse rounded-full bg-blue-600"
                       style={{ width: "60%" }}
                     ></div>
                   </div>
-                  <p className="mt-2 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
+                  <p className="mt-3 text-xs text-gray-500 sm:mt-4 sm:text-sm dark:text-gray-400">
                     This may take a few moments...
                   </p>
                 </div>

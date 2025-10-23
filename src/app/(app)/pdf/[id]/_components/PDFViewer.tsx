@@ -27,17 +27,18 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
   const [pdfSource, setPdfSource] = useState<PdfSource | null>(null);
   const [inlineLoaded, setInlineLoaded] = useState(false);
 
+  // Calculate base page width that fits viewport
+  const getPageWidth = () => {
+    if (typeof window === "undefined") return 600;
+    const viewportWidth = window.innerWidth;
+    const padding = viewportWidth < 640 ? 24 : 32; // Account for container padding
+    const maxWidth = viewportWidth < 640 ? viewportWidth - padding : 800;
+    return Math.min(maxWidth, 800) * zoom;
+  };
+
   useEffect(() => {
-    // dynamic initial zoom
-    if (typeof window !== "undefined") {
-      const w = window.innerWidth;
-      let z = 1;
-      if (w < 640) z = 1;
-      else if (w < 1024) z = 1.15;
-      else if (w < 1536) z = 1.4;
-      else z = 1.6;
-      setZoom(z);
-    }
+    // Start with 100% zoom, user can adjust
+    setZoom(1);
   }, []);
 
   useEffect(() => {
@@ -143,38 +144,38 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-gray-100 dark:bg-gray-800">
       {/* PDF Controls */}
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white p-3 sm:p-4 dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col gap-2 border-b border-gray-200 bg-white p-2 sm:flex-row sm:items-center sm:justify-between sm:p-4 dark:border-gray-700 dark:bg-gray-800">
+        <div className="flex items-center justify-center gap-2 sm:justify-start sm:gap-3">
           <button
             onClick={handleZoomOut}
-            className="min-h-10 min-w-10 rounded-md border border-gray-300 px-4 py-2 text-base leading-none transition-colors hover:bg-gray-50 sm:min-h-0 sm:min-w-0 sm:px-3 sm:py-1 sm:text-sm dark:border-gray-600 dark:hover:bg-gray-700"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 text-lg font-medium transition-colors hover:bg-gray-50 active:scale-95 sm:h-8 sm:w-8 sm:text-base dark:border-gray-600 dark:hover:bg-gray-700"
             aria-label="Zoom out"
           >
-            -
+            −
           </button>
           <button
             onClick={handleZoomReset}
-            className="min-h-10 min-w-10 rounded-md border border-gray-300 px-4 py-2 text-base leading-none transition-colors hover:bg-gray-50 sm:min-h-0 sm:min-w-0 sm:px-3 sm:py-1 sm:text-sm dark:border-gray-600 dark:hover:bg-gray-700"
+            className="flex h-10 min-w-[80px] items-center justify-center rounded-lg border border-gray-300 px-3 text-sm font-medium transition-colors hover:bg-gray-50 active:scale-95 sm:h-8 sm:min-w-[70px] dark:border-gray-600 dark:hover:bg-gray-700"
             aria-label={`Zoom level: ${Math.round(zoom * 100)}%`}
           >
             {Math.round(zoom * 100)}%
           </button>
           <button
             onClick={handleZoomIn}
-            className="min-h-10 min-w-10 rounded-md border border-gray-300 px-4 py-2 text-base leading-none transition-colors hover:bg-gray-50 sm:min-h-0 sm:min-w-0 sm:px-3 sm:py-1 sm:text-sm dark:border-gray-600 dark:hover:bg-gray-700"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 text-lg font-medium transition-colors hover:bg-gray-50 active:scale-95 sm:h-8 sm:w-8 sm:text-base dark:border-gray-600 dark:hover:bg-gray-700"
             aria-label="Zoom in"
           >
             +
           </button>
         </div>
 
-        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <span>{totalPages} pages</span>
+        <div className="flex items-center justify-center text-xs font-medium text-gray-600 sm:text-sm dark:text-gray-400">
+          <span>{totalPages} {totalPages === 1 ? 'page' : 'pages'}</span>
         </div>
       </div>
 
       {/* PDF Content Area */}
-      <div className="flex flex-1 items-center justify-center overflow-x-hidden overflow-y-auto bg-gray-200 p-2 sm:p-4 dark:bg-gray-700">
+      <div className="flex flex-1 items-start justify-center overflow-auto bg-gray-200 p-2 sm:p-4 md:p-6 dark:bg-gray-700">
         {urlLoading || isLoading ? (
           <div className="text-center">
             <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
@@ -200,7 +201,7 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
             <p className="text-red-600 dark:text-red-400">{error}</p>
           </div>
         ) : documentFile ? (
-          <div className="max-h-full w-full max-w-full min-w-0 flex-1 overflow-x-hidden overflow-y-auto rounded-lg bg-white shadow-lg md:mx-auto md:max-w-[1000px] dark:bg-gray-800">
+          <div className="mx-auto w-full overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
             <Document
               file={documentFile}
               onLoadSuccess={onDocumentLoadSuccess}
@@ -222,26 +223,32 @@ export function PDFViewer({ fileId, _job }: PDFViewerProps) {
               }
             >
               {Array.from({ length: totalPages }, (_, index) => (
-                <Page
-                  key={index + 1}
-                  pageNumber={index + 1}
-                  scale={zoom}
-                  loading={
-                    <div className="p-4 text-center">
-                      <div className="mx-auto mb-2 h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Loading page...
-                      </p>
-                    </div>
-                  }
-                  error={
-                    <div className="p-4 text-center">
-                      <p className="text-red-600 dark:text-red-400">
-                        Failed to load page
-                      </p>
-                    </div>
-                  }
-                />
+                <div key={index + 1} className="mb-4 flex w-full justify-center overflow-hidden last:mb-0">
+                  <Page
+                    pageNumber={index + 1}
+                    width={getPageWidth()}
+                    renderTextLayer={true}
+                    renderAnnotationLayer={true}
+                    className="mx-auto max-w-full"
+                    loading={
+                      <div className="flex min-h-[400px] items-center justify-center p-4 text-center sm:min-h-[600px]">
+                        <div>
+                          <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Loading page {index + 1}...
+                          </p>
+                        </div>
+                      </div>
+                    }
+                    error={
+                      <div className="flex min-h-[400px] items-center justify-center p-4 text-center">
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                          Failed to load page {index + 1}
+                        </p>
+                      </div>
+                    }
+                  />
+                </div>
               ))}
             </Document>
           </div>

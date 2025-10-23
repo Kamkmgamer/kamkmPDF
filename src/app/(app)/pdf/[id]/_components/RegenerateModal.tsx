@@ -153,23 +153,23 @@ export function RegenerateModal({
         onClick={handleClose}
       >
         <motion.div
-          className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900"
+          className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-2xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-900"
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white/95 px-6 py-4 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500">
-                <Sparkles className="h-5 w-5 text-white" />
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white/95 px-4 py-4 backdrop-blur-sm sm:px-6 dark:border-gray-700 dark:bg-gray-900/95">
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 sm:h-10 sm:w-10 sm:rounded-xl">
+                <Sparkles className="h-4 w-4 text-white sm:h-5 sm:w-5" />
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <div className="min-w-0">
+                <h2 className="truncate text-base font-bold text-gray-900 sm:text-xl dark:text-white">
                   Regenerate or Modify PDF
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="hidden text-sm text-gray-600 sm:block dark:text-gray-400">
                   Edit your document with AI assistance
                 </p>
               </div>
@@ -177,17 +177,17 @@ export function RegenerateModal({
             <button
               onClick={handleClose}
               disabled={isRegenerating}
-              className="rounded-full p-2 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-gray-800"
+              className="flex-shrink-0 rounded-full p-2 transition-colors hover:bg-gray-100 active:scale-95 disabled:opacity-50 dark:hover:bg-gray-800"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="space-y-6 p-6">
+          <div className="space-y-5 p-4 sm:space-y-6 sm:p-6">
             {/* Description */}
-            <div className="rounded-2xl bg-blue-50 p-4 dark:bg-blue-950/30">
-              <p className="text-sm text-blue-900 dark:text-blue-300">
+            <div className="rounded-xl bg-blue-50 p-3 sm:rounded-2xl sm:p-4 dark:bg-blue-950/30">
+              <p className="text-xs leading-relaxed text-blue-900 sm:text-sm dark:text-blue-300">
                 You can reuse your last prompt, write a new one to add comments
                 or edits, or upload images to replace placeholders. The AI will
                 use your previous PDF as a base template.
@@ -196,10 +196,10 @@ export function RegenerateModal({
 
             {/* Original Prompt Display */}
             <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <label className="mb-2 block text-xs font-semibold text-gray-700 sm:text-sm dark:text-gray-300">
                 Original Prompt
               </label>
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700 sm:rounded-xl sm:p-4 sm:text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
                 {job.prompt ?? "No prompt available"}
               </div>
             </div>
@@ -208,7 +208,7 @@ export function RegenerateModal({
             <div>
               <label
                 htmlFor="new-prompt"
-                className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
+                className="mb-2 block text-xs font-semibold text-gray-700 sm:text-sm dark:text-gray-300"
               >
                 New Instructions (Optional)
               </label>
@@ -218,24 +218,24 @@ export function RegenerateModal({
                 onChange={(e) => setNewPrompt(e.target.value)}
                 disabled={isRegenerating}
                 placeholder="Write a new prompt or leave empty to use the previous one.&#10;Example: Add a summary section, Change the title to..."
-                className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
+                className="w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 sm:rounded-xl sm:px-4 sm:py-3 sm:text-sm sm:focus:ring-4 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
                 rows={4}
               />
             </div>
 
             {/* Image Upload Area */}
             <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <label className="mb-2 block text-xs font-semibold text-gray-700 sm:text-sm dark:text-gray-300">
                 Upload New Images (Optional)
               </label>
 
               {/* Image Previews */}
               {imagePreviews.length > 0 && (
-                <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="mb-3 grid grid-cols-2 gap-2 sm:mb-4 sm:grid-cols-3 sm:gap-3">
                   {imagePreviews.map((preview, index) => (
                     <div
                       key={index}
-                      className="group relative aspect-square overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700"
+                      className="group relative aspect-square overflow-hidden rounded-lg border-2 border-gray-200 sm:rounded-xl dark:border-gray-700"
                     >
                       <Image
                         src={preview}
@@ -246,7 +246,7 @@ export function RegenerateModal({
                       <button
                         onClick={() => removeImage(index)}
                         disabled={isRegenerating}
-                        className="absolute top-2 right-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-50"
+                        className="absolute top-1.5 right-1.5 rounded-full bg-red-500 p-1.5 text-white opacity-100 transition-opacity group-hover:opacity-100 disabled:opacity-50 sm:top-2 sm:right-2 sm:opacity-0"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -261,7 +261,7 @@ export function RegenerateModal({
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className={`relative rounded-xl border-2 border-dashed p-8 transition-all ${
+                className={`relative rounded-lg border-2 border-dashed p-6 transition-all sm:rounded-xl sm:p-8 ${
                   dragActive
                     ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
                     : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-800"
@@ -280,10 +280,10 @@ export function RegenerateModal({
                   htmlFor="image-upload"
                   className="flex cursor-pointer flex-col items-center justify-center text-center"
                 >
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
-                    <Upload className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                  <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 sm:mb-3 sm:h-12 sm:w-12 dark:bg-gray-700">
+                    <Upload className="h-5 w-5 text-gray-600 sm:h-6 sm:w-6 dark:text-gray-400" />
                   </div>
-                  <p className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <p className="mb-1 text-xs font-medium text-gray-700 sm:text-sm dark:text-gray-300">
                     Drag & drop images or{" "}
                     <span className="text-blue-600 dark:text-blue-400">
                       browse
@@ -301,18 +301,18 @@ export function RegenerateModal({
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 rounded-xl bg-red-50 p-4 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400"
+                className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-xs text-red-600 sm:rounded-xl sm:p-4 sm:text-sm dark:bg-red-950/30 dark:text-red-400"
               >
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                <span>{error}</span>
+                <span className="break-words">{error}</span>
               </motion.div>
             )}
 
             {/* Credit Info */}
-            <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-4 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900">
+            <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-3 sm:rounded-2xl sm:p-4 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <p className="text-xs font-semibold text-gray-700 sm:text-sm dark:text-gray-300">
                     Credit Cost
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -322,7 +322,7 @@ export function RegenerateModal({
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
                     {creditCost}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -331,7 +331,7 @@ export function RegenerateModal({
                 </div>
               </div>
               {!hasEnoughCredits && (
-                <div className="mt-3 flex items-center gap-2 rounded-lg bg-yellow-50 p-3 text-xs text-yellow-800 dark:bg-yellow-950/30 dark:text-yellow-300">
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-yellow-50 p-2 text-xs text-yellow-800 sm:mt-3 sm:p-3 dark:bg-yellow-950/30 dark:text-yellow-300">
                   <AlertCircle className="h-4 w-4 flex-shrink-0" />
                   <span>
                     You don&lsquo;t have enough credits. Please upgrade your
@@ -343,33 +343,33 @@ export function RegenerateModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="sticky bottom-0 flex flex-col gap-3 border-t border-gray-200 bg-white/95 px-6 py-4 backdrop-blur-sm sm:flex-row dark:border-gray-700 dark:bg-gray-900/95">
+          <div className="sticky bottom-0 flex flex-col gap-2 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur-sm sm:flex-row sm:gap-3 sm:px-6 sm:py-4 dark:border-gray-700 dark:bg-gray-900/95">
             <button
               onClick={() => handleSubmit("same")}
               disabled={isRegenerating || !hasEnoughCredits}
-              className="group relative flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-gray-200 bg-white px-6 py-3 font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="group relative flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-lg border-2 border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-6 sm:py-3 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               {isRegenerating ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin sm:h-5 sm:w-5" />
               ) : (
-                <Sparkles className="h-5 w-5" />
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
               <span>Same Prompt</span>
-              <span className="text-xs text-gray-500">(1 credit)</span>
+              <span className="hidden text-xs text-gray-500 sm:inline">(1 credit)</span>
             </button>
 
             <button
               onClick={() => handleSubmit("edit")}
               disabled={isRegenerating || !hasEnoughCredits || !hasNewContent}
-              className="group relative flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-cyan-500/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+              className="group relative flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-cyan-500/50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 sm:rounded-xl sm:px-6 sm:py-3"
             >
               {isRegenerating ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin sm:h-5 sm:w-5" />
               ) : (
-                <ImageIcon className="h-5 w-5" />
+                <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
               <span>With New Content</span>
-              <span className="text-xs opacity-90">(0.5 credits)</span>
+              <span className="hidden text-xs opacity-90 sm:inline">(0.5 credits)</span>
             </button>
           </div>
         </motion.div>

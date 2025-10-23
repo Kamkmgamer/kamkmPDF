@@ -24,15 +24,15 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
-      <div className="w-full max-w-md rounded-lg bg-white shadow-xl dark:bg-gray-800">
-        <div className="flex items-center justify-between border-b border-gray-200 p-4 sm:p-6 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+        <div className="flex items-center justify-between border-b border-gray-200 p-5 sm:p-6 dark:border-gray-700">
+          <h2 className="text-lg font-bold text-gray-900 sm:text-xl dark:text-gray-100">
             Share PDF
           </h2>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 active:scale-95 dark:hover:bg-gray-700 dark:hover:text-gray-300"
             aria-label="Close modal"
           >
             <svg
@@ -51,8 +51,8 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
           </button>
         </div>
 
-        <div className="p-4 sm:p-6">
-          <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        <div className="p-5 sm:p-6">
+          <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
             Anyone with this link can view your PDF. The link will expire in 24
             hours.
           </p>
@@ -62,16 +62,16 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
               type="text"
               value={shareUrl}
               readOnly
-              className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+              className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
             />
             <button
               onClick={handleCopy}
-              className="flex w-full items-center justify-center space-x-2 rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 active:scale-95 sm:w-auto sm:py-2.5"
             >
               {copied ? (
                 <>
                   <svg
-                    className="h-4 w-4"
+                    className="h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -88,7 +88,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
               ) : (
                 <>
                   <svg
-                    className="h-4 w-4"
+                    className="h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -107,10 +107,10 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
           </div>
         </div>
 
-        <div className="flex justify-end border-t border-gray-200 p-4 sm:p-6 dark:border-gray-700">
+        <div className="flex justify-end border-t border-gray-200 p-5 sm:p-6 dark:border-gray-700">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 transition-colors hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 active:scale-95 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
           >
             Close
           </button>

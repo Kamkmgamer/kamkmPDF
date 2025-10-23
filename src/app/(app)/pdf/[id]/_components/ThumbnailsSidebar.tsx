@@ -140,25 +140,25 @@ export function ThumbnailsSidebar({
     <>
       {/* Mobile Overlay */}
       <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
         onClick={onClose}
       />
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-[--color-border] bg-[--color-surface] transition-transform duration-300 ease-in-out md:static ${isOpen ? "translate-x-0" : "-translate-x-full"} md:block md:translate-x-0`}
+        className={`fixed inset-y-0 left-0 z-50 w-72 transform border-r border-[--color-border] bg-[--color-surface] shadow-2xl transition-transform duration-300 ease-in-out sm:w-80 md:static md:w-64 md:shadow-none ${isOpen ? "translate-x-0" : "-translate-x-full"} md:block md:translate-x-0`}
       >
-        <div className="flex items-center justify-between border-b border-[--color-border] p-4">
-          <h3 className="text-sm font-semibold text-[--color-text-primary]">
+        <div className="flex items-center justify-between border-b border-[--color-border] p-4 sm:p-5 md:p-4">
+          <h3 className="text-base font-bold text-[--color-text-primary] sm:text-lg md:text-sm">
             Pages ({totalPages})
           </h3>
           <button
             onClick={onClose}
-            className="rounded-md p-1 hover:bg-[--color-base] md:hidden"
+            className="rounded-lg p-2 transition-colors hover:bg-[--color-base] active:scale-95 md:hidden"
             aria-label="Close thumbnails"
           >
             <svg
-              className="h-5 w-5"
+              className="h-5 w-5 sm:h-6 sm:w-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -174,7 +174,7 @@ export function ThumbnailsSidebar({
         </div>
 
         {/* Thumbnails Container */}
-        <div className="max-h-[calc(100vh-80px)] flex-1 space-y-2 overflow-y-auto p-2 md:max-h-[calc(100vh-200px)]">
+        <div className="max-h-[calc(100vh-80px)] flex-1 space-y-2.5 overflow-y-auto p-3 sm:space-y-3 sm:p-4 md:max-h-[calc(100vh-200px)] md:space-y-2 md:p-2">
           {isLoading || !DocumentComponent || !PageComponent ? (
             <div className="flex items-center justify-center py-8">
               <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
@@ -227,22 +227,22 @@ function ThumbnailItem({
   return (
     <button
       onClick={onClick}
-      className={`w-full rounded-lg border-2 p-2 text-left transition-all duration-200 ${
+      className={`w-full rounded-lg border-2 p-2.5 text-left transition-all duration-200 active:scale-95 sm:p-3 md:p-2 ${
         isSelected
-          ? "border-[--color-primary] bg-blue-500/10"
+          ? "border-[--color-primary] bg-blue-500/10 shadow-sm"
           : "border-[--color-border] hover:bg-[--color-base]"
       } `}
       aria-label={`Go to page ${pageNumber}`}
       aria-current={isSelected ? "page" : undefined}
     >
-      <div className="flex items-center space-x-3">
-        <div className="h-16 w-12 flex-shrink-0 overflow-hidden rounded border bg-[--color-base]">
+      <div className="flex items-center gap-3">
+        <div className="h-20 w-16 flex-shrink-0 overflow-hidden rounded border bg-[--color-base] sm:h-24 sm:w-20 md:h-16 md:w-12">
           <PageComponent
             pageNumber={pageNumber}
             scale={0.2}
             loading={
               <div className="flex h-full w-full items-center justify-center">
-                <div className="h-3 w-3 animate-spin rounded-full border-b-2 border-[--color-text-muted]"></div>
+                <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-[--color-text-muted]"></div>
               </div>
             }
             error={
@@ -253,7 +253,7 @@ function ThumbnailItem({
           />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[--color-text-primary]">
+          <p className="text-sm font-semibold text-[--color-text-primary] sm:text-base md:text-sm">
             Page {pageNumber}
           </p>
         </div>
