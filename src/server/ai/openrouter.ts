@@ -46,7 +46,8 @@ export async function wrapHtmlDocument(
           font-style: normal;
           font-weight: 400;
           font-display: swap;
-          src: url(data:font/woff2;charset=utf-8;base64,${arabicFontBase64}) format('woff2');
+          /* Using truetype format as it's more widely available from Google Fonts */
+          src: url(data:font/truetype;charset=utf-8;base64,${arabicFontBase64}) format('truetype');
         }`
     : "";
 
