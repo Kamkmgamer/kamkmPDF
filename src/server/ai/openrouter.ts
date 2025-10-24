@@ -8,14 +8,13 @@ export interface GenerateHtmlOptions {
   prompt: string;
   model?: string;
   brandName?: string;
-  tier?: SubscriptionTier; // Add tier to determine which models to use
+  tier?: SubscriptionTier;
 }
 
 const OPENROUTER_BASE =
   env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
 
 function extractHtmlFromContent(content: string): string {
-  // If content contains a fenced html block, extract it
   const fence = /```html\s*([\s\S]*?)```/i.exec(content);
   if (fence?.[1]) return fence[1].trim();
   const genericFence = /```\s*([\s\S]*?)```/.exec(content);
@@ -36,24 +35,13 @@ export function wrapHtmlDocument(
       </div>`
     : "";
 
-  if (hasHtmlTag) {
-    // If already has HTML tag, inject watermark before closing body tag
-    if (addWatermark) {
-      return bodyOrDoc.replace(/<\/body>/i, `${watermarkHtml}</body>`);
-    }
-    return bodyOrDoc;
-  }
-
-  return `<!doctype html>
-  <html lang="en">
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>${title}</title>
-      <style>
+  const bidiAndFontCss = `
         :root { --text:#0f172a; --muted:#475569; --accent:#0ea5e9; }
         * { box-sizing: border-box; }
-        body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji"; margin: 0; padding: 40px; color: var(--text); }
+        html { direction: auto; }
+        body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Noto Naskh Arabic", "Noto Sans Arabic", Amiri, sans-serif; margin: 0; padding: 40px; color: var(--text); }
+        /* Ensure Arabic segments render with RTL flow and Arabic-capable fonts when language tags are present */
+        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: plaintext; font-family: "Noto Naskh Arabic", "Noto Sans Arabic", Amiri, Arial, sans-serif; }
         h1, h2, h3 { margin: 0 0 12px; }
         h1 { font-size: 28px; }
         h2 { font-size: 20px; }
@@ -63,6 +51,37 @@ export function wrapHtmlDocument(
         .section { margin: 24px 0; }
         table { border-collapse: collapse; width: 100%; }
         th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+  `;
+
+  if (hasHtmlTag) {
+    let doc = bodyOrDoc;
+    doc = doc.replace(/<html(?![^>]*\bdir=)/i, '<html dir="auto"');
+
+    if (/<\/head>/i.test(doc)) {
+      doc = doc.replace(/<\/head>/i, `<style>${bidiAndFontCss}</style></head>`);
+    } else if (/<body[^>]*>/i.test(doc)) {
+      doc = doc.replace(
+        /<body[^>]*>/i,
+        (m) => `${m}<style>${bidiAndFontCss}</style>`,
+      );
+    } else {
+      doc = `<style>${bidiAndFontCss}</style>` + doc;
+    }
+
+    if (addWatermark) {
+      doc = doc.replace(/<\/body>/i, `${watermarkHtml}</body>`);
+    }
+    return doc;
+  }
+
+  return `<!doctype html>
+  <html lang="en" dir="auto">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>${title}</title>
+      <style>
+${bidiAndFontCss}
       </style>
     </head>
     <body>
@@ -84,7 +103,7 @@ export async function generateHtmlFromPrompt({
   prompt,
   model,
   brandName,
-  tier = "starter", // Default to starter tier
+  tier = "starter",
 }: GenerateHtmlOptions): Promise<string> {
   const apiKey = env.OPENROUTER_API_KEY;
   if (!apiKey) {
@@ -97,7 +116,6 @@ export async function generateHtmlFromPrompt({
 - Inline minimal CSS suitable for printing on A4, and ensure good typography, spacing, and readability.
 - Avoid external resources; embed all styling inline.`;
 
-  // Build headers defensively: only ASCII in header values
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${apiKey}`,
@@ -107,12 +125,9 @@ export async function generateHtmlFromPrompt({
   }
   if (brandName) {
     const asciiOnly = brandName.replace(/[^\x00-\x7F]/g, "-");
-    // Only set if after normalization it is non-empty
     if (asciiOnly.trim().length > 0) headers["X-Title"] = asciiOnly;
   }
 
-  // Build the prioritized model list based on tier
-  // If model is explicitly provided, use that; otherwise use tier-based models
   const models: string[] = model
     ? model
         .split(",")
@@ -142,7 +157,6 @@ export async function generateHtmlFromPrompt({
         return extractHtmlFromContent(content);
       }
       attemptErrors.push(`Model ${currentModel} -> ok but empty content`);
-      // try next model
       continue;
     }
 
@@ -150,10 +164,9 @@ export async function generateHtmlFromPrompt({
     attemptErrors.push(
       `Model ${currentModel} -> ${res.status}: ${text?.slice(0, 500)}`,
     );
-    // Try next model in list
+    continue;
   }
 
-  // Exhausted all models
   throw new Error(
     `OpenRouter failed after trying models in order: ${models.join(", ")}.\n` +
       attemptErrors.join("\n---\n"),
