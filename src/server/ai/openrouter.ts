@@ -35,17 +35,15 @@ export function wrapHtmlDocument(
       </div>`
     : "";
 
-  // Import Arabic-capable fonts from Google Fonts for reliable rendering in Puppeteer
-  const arabicFontImport = `@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');`;
-
+  // Use system fonts with Arabic fallback support for serverless compatibility
+  // Avoid external @import as it causes network timeouts in Netlify/serverless Chromium
   const bidiAndFontCss = `
-        ${arabicFontImport}
         :root { --text:#0f172a; --muted:#475569; --accent:#0ea5e9; }
         * { box-sizing: border-box; }
         html { direction: auto; }
-        body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans Arabic", "Noto Naskh Arabic", sans-serif; margin: 0; padding: 40px; color: var(--text); }
-        /* Ensure Arabic segments render with RTL flow and prioritize Arabic fonts */
-        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: plaintext; font-family: "Noto Naskh Arabic", "Noto Sans Arabic", Arial, sans-serif; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; margin: 0; padding: 40px; color: var(--text); }
+        /* Ensure Arabic segments render with RTL flow and use available system Arabic fonts */
+        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: embed; font-family: "Traditional Arabic", "Simplified Arabic", "Arabic Typesetting", "Geeza Pro", Arial, sans-serif; }
         h1, h2, h3 { margin: 0 0 12px; }
         h1 { font-size: 28px; }
         h2 { font-size: 20px; }
