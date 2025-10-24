@@ -70,9 +70,8 @@ export default async function htmlToPdfToPath(
   }
   try {
     const page = await browser.newPage();
-    // Use domcontentloaded only to avoid waiting for external resources in serverless
     await page.setContent(html, {
-      waitUntil: "domcontentloaded",
+      waitUntil: ["domcontentloaded", "networkidle0"],
     });
     await page.emulateMediaType("screen");
 
@@ -148,9 +147,8 @@ export async function htmlToPdfToBuffer(
   }
   try {
     const page = await browser.newPage();
-    // Use domcontentloaded only to avoid waiting for external resources in serverless
     await page.setContent(html, {
-      waitUntil: "domcontentloaded",
+      waitUntil: ["domcontentloaded", "networkidle0"],
     });
     await page.emulateMediaType("screen");
 

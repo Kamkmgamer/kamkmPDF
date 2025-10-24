@@ -3,7 +3,6 @@ import {
   getModelsForTier,
   type SubscriptionTier,
 } from "~/server/subscription/tiers";
-import { getArabicFontBase64 } from "~/server/fonts/arabicFontBase64";
 
 export interface GenerateHtmlOptions {
   prompt: string;
@@ -23,11 +22,11 @@ function extractHtmlFromContent(content: string): string {
   return content.trim();
 }
 
-export async function wrapHtmlDocument(
+export function wrapHtmlDocument(
   bodyOrDoc: string,
   title = "Generated Document",
   addWatermark = false,
-): Promise<string> {
+): string {
   const hasHtmlTag = /<html[\s\S]*?>[\s\S]*<\/html>/i.test(bodyOrDoc);
 
   const watermarkHtml = addWatermark
@@ -36,29 +35,17 @@ export async function wrapHtmlDocument(
       </div>`
     : "";
 
-  // Load embedded Arabic font as base64 for serverless environments
-  // This ensures Arabic glyphs render correctly without relying on system fonts
-  const arabicFontBase64 = await getArabicFontBase64();
-
-  const arabicFontFace = arabicFontBase64
-    ? `@font-face {
-          font-family: 'Noto Sans Arabic';
-          font-style: normal;
-          font-weight: 400;
-          font-display: swap;
-          /* Using truetype format as it's more widely available from Google Fonts */
-          src: url(data:font/truetype;charset=utf-8;base64,${arabicFontBase64}) format('truetype');
-        }`
-    : "";
+  // Import Arabic-capable fonts from Google Fonts for reliable rendering in Puppeteer
+  const arabicFontImport = `@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');`;
 
   const bidiAndFontCss = `
-        ${arabicFontFace}
+        ${arabicFontImport}
         :root { --text:#0f172a; --muted:#475569; --accent:#0ea5e9; }
         * { box-sizing: border-box; }
         html { direction: auto; }
-        body { font-family: "Noto Sans Arabic", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 40px; color: var(--text); }
-        /* Ensure Arabic segments render with RTL flow */
-        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: embed; font-family: "Noto Sans Arabic", Arial, sans-serif; }
+        body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans Arabic", "Noto Naskh Arabic", sans-serif; margin: 0; padding: 40px; color: var(--text); }
+        /* Ensure Arabic segments render with RTL flow and prioritize Arabic fonts */
+        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: plaintext; font-family: "Noto Naskh Arabic", "Noto Sans Arabic", Arial, sans-serif; }
         h1, h2, h3 { margin: 0 0 12px; }
         h1 { font-size: 28px; }
         h2 { font-size: 20px; }
