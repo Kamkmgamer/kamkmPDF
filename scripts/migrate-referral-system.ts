@@ -10,13 +10,13 @@ import { sql } from "drizzle-orm";
  * Generate a unique referral code based on user ID
  */
 function generateReferralCode(userId: string): string {
-  const hash = userId.split('').reduce((acc, char) => {
-    return ((acc << 5) - acc) + char.charCodeAt(0);
+  const hash = userId.split("").reduce((acc, char) => {
+    return (acc << 5) - acc + char.charCodeAt(0);
   }, 0);
-  
+
   const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
   const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
-  
+
   return `REF${code}${timestamp}`;
 }
 
@@ -63,9 +63,9 @@ async function migrateReferralCodes() {
       let updated = 0;
 
       for (const user of usersList) {
-        const userId = (user as any).userId as string;
+        const userId = (user as { userId: string }).userId;
         const referralCode = generateReferralCode(userId);
-        
+
         await db.execute(sql`
           UPDATE pdfprompt_user_subscription 
           SET referral_code = ${referralCode}
@@ -73,12 +73,14 @@ async function migrateReferralCodes() {
         `);
 
         updated++;
-        
+
         // Add small delay to ensure timestamp uniqueness
-        await new Promise(resolve => setTimeout(resolve, 10));
-        
+        await new Promise((resolve) => setTimeout(resolve, 10));
+
         if (updated % 10 === 0) {
-          console.log(`   Progress: ${updated}/${usersList.length} users updated`);
+          console.log(
+            `   Progress: ${updated}/${usersList.length} users updated`,
+          );
         }
       }
 
@@ -113,18 +115,20 @@ async function migrateReferralCodes() {
       WHERE referral_code IS NULL
     `);
 
-    const count = Array.isArray(nullCount) && nullCount.length > 0 
-      ? Number((nullCount[0] as any)?.count ?? 0) 
-      : 0;
-    
+    const count =
+      Array.isArray(nullCount) && nullCount.length > 0
+        ? Number((nullCount[0] as { count: number | string })?.count ?? 0)
+        : 0;
+
     if (count > 0) {
-      throw new Error(`Migration incomplete: ${count} users still have NULL referral_code`);
+      throw new Error(
+        `Migration incomplete: ${count} users still have NULL referral_code`,
+      );
     }
 
     console.log("   ✅ All users have valid referral codes\n");
     console.log("🎉 Migration completed successfully!\n");
     console.log("Next step: Run 'pnpm db:push' to create the referral tables");
-
   } catch (error) {
     console.error("❌ Migration failed:", error);
     throw error;
