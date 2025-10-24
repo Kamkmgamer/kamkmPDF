@@ -35,13 +35,17 @@ export function wrapHtmlDocument(
       </div>`
     : "";
 
+  // Import Arabic-capable fonts from Google Fonts for reliable rendering in Puppeteer
+  const arabicFontImport = `@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');`;
+
   const bidiAndFontCss = `
+        ${arabicFontImport}
         :root { --text:#0f172a; --muted:#475569; --accent:#0ea5e9; }
         * { box-sizing: border-box; }
         html { direction: auto; }
-        body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Noto Naskh Arabic", "Noto Sans Arabic", Amiri, sans-serif; margin: 0; padding: 40px; color: var(--text); }
-        /* Ensure Arabic segments render with RTL flow and Arabic-capable fonts when language tags are present */
-        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: plaintext; font-family: "Noto Naskh Arabic", "Noto Sans Arabic", Amiri, Arial, sans-serif; }
+        body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans Arabic", "Noto Naskh Arabic", sans-serif; margin: 0; padding: 40px; color: var(--text); }
+        /* Ensure Arabic segments render with RTL flow and prioritize Arabic fonts */
+        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: plaintext; font-family: "Noto Naskh Arabic", "Noto Sans Arabic", Arial, sans-serif; }
         h1, h2, h3 { margin: 0 0 12px; }
         h1 { font-size: 28px; }
         h2 { font-size: 20px; }
