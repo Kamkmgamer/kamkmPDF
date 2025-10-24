@@ -3,6 +3,7 @@ import {
   getModelsForTier,
   type SubscriptionTier,
 } from "~/server/subscription/tiers";
+import { getArabicFontBase64 } from "~/server/fonts/arabicFontBase64";
 
 export interface GenerateHtmlOptions {
   prompt: string;
@@ -22,11 +23,11 @@ function extractHtmlFromContent(content: string): string {
   return content.trim();
 }
 
-export function wrapHtmlDocument(
+export async function wrapHtmlDocument(
   bodyOrDoc: string,
   title = "Generated Document",
   addWatermark = false,
-): string {
+): Promise<string> {
   const hasHtmlTag = /<html[\s\S]*?>[\s\S]*<\/html>/i.test(bodyOrDoc);
 
   const watermarkHtml = addWatermark
@@ -35,15 +36,28 @@ export function wrapHtmlDocument(
       </div>`
     : "";
 
-  // Use system fonts with Arabic fallback support for serverless compatibility
-  // Avoid external @import as it causes network timeouts in Netlify/serverless Chromium
+  // Load embedded Arabic font as base64 for serverless environments
+  // This ensures Arabic glyphs render correctly without relying on system fonts
+  const arabicFontBase64 = await getArabicFontBase64();
+
+  const arabicFontFace = arabicFontBase64
+    ? `@font-face {
+          font-family: 'Noto Sans Arabic';
+          font-style: normal;
+          font-weight: 400;
+          font-display: swap;
+          src: url(data:font/woff2;charset=utf-8;base64,${arabicFontBase64}) format('woff2');
+        }`
+    : "";
+
   const bidiAndFontCss = `
+        ${arabicFontFace}
         :root { --text:#0f172a; --muted:#475569; --accent:#0ea5e9; }
         * { box-sizing: border-box; }
         html { direction: auto; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; margin: 0; padding: 40px; color: var(--text); }
-        /* Ensure Arabic segments render with RTL flow and use available system Arabic fonts */
-        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: embed; font-family: "Traditional Arabic", "Simplified Arabic", "Arabic Typesetting", "Geeza Pro", Arial, sans-serif; }
+        body { font-family: "Noto Sans Arabic", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 40px; color: var(--text); }
+        /* Ensure Arabic segments render with RTL flow */
+        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: embed; font-family: "Noto Sans Arabic", Arial, sans-serif; }
         h1, h2, h3 { margin: 0 0 12px; }
         h1 { font-size: 28px; }
         h2 { font-size: 20px; }

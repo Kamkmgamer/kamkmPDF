@@ -38,7 +38,10 @@ export async function generatePdfToPath(
         prompt: opts.prompt ?? "",
         brandName: "Prompt‑to‑PDF",
       });
-      const htmlDoc = wrapHtmlDocument(htmlBody, "Prompt‑to‑PDF Document");
+      const htmlDoc = await wrapHtmlDocument(
+        htmlBody,
+        "Prompt‑to‑PDF Document",
+      );
       await htmlToPdfToPath(htmlDoc, filePath, {
         format: "A4",
         printBackground: true,
@@ -64,7 +67,7 @@ export async function generatePdfToPath(
         <p style="margin-top:16px; font-size: 12px;">Generated at: ${new Date().toISOString()}</p>
       </main>
     `;
-    const htmlDoc = wrapHtmlDocument(
+    const htmlDoc = await wrapHtmlDocument(
       fallbackHtmlBody,
       "Prompt‑to‑PDF Document",
     );
@@ -182,7 +185,7 @@ export async function generatePdfBuffer(opts: {
           // ignore image read failures; continue without image
         }
       }
-      const htmlDoc = wrapHtmlDocument(
+      const htmlDoc = await wrapHtmlDocument(
         body,
         "Prompt‑to‑PDF Document",
         opts.addWatermark ?? false,
@@ -236,7 +239,7 @@ export async function generatePdfBuffer(opts: {
         // ignore
       }
     }
-    const htmlDoc = wrapHtmlDocument(
+    const htmlDoc = await wrapHtmlDocument(
       fallbackHtmlBody,
       "Prompt‑to‑PDF Document",
     );
