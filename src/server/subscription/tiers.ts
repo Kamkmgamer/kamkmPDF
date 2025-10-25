@@ -12,7 +12,6 @@ export type SubscriptionTier =
   | "enterprise";
 
 export const modelsAgents: string[] = [
-  "openai/gpt-oss-120b:free",
   "openrouter/andromeda-alpha",
   "moonshotai/kimi-k2:free",
   "moonshotai/kimi-dev-72b:free",
