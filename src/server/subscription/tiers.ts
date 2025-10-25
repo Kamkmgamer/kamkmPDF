@@ -11,6 +11,19 @@ export type SubscriptionTier =
   | "business"
   | "enterprise";
 
+export const modelsAgents: string[] = [
+  "moonshotai/kimi-k2:free",
+  "moonshotai/kimi-dev-72b:free",
+  "openai/gpt-oss-120b:free",
+  "openrouter/andromeda-alpha",
+  "google/gemma-3-27b-it:free",
+  "openai/gpt-oss-20b:free",
+  "x-ai/grok-4-fast:free",
+  "z-ai/glm-4.5-air:free",
+  "qwen/qwen3-coder:free",
+
+];
+
 export interface TierConfig {
   id: SubscriptionTier;
   name: string;
@@ -81,22 +94,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "community",
       storageRetention: 30, // 30 days
     },
-    models: [
-      // Free tier uses only free models from OpenRouter
-      "x-ai/grok-4-fast:free",
-      "deepseek/deepseek-chat-v3.1:free",
-      "openai/gpt-oss-120b:free",
-      "openai/gpt-oss-20b:free",
-      "z-ai/glm-4.5-air:free",
-      "qwen/qwen3-coder:free",
-      "moonshotai/kimi-k2:free",
-      "moonshotai/kimi-dev-72b:free",
-      "deepseek/deepseek-r1-0528:free",
-      "tngtech/deepseek-r1t-chimera:free",
-      "deepseek/deepseek-chat-v3-0324:free",
-      "deepseek/deepseek-r1-distill-llama-70b:free",
-      "deepseek/deepseek-r1:free",
-    ],
+    models: modelsAgents,
   },
   classic: {
     id: "classic",
@@ -131,13 +129,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "email",
       storageRetention: -1, // permanent
     },
-    models: [
-      // Premium models for better quality
-      "x-ai/grok-4-fast",
-      "x-ai/grok-code-fast-1",
-      "moonshotai/kimi-k2:free",
-      "deepseek/deepseek-chat-v3.1:free",
-    ],
+    models: modelsAgents,
   },
   professional: {
     id: "professional",
@@ -172,13 +164,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "email",
       storageRetention: -1, // permanent
     },
-    models: [
-      // Premium models for better quality
-      "x-ai/grok-4-fast",
-      "x-ai/grok-code-fast-1",
-      "moonshotai/kimi-k2:free",
-      "deepseek/deepseek-chat-v3.1:free",
-    ],
+    models: modelsAgents,
   },
   pro_plus: {
     id: "pro_plus",
@@ -213,13 +199,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "priority", // Priority support
       storageRetention: -1, // permanent
     },
-    models: [
-      // Premium models with priority access
-      "x-ai/grok-4-fast",
-      "x-ai/grok-code-fast-1",
-      "moonshotai/kimi-k2:free",
-      "deepseek/deepseek-chat-v3.1:free",
-    ],
+    models: modelsAgents,
   },
   business: {
     id: "business",
@@ -254,13 +234,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "priority",
       storageRetention: -1, // permanent
     },
-    models: [
-      // Premium models with priority access
-      "x-ai/grok-4-fast",
-      "x-ai/grok-code-fast-1",
-      "moonshotai/kimi-k2:free",
-      "deepseek/deepseek-chat-v3.1:free",
-    ],
+    models: modelsAgents,
   },
   enterprise: {
     id: "enterprise",
@@ -295,13 +269,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "dedicated",
       storageRetention: -1, // permanent
     },
-    models: [
-      // Best available models
-      "x-ai/grok-4-fast",
-      "x-ai/grok-code-fast-1",
-      "moonshotai/kimi-k2:free",
-      "deepseek/deepseek-chat-v3.1:free",
-    ],
+    models: modelsAgents,
   },
 };
 
