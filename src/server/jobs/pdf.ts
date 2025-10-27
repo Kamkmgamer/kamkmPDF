@@ -8,6 +8,13 @@ import {
 import type { ImageMode } from "~/server/jobs/temp";
 import htmlToPdfToPath, { htmlToPdfToBuffer } from "~/server/jobs/htmlToPdf";
 import type { GenerationStage } from "~/types/pdf";
+import {
+  detectLanguages,
+  getMultilingualFontFamily,
+  containsRTL,
+  containsCJK,
+  containsIndic,
+} from "~/server/utils/multilingualText";
 
 // Detect common serverless platforms so we avoid PDFKit (which expects AFM files at runtime)
 function isServerless() {
@@ -51,17 +58,28 @@ export async function generatePdfToPath(
 
   // On serverless (Netlify/Vercel/Lambda), avoid PDFKit asset lookups; use Puppeteer-based path
   if (isServerless()) {
+    const multilingualFontFamily = getMultilingualFontFamily(opts.prompt ?? "");
+    const detectedLanguages = detectLanguages(opts.prompt ?? "");
+    const hasComplexScripts =
+      containsRTL(opts.prompt ?? "") ||
+      containsCJK(opts.prompt ?? "") ||
+      containsIndic(opts.prompt ?? "");
+    const directionStyle = hasComplexScripts
+      ? "direction: auto; unicode-bidi: plaintext;"
+      : "";
+
     const fallbackHtmlBody = `
-      <main style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding: 40px;">
-        <h1 style="text-align:center; font-size: 22px;">Generated PDF (Fallback)</h1>
-        <p style="margin-top:16px; font-size: 14px;">Job ID: ${opts.jobId}</p>
-        <h2 style="margin-top:16px; font-size: 14px;">Prompt:</h2>
-        <pre style="white-space: pre-wrap; font-size: 12px;">${(
+      <main style="font-family: ${multilingualFontFamily}; padding: 40px; ${directionStyle}">
+        <h1 style="text-align:center; font-size: 22px; font-feature-settings: 'liga' 1, 'kern' 1;">Generated PDF (Fallback)</h1>
+        <p style="margin-top:16px; font-size: 14px; font-feature-settings: 'liga' 1, 'kern' 1;">Job ID: ${opts.jobId}</p>
+        <h2 style="margin-top:16px; font-size: 14px; font-feature-settings: 'liga' 1, 'kern' 1;">Prompt:</h2>
+        <pre style="white-space: pre-wrap; font-size: 12px; font-feature-settings: 'liga' 1, 'kern' 1; ${directionStyle}">${(
           opts.prompt ?? "(no prompt)"
         )
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")}</pre>
-        <p style="margin-top:16px; font-size: 12px;">Generated at: ${new Date().toISOString()}</p>
+        <p style="margin-top:16px; font-size: 12px; font-feature-settings: 'liga' 1, 'kern' 1;">Generated at: ${new Date().toISOString()}</p>
+        ${detectedLanguages.length > 0 ? `<p style="margin-top:8px; font-size: 10px; color: #666;">Detected languages: ${detectedLanguages.join(", ")}</p>` : ""}
       </main>
     `;
     const htmlDoc = wrapHtmlDocument(
@@ -222,17 +240,28 @@ export async function generatePdfBuffer(opts: {
   // On serverless (Netlify/Vercel/Lambda), avoid PDFKit asset lookups; use Puppeteer-based path
   if (isServerless()) {
     await opts.onStage?.("Analyzing your request", 10);
+    const multilingualFontFamily = getMultilingualFontFamily(opts.prompt ?? "");
+    const detectedLanguages = detectLanguages(opts.prompt ?? "");
+    const hasComplexScripts =
+      containsRTL(opts.prompt ?? "") ||
+      containsCJK(opts.prompt ?? "") ||
+      containsIndic(opts.prompt ?? "");
+    const directionStyle = hasComplexScripts
+      ? "direction: auto; unicode-bidi: plaintext;"
+      : "";
+
     let fallbackHtmlBody = `
-      <main style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding: 40px;">
-        <h1 style="text-align:center; font-size: 22px;">Generated PDF (Fallback)</h1>
-        <p style="margin-top:16px; font-size: 14px;">Job ID: ${opts.jobId}</p>
-        <h2 style="margin-top:16px; font-size: 14px;">Prompt:</h2>
-        <pre style="white-space: pre-wrap; font-size: 12px;">${(
+      <main style="font-family: ${multilingualFontFamily}; padding: 40px; ${directionStyle}">
+        <h1 style="text-align:center; font-size: 22px; font-feature-settings: 'liga' 1, 'kern' 1;">Generated PDF (Fallback)</h1>
+        <p style="margin-top:16px; font-size: 14px; font-feature-settings: 'liga' 1, 'kern' 1;">Job ID: ${opts.jobId}</p>
+        <h2 style="margin-top:16px; font-size: 14px; font-feature-settings: 'liga' 1, 'kern' 1;">Prompt:</h2>
+        <pre style="white-space: pre-wrap; font-size: 12px; font-feature-settings: 'liga' 1, 'kern' 1; ${directionStyle}">${(
           opts.prompt ?? "(no prompt)"
         )
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")}</pre>
-        <p style="margin-top:16px; font-size: 12px;">Generated at: ${new Date().toISOString()}</p>
+        <p style="margin-top:16px; font-size: 12px; font-feature-settings: 'liga' 1, 'kern' 1;">Generated at: ${new Date().toISOString()}</p>
+        ${detectedLanguages.length > 0 ? `<p style="margin-top:8px; font-size: 10px; color: #666;">Detected languages: ${detectedLanguages.join(", ")}</p>` : ""}
       </main>
     `;
     await opts.onStage?.("Generating content", 35);
@@ -269,19 +298,30 @@ export async function generatePdfBuffer(opts: {
     return buf;
   }
 
-  // Final fallback: use Puppeteer HTML path even on non-serverless environments so we always support Arabic/RTL
+  // Final fallback: use Puppeteer HTML path even on non-serverless environments so we always support multilingual text
   {
     await opts.onStage?.("Analyzing your request", 10);
-    const fallbackBody = `<main style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, \"Noto Sans Arabic\", \"Noto Naskh Arabic\", sans-serif; padding: 40px;">
-      <h1 style="text-align:center; font-size: 22px;">Generated PDF (Fallback)</h1>
-      <p style="margin-top:16px; font-size: 14px;">Job ID: ${opts.jobId}</p>
-      <h2 style="margin-top:16px; font-size: 14px;">Prompt:</h2>
-      <pre style="white-space: pre-wrap; font-size: 12px;">${(
+    const multilingualFontFamily = getMultilingualFontFamily(opts.prompt ?? "");
+    const detectedLanguages = detectLanguages(opts.prompt ?? "");
+    const hasComplexScripts =
+      containsRTL(opts.prompt ?? "") ||
+      containsCJK(opts.prompt ?? "") ||
+      containsIndic(opts.prompt ?? "");
+    const directionStyle = hasComplexScripts
+      ? "direction: auto; unicode-bidi: plaintext;"
+      : "";
+
+    const fallbackBody = `<main style="font-family: ${multilingualFontFamily}; padding: 40px; ${directionStyle}">
+      <h1 style="text-align:center; font-size: 22px; font-feature-settings: 'liga' 1, 'kern' 1;">Generated PDF (Fallback)</h1>
+      <p style="margin-top:16px; font-size: 14px; font-feature-settings: 'liga' 1, 'kern' 1;">Job ID: ${opts.jobId}</p>
+      <h2 style="margin-top:16px; font-size: 14px; font-feature-settings: 'liga' 1, 'kern' 1;">Prompt:</h2>
+      <pre style="white-space: pre-wrap; font-size: 12px; font-feature-settings: 'liga' 1, 'kern' 1; ${directionStyle}">${(
         opts.prompt ?? "(no prompt)"
       )
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")}</pre>
-      <p style="margin-top:16px; font-size: 12px;">Generated at: ${new Date().toISOString()}</p>
+      <p style="margin-top:16px; font-size: 12px; font-feature-settings: 'liga' 1, 'kern' 1;">Generated at: ${new Date().toISOString()}</p>
+      ${detectedLanguages.length > 0 ? `<p style="margin-top:8px; font-size: 10px; color: #666;">Detected languages: ${detectedLanguages.join(", ")}</p>` : ""}
     </main>`;
     const htmlDoc = wrapHtmlDocument(fallbackBody, "Prompt-to-PDF Document");
     await opts.onStage?.("Formatting PDF", 70);

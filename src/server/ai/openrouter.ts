@@ -1,5 +1,12 @@
 import { env } from "~/env";
 import {
+  detectLanguages,
+  wrapMultilingualText,
+  getMultilingualTextStyles,
+  getMultilingualFontImports,
+  getMultilingualFontFamily,
+} from "~/server/utils/multilingualText";
+import {
   getModelsForTier,
   type SubscriptionTier,
 } from "~/server/subscription/tiers";
@@ -36,40 +43,94 @@ export function wrapHtmlDocument(
     : "";
 
   // Import Arabic-capable fonts from Google Fonts for reliable rendering in Puppeteer
-  const arabicFontImport = `@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');`;
+  // Comprehensive multilingual font imports
+  const multilingualFontImports = getMultilingualFontImports();
 
-  const bidiAndFontCss = `
-        ${arabicFontImport}
-        :root { --text:#0f172a; --muted:#475569; --accent:#0ea5e9; }
+  const multilingualCss = `
+        ${multilingualFontImports}
+        :root { 
+          --text: #0f172a; 
+          --muted: #475569; 
+          --accent: #0ea5e9;
+        }
         * { box-sizing: border-box; }
-        html { direction: auto; }
-        body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans Arabic", "Noto Naskh Arabic", sans-serif; margin: 0; padding: 40px; color: var(--text); }
-        /* Ensure Arabic segments render with RTL flow and prioritize Arabic fonts */
-        :lang(ar), [dir="rtl"] { direction: rtl; unicode-bidi: plaintext; font-family: "Noto Naskh Arabic", "Noto Sans Arabic", Arial, sans-serif; }
-        h1, h2, h3 { margin: 0 0 12px; }
+        html { 
+          direction: auto; 
+          font-feature-settings: "liga" 1, "kern" 1;
+          text-rendering: optimizeLegibility;
+        }
+        body { 
+          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+          margin: 0; 
+          padding: 40px; 
+          color: var(--text);
+          font-feature-settings: "liga" 1, "kern" 1;
+          text-rendering: optimizeLegibility;
+        }
+        ${getMultilingualTextStyles()}
+        h1, h2, h3 { 
+          margin: 0 0 12px; 
+          font-feature-settings: "liga" 1, "kern" 1;
+        }
         h1 { font-size: 28px; }
         h2 { font-size: 20px; }
-        p { margin: 0 0 10px; line-height: 1.6; color: var(--muted); }
+        p { 
+          margin: 0 0 10px; 
+          line-height: 1.6; 
+          color: var(--muted);
+          font-feature-settings: "liga" 1, "kern" 1;
+        }
         .container { max-width: 800px; margin: 0 auto; }
-        .badge { display:inline-block; background: #e0f2fe; color:#0369a1; padding:6px 10px; border-radius:8px; font-size:12px; }
+        .badge { 
+          display: inline-block; 
+          background: #e0f2fe; 
+          color: #0369a1; 
+          padding: 6px 10px; 
+          border-radius: 8px; 
+          font-size: 12px; 
+        }
         .section { margin: 24px 0; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+        table { 
+          border-collapse: collapse; 
+          width: 100%; 
+        }
+        th, td { 
+          border: 1px solid #e2e8f0; 
+          padding: 8px; 
+          text-align: left; 
+        }
+        /* Print-specific styles for better PDF rendering */
+        @media print {
+          body { 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+        }
   `;
 
   if (hasHtmlTag) {
     let doc = bodyOrDoc;
+
+    // Enhanced multilingual text handling
+    const detectedLanguages = detectLanguages(doc);
+    if (detectedLanguages.length > 0) {
+      doc = wrapMultilingualText(doc);
+    }
+
     doc = doc.replace(/<html(?![^>]*\bdir=)/i, '<html dir="auto"');
 
     if (/<\/head>/i.test(doc)) {
-      doc = doc.replace(/<\/head>/i, `<style>${bidiAndFontCss}</style></head>`);
+      doc = doc.replace(
+        /<\/head>/i,
+        `<style>${multilingualCss}</style></head>`,
+      );
     } else if (/<body[^>]*>/i.test(doc)) {
       doc = doc.replace(
         /<body[^>]*>/i,
-        (m) => `${m}<style>${bidiAndFontCss}</style>`,
+        (m) => `${m}<style>${multilingualCss}</style>`,
       );
     } else {
-      doc = `<style>${bidiAndFontCss}</style>` + doc;
+      doc = `<style>${multilingualCss}</style>` + doc;
     }
 
     if (addWatermark) {
@@ -85,7 +146,7 @@ export function wrapHtmlDocument(
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>${title}</title>
       <style>
-${bidiAndFontCss}
+${multilingualCss}
       </style>
     </head>
     <body>
