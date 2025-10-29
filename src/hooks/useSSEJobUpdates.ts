@@ -14,6 +14,7 @@ export interface SSEConnectionState {
   isConnected: boolean;
   lastUpdate: SSEJobUpdate | null;
   error: string | null;
+  shouldFallbackToPolling: boolean; // True when SSE has failed permanently
 }
 
 export function useSSEJobUpdates(jobId: string) {
@@ -21,6 +22,7 @@ export function useSSEJobUpdates(jobId: string) {
     isConnected: false,
     lastUpdate: null,
     error: null,
+    shouldFallbackToPolling: false,
   });
 
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -72,6 +74,7 @@ export function useSSEJobUpdates(jobId: string) {
             ...prev,
             isConnected: true,
             error: null,
+            shouldFallbackToPolling: false, // Reset fallback when SSE connects successfully
           }));
           // Reset only the current cycle attempts, not total attempts
           reconnectAttempts.current = 0;
@@ -252,12 +255,20 @@ export function useSSEJobUpdates(jobId: string) {
             console.error(
               `SSE reconnection stopped for job ${jobId}: ${reason}`,
             );
+            
+            // If we've exhausted all reconnection attempts, enable polling fallback
+            // This handles cases like Netlify where SSE connections timeout after 26 seconds
+            const shouldFallback =
+              totalReconnectAttempts.current >= maxTotalReconnectAttempts ||
+              reconnectAttempts.current >= maxReconnectAttempts;
+            
             setState((prev) => ({
               ...prev,
               error:
-                totalReconnectAttempts.current >= maxTotalReconnectAttempts
-                  ? "Connection failed after multiple attempts. Please refresh the page."
+                shouldFallback
+                  ? "Switching to polling mode (SSE unavailable)"
                   : "Connection lost",
+              shouldFallbackToPolling: shouldFallback,
             }));
           }
         };

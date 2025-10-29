@@ -51,18 +51,40 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   const [showSignInModal, setShowSignInModal] = useState(false);
   const prevStatusRef = useRef<string | null>(null);
 
-  // Fetch job data (initial load only, updates via SSE)
+  // Use SSE for real-time updates
+  const sseState = useSSEJobUpdates(jobId);
+
+  // Fetch job data (initial load, updates via SSE or polling fallback)
   const {
     data: job,
     isLoading,
     error,
     refetch,
   } = api.jobs.get.useQuery(jobId, {
-    refetchInterval: false, // Disable polling, use SSE instead
+    // Enable polling as fallback when SSE fails (e.g., on Netlify with 26s timeout)
+    refetchInterval: (query) => {
+      // If SSE is working and connected, don't poll
+      if (sseState.isConnected && !sseState.shouldFallbackToPolling) {
+        return false;
+      }
+      
+      // If job is completed or failed, stop polling
+      const status = query.state.data?.status;
+      if (status === "completed" || status === "failed") {
+        return false;
+      }
+      
+      // Poll every 2 seconds when SSE is not available (fallback mode)
+      // This handles Netlify's 26-second serverless function timeout
+      if (sseState.shouldFallbackToPolling) {
+        return 2000;
+      }
+      
+      // While SSE is connecting or temporarily disconnected, don't poll yet
+      // Wait for fallback flag to be set after reconnection attempts fail
+      return false;
+    },
   });
-
-  // Use SSE for real-time updates
-  const sseState = useSSEJobUpdates(jobId);
 
   // Combine initial job data with SSE updates
   const currentJob = React.useMemo(() => {

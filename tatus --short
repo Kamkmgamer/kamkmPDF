@@ -1,0 +1,39 @@
+warning: in the working copy of 'src/hooks/useSSEJobUpdates.ts', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/hooks/useSSEJobUpdates.ts b/src/hooks/useSSEJobUpdates.ts[m
+[1mindex fc2e87d..f92011f 100644[m
+[1m--- a/src/hooks/useSSEJobUpdates.ts[m
+[1m+++ b/src/hooks/useSSEJobUpdates.ts[m
+[36m@@ -200,9 +200,16 @@[m [mexport function useSSEJobUpdates(jobId: string) {[m
+           }));[m
+ [m
+           // Close the current connection if not already closed[m
+[32m+[m[32m          // If connection is in CONNECTING state and errors, we need to close it manually[m
+[32m+[m[32m          let connectionWasClosed = isClosed;[m
+           if (eventSourceRef.current && !isClosed) {[m
+             closedByUsRef.current = true;[m
+[31m-            eventSourceRef.current.close();[m
+[32m+[m[32m            try {[m
+[32m+[m[32m              eventSourceRef.current.close();[m
+[32m+[m[32m              connectionWasClosed = true;[m
+[32m+[m[32m            } catch (err) {[m
+[32m+[m[32m              console.warn(`Failed to close SSE connection: ${err}`);[m
+[32m+[m[32m            }[m
+             eventSourceRef.current = null;[m
+           }[m
+ [m
+[36m@@ -210,12 +217,13 @@[m [mexport function useSSEJobUpdates(jobId: string) {[m
+           // 1. Job is not in terminal state[m
+           // 2. We haven't exceeded per-cycle max attempts[m
+           // 3. We haven't exceeded total max attempts across all cycles[m
+[31m-          // 4. Connection is actually closed (not just connecting)[m
+[32m+[m[32m          // 4. Connection is closed (either naturally or we closed it due to error)[m
+[32m+[m[32m          // Note: If connection errors during CONNECTING state, we close it manually above[m
+           const shouldReconnect =[m
+             !isTerminalRef.current &&[m
+             reconnectAttempts.current < maxReconnectAttempts &&[m
+             totalReconnectAttempts.current < maxTotalReconnectAttempts &&[m
+[31m-            isClosed;[m
+[32m+[m[32m            connectionWasClosed;[m
+ [m
+           if (shouldReconnect) {[m
+             const delay = Math.min([m
