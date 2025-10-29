@@ -266,14 +266,30 @@ async function generateHtmlFromOpenRouter({
     }
 
     const text = await res.text().catch(() => "");
+    const errorDetails = text?.slice(0, 500) ?? "No error details";
+    console.error(`[openrouter] Model ${currentModel} failed:`, {
+      status: res.status,
+      statusText: res.statusText,
+      error: errorDetails,
+      promptLength: prompt.length,
+      tier,
+    });
     attemptErrors.push(
-      `Model ${currentModel} -> ${res.status}: ${text?.slice(0, 500)}`,
+      `Model ${currentModel} -> ${res.status}: ${errorDetails}`,
     );
     continue;
   }
 
-  throw new Error(
+  const finalError = new Error(
     `OpenRouter failed after trying models in order: ${models.join(", ")}.\n` +
       attemptErrors.join("\n---\n"),
   );
+  console.error("[openrouter] All models failed:", {
+    models,
+    errors: attemptErrors,
+    promptLength: prompt.length,
+    tier,
+    hasApiKey: !!apiKey,
+  });
+  throw finalError;
 }

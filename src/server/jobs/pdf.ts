@@ -53,7 +53,14 @@ export async function generatePdfToPath(
       return; // success
     }
   } catch (err) {
-    console.warn("[pdf] AI pipeline failed, falling back to PDFKit:", err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    const errorStack = err instanceof Error ? err.stack : undefined;
+    console.error("[pdf] generatePdfToPath - AI pipeline failed, falling back to PDFKit:", {
+      error: errorMessage,
+      stack: errorStack,
+      jobId: opts.jobId,
+      hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+    });
   }
 
   // On serverless (Netlify/Vercel/Lambda), avoid PDFKit asset lookups; use Puppeteer-based path
@@ -234,7 +241,15 @@ export async function generatePdfBuffer(opts: {
       return buf; // success
     }
   } catch (err) {
-    console.warn("[pdf] AI pipeline failed, falling back to PDFKit:", err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    const errorStack = err instanceof Error ? err.stack : undefined;
+    console.error("[pdf] generatePdfBuffer - AI pipeline failed, falling back to PDFKit:", {
+      error: errorMessage,
+      stack: errorStack,
+      jobId: opts.jobId,
+      hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+      tier: opts.tier,
+    });
   }
 
   // On serverless (Netlify/Vercel/Lambda), avoid PDFKit asset lookups; use Puppeteer-based path
