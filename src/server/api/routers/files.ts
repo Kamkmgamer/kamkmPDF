@@ -83,7 +83,7 @@ export const filesRouter = createTRPCRouter({
         size: r.size ?? 0,
         mimeType: r.mimeType,
         // We return fileUrl (public UploadThing URL) for preview; downloads should still go through our download route.
-        fileUrl: (r.fileKey?.startsWith("inline:") ?? false) ? null : r.fileUrl,
+        fileUrl: r.fileUrl,
       }));
     }),
   getDownloadUrl: publicProcedure
@@ -121,14 +121,6 @@ export const filesRouter = createTRPCRouter({
       }
 
       // Generate UploadThing signed URL for secure access
-      if (_file.fileKey.startsWith("inline:")) {
-        const dataUrl = `data:${_file.mimeType ?? "application/pdf"};base64,${_file.fileUrl}`;
-        return {
-          url: dataUrl,
-          expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-        };
-      }
-
       const { ufsUrl } = await utapi.generateSignedURL(_file.fileKey, {
         expiresIn: 60 * 60, // 1 hour
       });
@@ -175,14 +167,6 @@ export const filesRouter = createTRPCRouter({
       }
 
       // Generate share token and create share link
-      if (_file.fileKey.startsWith("inline:")) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message:
-            "This file is still being finalized. Please wait a few seconds before creating a share link.",
-        });
-      }
-
       const token = generateShareToken();
       const expiresAt = new Date(Date.now() + input.expiresInSeconds * 1000);
 
@@ -250,14 +234,6 @@ export const filesRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "File not found" });
       }
       const fileRow = fileRows[0];
-
-      if (fileRow.fileKey.startsWith("inline:")) {
-        const dataUrl = `data:${fileRow.mimeType ?? "application/pdf"};base64,${fileRow.fileUrl}`;
-        return {
-          url: dataUrl,
-          expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-        };
-      }
 
       const { ufsUrl } = await utapi.generateSignedURL(fileRow.fileKey, {
         expiresIn: 60 * 60,

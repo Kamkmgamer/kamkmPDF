@@ -63,20 +63,6 @@ export async function GET(
 
     const downloadName = sanitizeFilename(desiredFilenameRaw);
 
-    // Handle inline storage
-    if (file.fileKey.startsWith("inline:")) {
-      const buffer = Buffer.from(file.fileUrl, "base64");
-      const headers = new Headers();
-      headers.set("content-type", file.mimeType ?? "application/pdf");
-      headers.set("content-length", buffer.length.toString());
-      headers.set(
-        "content-disposition",
-        `attachment; filename="${downloadName.replace(/"/g, "")}"`,
-      );
-      headers.set("cache-control", "private, max-age=0, no-cache");
-      return new NextResponse(buffer, { status: 200, headers });
-    }
-
     // Generate UploadThing signed URL
     const { ufsUrl } = await utapi.generateSignedURL(file.fileKey, {
       expiresIn: 60 * 60, // 1 hour

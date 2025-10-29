@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useAuth } from "@clerk/nextjs";
 import { api } from "~/trpc/react";
+import { useSSEJobUpdates } from "~/hooks/useSSEJobUpdates";
 import { Toolbar } from "./Toolbar";
 import type { GenerationStage } from "~/types/pdf";
 import { LoadingStates } from "./LoadingStates";
@@ -50,26 +51,42 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   const [showSignInModal, setShowSignInModal] = useState(false);
   const prevStatusRef = useRef<string | null>(null);
 
-  // Fetch job data
+  // Fetch job data (initial load only, updates via SSE)
   const {
     data: job,
     isLoading,
     error,
     refetch,
   } = api.jobs.get.useQuery(jobId, {
-    refetchInterval: (query) => {
-      const current = query.state.data;
-      if (!current) return 2000;
-      return current.status === "completed" && current.resultFileId
-        ? false
-        : 2000;
-    },
+    refetchInterval: false, // Disable polling, use SSE instead
   });
+
+  // Use SSE for real-time updates
+  const sseState = useSSEJobUpdates(jobId);
+
+  // Combine initial job data with SSE updates
+  const currentJob = React.useMemo(() => {
+    if (!job) return null;
+    
+    // If we have SSE updates, merge them with the initial job data
+    if (sseState.lastUpdate) {
+      return {
+        ...job,
+        status: sseState.lastUpdate.status,
+        stage: sseState.lastUpdate.stage ?? job.stage,
+        progress: sseState.lastUpdate.progress ?? job.progress,
+        errorMessage: sseState.lastUpdate.errorMessage ?? job.errorMessage,
+        resultFileId: sseState.lastUpdate.resultFileId ?? job.resultFileId,
+      };
+    }
+    
+    return job;
+  }, [job, sseState.lastUpdate]);
 
   // Show a transient banner when the job transitions to completed
   useEffect(() => {
     const prev = prevStatusRef.current;
-    const status = job?.status ?? null;
+    const status = currentJob?.status ?? null;
     if (
       status &&
       prev &&
@@ -82,7 +99,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
       return () => clearTimeout(t);
     }
     prevStatusRef.current = status;
-  }, [job?.status, isRegenerating]);
+  }, [currentJob?.status, isRegenerating]);
 
   // We keep getDownloadUrl for preview components elsewhere; for the download button
   // we call our own API route to allow a custom filename via Content-Disposition.
@@ -93,11 +110,11 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
 
   // Handle download with custom filename toast prompt
   const handleDownload = async () => {
-    if (!job?.resultFileId) return;
+    if (!currentJob?.resultFileId) return;
 
     try {
       // Suggest a default name based on the prompt or job id
-      const defaultBase = (job.prompt?.trim() ?? `document-${job.id}`).slice(
+      const defaultBase = (currentJob.prompt?.trim() ?? `document-${currentJob.id}`).slice(
         0,
         50,
       );
@@ -123,7 +140,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
         ? name
         : `${name}.pdf`;
 
-      const url = `/api/files/${job.resultFileId}/download?filename=${encodeURIComponent(filename)}`;
+      const url = `/api/files/${currentJob.resultFileId}/download?filename=${encodeURIComponent(filename)}`;
       window.open(url, "_blank");
       
       // Show sign-in modal for unauthenticated users after download
@@ -140,11 +157,11 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
 
   // Handle share
   const handleShare = async () => {
-    if (!job?.resultFileId) return;
+    if (!currentJob?.resultFileId) return;
 
     try {
       const result = await shareMutation.mutateAsync({
-        fileId: job.resultFileId,
+        fileId: currentJob.resultFileId,
       });
       setShareUrl(result.url);
       setShowShareModal(true);
@@ -260,7 +277,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   }
 
   // Processing state
-  if (job.status === "processing" || job.status === "queued") {
+  if (currentJob && (currentJob.status === "processing" || currentJob.status === "queued")) {
     // If we're regenerating, show the regeneration status
     if (isRegenerating) {
       return (
@@ -288,7 +305,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
     }
     const pct = Math.min(
       99,
-      Math.max(0, job.progress ?? (job.status === "processing" ? 20 : 5)),
+      Math.max(0, currentJob.progress ?? (currentJob.status === "processing" ? 20 : 5)),
     );
     const allowed: GenerationStage[] = [
       "Processing PDF",
@@ -298,7 +315,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
       "Finalizing document",
     ];
     const stageStr =
-      job.stage ?? (job.status === "queued" ? "Processing PDF" : undefined);
+      currentJob.stage ?? (currentJob.status === "queued" ? "Processing PDF" : undefined);
     const stage = allowed.includes(stageStr as GenerationStage)
       ? (stageStr as GenerationStage)
       : undefined;
@@ -306,11 +323,11 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   }
 
   // Failed state
-  if (job.status === "failed") {
+  if (currentJob?.status === "failed") {
     return (
       <ErrorBoundaryWrapper
         error={
-          job.errorMessage ??
+          currentJob.errorMessage ??
           "The PDF generation failed. Please try regenerating."
         }
         onRetry={() => refetch()}
@@ -319,7 +336,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   }
 
   // Completed state - show PDF viewer
-  if (job.status === "completed" && job.resultFileId) {
+  if (currentJob?.status === "completed" && currentJob?.resultFileId) {
     return (
       <div className="flex min-h-screen flex-col overflow-x-hidden bg-gray-50 dark:bg-gray-900">
         {showReadyBanner && (
@@ -340,8 +357,8 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
 
         <div className="relative flex flex-1 overflow-hidden">
           <ThumbnailsSidebar
-            fileId={job.resultFileId}
-            job={job}
+            fileId={currentJob.resultFileId}
+            job={currentJob}
             currentPage={1}
             onPageSelect={() => {
               // Page navigation handled by PDFViewer component
@@ -351,7 +368,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
           />
 
           <div className="relative flex-1 overflow-hidden bg-gray-200 dark:bg-gray-800">
-            <PDFViewer fileId={job.resultFileId} _job={job} />
+            <PDFViewer fileId={currentJob.resultFileId} _job={currentJob} />
 
             {/* Regeneration Status Overlay */}
             {isRegenerating && (

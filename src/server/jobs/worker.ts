@@ -18,6 +18,7 @@ import {
 import type { InferSelectModel } from "drizzle-orm";
 import { UTFile } from "uploadthing/server";
 import { utapi } from "~/server/uploadthing";
+import { sendJobUpdate } from "~/lib/sse";
 import {
   getTierConfig,
   type SubscriptionTier,
@@ -71,6 +72,15 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
         console.log(`[worker] skipped job ${job.id} (already claimed)`);
         return;
       }
+      
+      // Send SSE update for job start
+      await sendJobUpdate(job.id, {
+        jobId: job.id,
+        status: "processing",
+        stage: "starting",
+        progress: 0,
+      });
+      
       // Best-effort: initialize stage/progress
       try {
         await db
@@ -99,12 +109,16 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
     }
 
     const fileId = randomUUID();
-    const filename = `${fileId}.pdf`;
-    const inlineKey = `inline:${fileId}`;
+    const _filename = `${fileId}.pdf`;
 
     // Generate PDF in-memory with tier-specific settings
     const tempImage = await readJobTempImage(job.id);
     const meta = await readJobTempMeta(job.id);
+    
+    // Batch stage updates to reduce database round-trips
+    let lastStageUpdate = 0;
+    const stageUpdateThrottle = 1000; // Update at most once per second
+    
     const pdfBuffer = await generatePdfBuffer({
       jobId: job.id,
       prompt: job.prompt ?? "",
@@ -118,94 +132,48 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
           }
         : null,
       onStage: async (stage: GenerationStage, progress: number) => {
-        try {
-          await db
-            .update(jobs)
-            .set({ stage, progress })
-            .where(eq(jobs.id, job.id));
-        } catch (e) {
-          console.warn(
-            `[worker] failed to update stage/progress for ${job.id}`,
-            e,
-          );
+        const now = Date.now();
+        if (now - lastStageUpdate >= stageUpdateThrottle) {
+          try {
+            await db
+              .update(jobs)
+              .set({ stage, progress })
+              .where(eq(jobs.id, job.id));
+            
+            // Send SSE update
+            await sendJobUpdate(job.id, {
+              jobId: job.id,
+              status: "processing",
+              stage,
+              progress,
+            });
+            
+            lastStageUpdate = now;
+          } catch (e) {
+            console.warn(
+              `[worker] failed to update stage/progress for ${job.id}`,
+              e,
+            );
+          }
         }
       },
     });
 
     const nodeBuffer = Buffer.isBuffer(pdfBuffer)
-      ? pdfBuffer
+      ? Buffer.from(pdfBuffer)
       : Buffer.from(pdfBuffer);
 
-    const inlineBase64 = nodeBuffer.toString("base64");
-
-    // Make the PDF immediately available by inserting an inline record
-    await db.insert(files).values({
-      id: fileId,
-      jobId: job.id,
-      userId: job.userId ?? null,
-      fileKey: inlineKey,
-      fileUrl: inlineBase64,
-      mimeType: "application/pdf",
-      size: nodeBuffer.length,
-    });
-
-    await db
-      .update(jobs)
-      .set({ status: "completed", resultFileId: fileId, errorMessage: null })
-      .where(eq(jobs.id, job.id));
-    try {
-      await db
-        .update(jobs)
-        .set({ progress: 90, stage: "Finalizing document" })
-        .where(eq(jobs.id, job.id));
-    } catch {}
-
-    // Increment user's PDF usage count
-    if (job.userId) {
-      try {
-        // Get current subscription to increment values
-        const currentSub = await db
-          .select()
-          .from(userSubscriptions)
-          .where(eq(userSubscriptions.userId, job.userId))
-          .limit(1);
-
-        if (currentSub[0]) {
-          await db
-            .update(userSubscriptions)
-            .set({
-              pdfsUsedThisMonth: currentSub[0].pdfsUsedThisMonth + 1,
-              storageUsedBytes:
-                currentSub[0].storageUsedBytes + nodeBuffer.length,
-            })
-            .where(eq(userSubscriptions.userId, job.userId));
-        }
-
-        // Log usage history
-        await db.insert(usageHistory).values({
-          id: randomUUID(),
-          userId: job.userId,
-          action: "pdf_generated",
-          amount: 1,
-          metadata: { jobId: job.id, fileId, fileSize: nodeBuffer.length },
-        });
-      } catch (err) {
-        console.warn(
-          `[worker] failed to increment usage for user ${job.userId}:`,
-          err,
-        );
-      }
-    }
-
-    console.log(
-      `[worker] job ${job.id} completed (inline ready), file ${fileId}`,
-    );
+    // Stream PDF directly to UploadThing instead of storing inline base64
+    const uploadFilename = `${fileId}.pdf`;
+    let fileKey: string;
+    let fileUrl: string;
+    let fileSize: number;
 
     try {
-      // Upload to UploadThing: construct BlobPart as a plain ArrayBuffer to satisfy TS
+      // Upload to UploadThing immediately
       const ab = new ArrayBuffer(nodeBuffer.length);
       new Uint8Array(ab).set(nodeBuffer);
-      const utFile = new UTFile([ab], filename, {
+      const utFile = new UTFile([ab], uploadFilename, {
         type: "application/pdf",
         customId: fileId,
       });
@@ -218,40 +186,110 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
         throw new Error(message);
       }
 
-      const { key, url, size } = uploadRes.data;
+      const uploadData = uploadRes.data;
+      fileKey = uploadData.key;
+      fileUrl = uploadData.url;
+      fileSize = uploadData.size ?? nodeBuffer.length;
 
-      await db
-        .update(files)
-        .set({
-          fileKey: key,
-          fileUrl: url,
-          size: size ?? nodeBuffer.length,
-        })
-        .where(eq(files.id, fileId));
-
-      await db
-        .update(jobs)
-        .set({ errorMessage: null })
-        .where(eq(jobs.id, job.id));
-      try {
-        await db
-          .update(jobs)
-          .set({ progress: 100, stage: null })
-          .where(eq(jobs.id, job.id));
-      } catch {}
       console.log(
-        `[worker] job ${job.id} storage upload completed, file ${fileId}`,
+        `[worker] job ${job.id} PDF uploaded to storage, file ${fileId}`,
       );
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(
-        `[worker] job ${job.id} storage upload failed (inline available):`,
+        `[worker] job ${job.id} storage upload failed:`,
         message,
       );
+      throw new Error(`PDF upload failed: ${message}`);
+    }
+
+    // Batch database operations for better performance
+    const dbOperations = [];
+
+    // 1. Insert file record with UploadThing URL
+    dbOperations.push(
+      db.insert(files).values({
+        id: fileId,
+        jobId: job.id,
+        userId: job.userId ?? null,
+        fileKey: fileKey,
+        fileUrl: fileUrl,
+        mimeType: "application/pdf",
+        size: fileSize,
+      })
+    );
+
+    // 2. Update job status
+    dbOperations.push(
+      db
+        .update(jobs)
+        .set({ status: "completed", resultFileId: fileId, errorMessage: null })
+        .where(eq(jobs.id, job.id))
+    );
+
+    // Execute batch operations
+    await Promise.all(dbOperations);
+
+    // Send SSE completion update
+    await sendJobUpdate(job.id, {
+      jobId: job.id,
+      status: "completed",
+      stage: null,
+      progress: 100,
+      resultFileId: fileId,
+    });
+
+    console.log(
+      `[worker] job ${job.id} completed, file ${fileId}`,
+    );
+
+    // Increment user's PDF usage count (async, non-blocking)
+    if (job.userId) {
+      const userId = job.userId; // Capture for closure
+      // Use Promise.allSettled to avoid blocking on usage updates
+      Promise.allSettled([
+        // Update subscription usage
+        db
+          .select()
+          .from(userSubscriptions)
+          .where(eq(userSubscriptions.userId, userId))
+          .limit(1)
+          .then(async (currentSub) => {
+            if (currentSub[0]) {
+              await db
+                .update(userSubscriptions)
+                .set({
+                  pdfsUsedThisMonth: currentSub[0].pdfsUsedThisMonth + 1,
+                  storageUsedBytes:
+                    currentSub[0].storageUsedBytes + nodeBuffer.length,
+                })
+                .where(eq(userSubscriptions.userId, userId));
+            }
+          }),
+        // Log usage history
+        db.insert(usageHistory).values({
+          id: randomUUID(),
+          userId: userId,
+          action: "pdf_generated",
+          amount: 1,
+          metadata: { jobId: job.id, fileId, fileSize: nodeBuffer.length },
+        }),
+      ]).catch((err) => {
+        console.warn(
+          `[worker] failed to update usage for user ${job.userId}:`,
+          err,
+        );
+      });
+    }
+
+    // Update final job status
+    try {
       await db
         .update(jobs)
-        .set({ errorMessage: message })
+        .set({ progress: 100, stage: null })
         .where(eq(jobs.id, job.id));
+    } catch {
+      // ignore if columns not present
     }
     // Cleanup temp files after processing regardless of storage outcome
     await cleanupJobTemp(job.id).catch(() => undefined);
@@ -262,6 +300,14 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       .update(jobs)
       .set({ status: "failed", errorMessage })
       .where(eq(jobs.id, job.id));
+    
+    // Send SSE failure update
+    await sendJobUpdate(job.id, {
+      jobId: job.id,
+      status: "failed",
+      errorMessage,
+    });
+    
     // Attempt cleanup on failure as well
     await cleanupJobTemp(job.id).catch(() => undefined);
   }

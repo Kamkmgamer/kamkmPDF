@@ -40,21 +40,35 @@ export const pdfpromptPost = pgTable(
   ],
 );
 
-export const pdfpromptJob = pgTable("pdfprompt_job", {
-  id: text().primaryKey().notNull(),
-  userId: text(),
-  prompt: text(),
-  status: varchar({ length: 32 }).default("queued").notNull(),
-  attempts: integer().default(0).notNull(),
-  resultFileId: text(),
-  errorMessage: text(),
-  createdAt: timestamp({ withTimezone: true, mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp({ withTimezone: true, mode: "string" }),
-  progress: integer().default(0).notNull(),
-  stage: varchar({ length: 64 }),
-});
+export const pdfpromptJob = pgTable(
+  "pdfprompt_job",
+  {
+    id: text().primaryKey().notNull(),
+    userId: text(),
+    prompt: text(),
+    status: varchar({ length: 32 }).default("queued").notNull(),
+    attempts: integer().default(0).notNull(),
+    resultFileId: text(),
+    errorMessage: text(),
+    createdAt: timestamp({ withTimezone: true, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ withTimezone: true, mode: "string" }),
+    progress: integer().default(0).notNull(),
+    stage: varchar({ length: 64 }),
+  },
+  (table) => [
+    // Critical index for job queue queries (worker picks jobs by status + createdAt)
+    index("pdfprompt_job_status_created_at_idx").on(
+      table.status,
+      table.createdAt,
+    ),
+    // Index for user job lookups
+    index("pdfprompt_job_user_id_idx").on(table.userId),
+    // Index for job status updates
+    index("pdfprompt_job_status_idx").on(table.status),
+  ],
+);
 
 export const pdfpromptFile = pgTable(
   "pdfprompt_file",
@@ -76,6 +90,10 @@ export const pdfpromptFile = pgTable(
       foreignColumns: [pdfpromptJob.id],
       name: "pdfprompt_file_jobId_pdfprompt_job_id_fk",
     }),
+    // Index for file lookups by job
+    index("pdfprompt_file_job_id_idx").on(table.jobId),
+    // Index for user file lookups
+    index("pdfprompt_file_user_id_idx").on(table.userId),
   ],
 );
 
@@ -97,19 +115,34 @@ export const pdfpromptShareLink = pgTable(
       name: "pdfprompt_share_link_fileId_pdfprompt_file_id_fk",
     }),
     unique("pdfprompt_share_link_token_unique").on(table.token),
+    // Index for share link lookups by fileId and token
+    index("pdfprompt_share_link_file_token_idx").on(table.fileId, table.token),
+    // Index for expired link cleanup
+    index("pdfprompt_share_link_expires_at_idx").on(table.expiresAt),
   ],
 );
 
-export const pdfpromptUsageHistory = pgTable("pdfprompt_usage_history", {
-  id: text().primaryKey().notNull(),
-  userId: text().notNull(),
-  action: varchar({ length: 64 }).notNull(),
-  amount: integer().default(1).notNull(),
-  metadata: jsonb(),
-  createdAt: timestamp({ withTimezone: true, mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-});
+export const pdfpromptUsageHistory = pgTable(
+  "pdfprompt_usage_history",
+  {
+    id: text().primaryKey().notNull(),
+    userId: text().notNull(),
+    action: varchar({ length: 64 }).notNull(),
+    amount: integer().default(1).notNull(),
+    metadata: jsonb(),
+    createdAt: timestamp({ withTimezone: true, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    // Index for user usage queries
+    index("pdfprompt_usage_history_user_id_idx").on(table.userId),
+    // Index for usage analytics by action
+    index("pdfprompt_usage_history_action_idx").on(table.action),
+    // Index for time-based usage queries
+    index("pdfprompt_usage_history_created_at_idx").on(table.createdAt),
+  ],
+);
 
 export const pdfpromptUserSubscription = pgTable(
   "pdfprompt_user_subscription",

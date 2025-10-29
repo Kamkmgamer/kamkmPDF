@@ -4,12 +4,20 @@ import {
   wrapMultilingualText,
   getMultilingualTextStyles,
   getMultilingualFontImports,
-  getMultilingualFontFamily,
+  getMultilingualFontFamily as _getMultilingualFontFamily,
 } from "~/server/utils/multilingualText";
 import {
   getModelsForTier,
   type SubscriptionTier,
 } from "~/server/subscription/tiers";
+import {
+  getCachedHtml,
+  setCachedHtml,
+  deduplicateRequest,
+  generatePromptCacheKey,
+  incrementCacheHit,
+  incrementCacheMiss,
+} from "~/lib/cache";
 
 export interface GenerateHtmlOptions {
   prompt: string;
@@ -165,6 +173,38 @@ interface OpenRouterResponse {
 }
 
 export async function generateHtmlFromPrompt({
+  prompt,
+  model,
+  brandName,
+  tier = "starter",
+}: GenerateHtmlOptions): Promise<string> {
+  // Check cache first
+  const cachedHtml = await getCachedHtml(prompt, tier);
+  if (cachedHtml) {
+    incrementCacheHit();
+    return cachedHtml;
+  }
+
+  incrementCacheMiss();
+
+  // Use deduplication to prevent duplicate in-flight requests
+  const cacheKey = generatePromptCacheKey(prompt, tier);
+  return deduplicateRequest(cacheKey, async () => {
+    const html = await generateHtmlFromOpenRouter({
+      prompt,
+      model,
+      brandName,
+      tier,
+    });
+
+    // Cache the result for future use
+    await setCachedHtml(prompt, tier, html, 7); // Cache for 7 days
+
+    return html;
+  });
+}
+
+async function generateHtmlFromOpenRouter({
   prompt,
   model,
   brandName,
