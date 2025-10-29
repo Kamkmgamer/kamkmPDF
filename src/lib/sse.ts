@@ -210,6 +210,13 @@ export function createSSEResponse(jobId: string): Response {
         }
       };
 
+      // Hint recommended retry delay for browser-managed reconnects
+      try {
+        controller.enqueue(encoder.encode("retry: 5000\n\n"));
+      } catch (error) {
+        logger.warn({ error: String(error) }, "Failed to send SSE retry hint");
+      }
+
       // Send connection confirmation
       sendEvent("connected", { jobId, timestamp: Date.now() });
 
@@ -221,7 +228,7 @@ export function createSSEResponse(jobId: string): Response {
           clearInterval(heartbeat);
           controller.close();
         }
-      }, 30000); // Heartbeat every 30 seconds
+      }, 10000); // Heartbeat every 10 seconds
 
       // Store the connection
       const connection: SSEConnection = {
@@ -244,9 +251,11 @@ export function createSSEResponse(jobId: string): Response {
 
   return new Response(stream, {
     headers: {
-      "Content-Type": "text/event-stream",
+      "Content-Type": "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",
+      "Keep-Alive": "timeout=61, max=1000",
+      "X-Accel-Buffering": "no",
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Cache-Control",
     },

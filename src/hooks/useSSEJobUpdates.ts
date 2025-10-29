@@ -29,6 +29,7 @@ export function useSSEJobUpdates(jobId: string) {
   const maxReconnectAttempts = 5;
   const isConnectingRef = useRef(false);
   const isTerminalRef = useRef(false);
+  const closedByUsRef = useRef(false);
 
   useEffect(() => {
     if (!jobId) return;
@@ -45,6 +46,7 @@ export function useSSEJobUpdates(jobId: string) {
         
         // Close existing connection
         if (eventSourceRef.current) {
+          closedByUsRef.current = true;
           eventSourceRef.current.close();
           eventSourceRef.current = null;
         }
@@ -55,6 +57,7 @@ export function useSSEJobUpdates(jobId: string) {
         eventSource.onopen = () => {
           console.log(`SSE connected for job ${jobId}`);
           isConnectingRef.current = false;
+          closedByUsRef.current = false;
           setState(prev => ({
             ...prev,
             isConnected: true,
@@ -92,6 +95,7 @@ export function useSSEJobUpdates(jobId: string) {
 
             if (data.status === "completed" || data.status === "failed") {
               isTerminalRef.current = true;
+              closedByUsRef.current = true;
               if (eventSourceRef.current) {
                 eventSourceRef.current.close();
                 eventSourceRef.current = null;
@@ -132,13 +136,13 @@ export function useSSEJobUpdates(jobId: string) {
         });
 
         eventSource.onerror = (error) => {
-          console.error(`SSE error for job ${jobId}:`, error);
-          
-          isConnectingRef.current = false;
-          
-          if (isTerminalRef.current) {
+          // If we intentionally closed or the job reached a terminal state, ignore
+          if (isTerminalRef.current || closedByUsRef.current) {
             return;
           }
+
+          console.error(`SSE error for job ${jobId}:`, error);
+          isConnectingRef.current = false;
 
           setState(prev => ({
             ...prev,
@@ -186,6 +190,7 @@ export function useSSEJobUpdates(jobId: string) {
     return () => {
       isConnectingRef.current = false;
       isTerminalRef.current = false;
+      closedByUsRef.current = true;
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;
