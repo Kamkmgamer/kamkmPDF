@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useAuth } from "@clerk/nextjs";
 import { api } from "~/trpc/react";
-import { useSSEJobUpdates } from "~/hooks/useSSEJobUpdates";
 import { Toolbar } from "./Toolbar";
 import type { GenerationStage } from "~/types/pdf";
 import { LoadingStates } from "./LoadingStates";
@@ -51,64 +50,28 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   const [showSignInModal, setShowSignInModal] = useState(false);
   const prevStatusRef = useRef<string | null>(null);
 
-  // Use SSE for real-time updates
-  const sseState = useSSEJobUpdates(jobId);
-
-  // Fetch job data (initial load, updates via SSE or polling fallback)
+  // Fetch job data with polling (reverted from SSE due to Netlify timeout issues)
   const {
     data: job,
     isLoading,
     error,
     refetch,
   } = api.jobs.get.useQuery(jobId, {
-    // Enable polling as fallback when SSE fails (e.g., on Netlify with 26s timeout)
     refetchInterval: (query) => {
-      // If SSE is working and connected, don't poll
-      if (sseState.isConnected && !sseState.shouldFallbackToPolling) {
-        return false;
-      }
-      
-      // If job is completed or failed, stop polling
-      const status = query.state.data?.status;
-      if (status === "completed" || status === "failed") {
-        return false;
-      }
-      
-      // Poll every 2 seconds when SSE is not available (fallback mode)
-      // This handles Netlify's 26-second serverless function timeout
-      if (sseState.shouldFallbackToPolling) {
-        return 2000;
-      }
-      
-      // While SSE is connecting or temporarily disconnected, don't poll yet
-      // Wait for fallback flag to be set after reconnection attempts fail
-      return false;
+      const current = query.state.data;
+      if (!current) return 2000;
+      return current.status === "completed" && current.resultFileId
+        ? false
+        : 2000;
     },
   });
 
-  // Combine initial job data with SSE updates
-  const currentJob = React.useMemo(() => {
-    if (!job) return null;
-
-    // If we have SSE updates, merge them with the initial job data
-    if (sseState.lastUpdate) {
-      return {
-        ...job,
-        status: sseState.lastUpdate.status,
-        stage: sseState.lastUpdate.stage ?? job.stage,
-        progress: sseState.lastUpdate.progress ?? job.progress,
-        errorMessage: sseState.lastUpdate.errorMessage ?? job.errorMessage,
-        resultFileId: sseState.lastUpdate.resultFileId ?? job.resultFileId,
-      };
-    }
-
-    return job;
-  }, [job, sseState.lastUpdate]);
+  const currentJob = job;
 
   // Show a transient banner when the job transitions to completed
   useEffect(() => {
     const prev = prevStatusRef.current;
-    const status = currentJob?.status ?? null;
+    const status = job?.status ?? null;
     if (
       status &&
       prev &&
