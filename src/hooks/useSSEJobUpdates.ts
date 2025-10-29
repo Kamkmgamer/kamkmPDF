@@ -36,6 +36,8 @@ export function useSSEJobUpdates(jobId: string) {
   const closedByUsRef = useRef(false);
   const lastHeartbeatTime = useRef<number | null>(null);
   const lastKnownStatusRef = useRef<string | null>(null);
+  const connectionStartTime = useRef<number | null>(null);
+  const consecutiveTimeoutErrors = useRef(0); // Track consecutive timeout-like errors
 
   useEffect(() => {
     if (!jobId) return;
@@ -45,6 +47,8 @@ export function useSSEJobUpdates(jobId: string) {
     reconnectAttempts.current = 0;
     lastHeartbeatTime.current = null;
     lastKnownStatusRef.current = null;
+    connectionStartTime.current = null;
+    consecutiveTimeoutErrors.current = 0;
 
     const connect = () => {
       // Prevent multiple simultaneous connection attempts
@@ -181,6 +185,28 @@ export function useSSEJobUpdates(jobId: string) {
           const readyState = eventSource.readyState;
           const isClosed = readyState === EventSource.CLOSED;
           const isConnecting = readyState === EventSource.CONNECTING;
+          
+          // Detect Netlify timeout pattern: connection works for ~26-30 seconds, then times out
+          const connectionDuration = connectionStartTime.current
+            ? Date.now() - connectionStartTime.current
+            : 0;
+          const timeSinceLastHeartbeat = lastHeartbeatTime.current
+            ? Date.now() - lastHeartbeatTime.current
+            : null;
+          
+          // If connection lasted ~25-35 seconds before error, likely Netlify timeout
+          const looksLikeNetlifyTimeout =
+            connectionDuration >= 24000 && connectionDuration <= 35000 && isConnecting;
+          
+          if (looksLikeNetlifyTimeout) {
+            consecutiveTimeoutErrors.current++;
+            console.warn(
+              `Detected likely Netlify timeout: connection duration ${connectionDuration}ms, consecutive timeouts: ${consecutiveTimeoutErrors.current}`,
+            );
+          } else {
+            // Reset counter if it's not a timeout pattern
+            consecutiveTimeoutErrors.current = 0;
+          }
 
           console.error(`SSE error for job ${jobId}:`, {
             error,
@@ -189,9 +215,10 @@ export function useSSEJobUpdates(jobId: string) {
             isConnecting,
             reconnectAttempts: reconnectAttempts.current,
             totalReconnectAttempts: totalReconnectAttempts.current,
-            lastHeartbeat: lastHeartbeatTime.current
-              ? Date.now() - lastHeartbeatTime.current
-              : null,
+            connectionDuration,
+            lastHeartbeat: timeSinceLastHeartbeat,
+            consecutiveTimeoutErrors: consecutiveTimeoutErrors.current,
+            looksLikeNetlifyTimeout,
           });
 
           isConnectingRef.current = false;
@@ -216,14 +243,22 @@ export function useSSEJobUpdates(jobId: string) {
             eventSourceRef.current = null;
           }
 
+          // If we detect Netlify timeout pattern (2+ consecutive timeouts), switch to polling immediately
+          // This prevents wasting time on reconnections that will just timeout again
+          const shouldSwitchToPolling =
+            consecutiveTimeoutErrors.current >= 2 ||
+            totalReconnectAttempts.current >= 3; // Switch to polling after 3 total attempts
+
           // Only reconnect if:
           // 1. Job is not in terminal state
           // 2. We haven't exceeded per-cycle max attempts
           // 3. We haven't exceeded total max attempts across all cycles
           // 4. Connection is closed (either naturally or we closed it due to error)
+          // 5. We haven't detected the Netlify timeout pattern
           // Note: If connection errors during CONNECTING state, we close it manually above
           const shouldReconnect =
             !isTerminalRef.current &&
+            !shouldSwitchToPolling &&
             reconnectAttempts.current < maxReconnectAttempts &&
             totalReconnectAttempts.current < maxTotalReconnectAttempts &&
             connectionWasClosed;
@@ -245,30 +280,34 @@ export function useSSEJobUpdates(jobId: string) {
               connect();
             }, delay);
           } else {
+            // If we detect Netlify timeout pattern (2+ consecutive timeouts), switch to polling immediately
+            // This prevents wasting time on reconnections that will just timeout again
+            const shouldSwitchToPolling =
+              consecutiveTimeoutErrors.current >= 2 ||
+              totalReconnectAttempts.current >= 3; // Switch to polling after 3 total attempts
+            
             const reason = isTerminalRef.current
               ? "job in terminal state"
-              : reconnectAttempts.current >= maxReconnectAttempts
-                ? "max cycle attempts reached"
-                : totalReconnectAttempts.current >= maxTotalReconnectAttempts
-                  ? "max total attempts reached"
-                  : "connection not closed";
+              : shouldSwitchToPolling
+                ? "Netlify timeout pattern detected"
+                : reconnectAttempts.current >= maxReconnectAttempts
+                  ? "max cycle attempts reached"
+                  : totalReconnectAttempts.current >= maxTotalReconnectAttempts
+                    ? "max total attempts reached"
+                    : "connection not closed";
+            
             console.error(
               `SSE reconnection stopped for job ${jobId}: ${reason}`,
             );
             
-            // If we've exhausted all reconnection attempts, enable polling fallback
+            // If we've detected Netlify timeout pattern or exhausted reconnection attempts, enable polling fallback
             // This handles cases like Netlify where SSE connections timeout after 26 seconds
-            const shouldFallback =
-              totalReconnectAttempts.current >= maxTotalReconnectAttempts ||
-              reconnectAttempts.current >= maxReconnectAttempts;
-            
             setState((prev) => ({
               ...prev,
-              error:
-                shouldFallback
-                  ? "Switching to polling mode (SSE unavailable)"
-                  : "Connection lost",
-              shouldFallbackToPolling: shouldFallback,
+              error: shouldSwitchToPolling
+                ? "Switching to polling mode (SSE timeout detected)"
+                : "Connection lost",
+              shouldFallbackToPolling: shouldSwitchToPolling,
             }));
           }
         };
