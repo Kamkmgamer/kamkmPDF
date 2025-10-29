@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument */
 import { z } from "zod";
+import { randomUUID } from "crypto";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -6,7 +8,11 @@ import {
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { jobs, userSubscriptions } from "~/server/db/schema";
-import { randomUUID } from "crypto";
+import {
+  checkForDuplicateJob,
+  storePromptHash,
+  generatePromptHash,
+} from "~/lib/deduplication";
 import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { env } from "~/env";
@@ -101,9 +107,38 @@ export const jobsRouter = createTRPCRouter({
       }
       // For unauthenticated users (guests), skip quota checks and allow PDF generation
 
+      // Check for duplicate jobs before creating a new one
+      const deduplicationResult = await checkForDuplicateJob(input.prompt, {
+        userId,
+        windowMinutes: 5, // Consider jobs from last 5 minutes
+      });
+
+      if (deduplicationResult.isDuplicate && deduplicationResult.existingJobId) {
+        // Return the existing job instead of creating a new one
+        const existingJob = await db
+          .select()
+          .from(jobs)
+          .where(eq(jobs.id, deduplicationResult.existingJobId))
+          .limit(1);
+
+        if (existingJob[0]) {
+          return existingJob[0];
+        }
+      }
+
       // Create the job
       const id = randomUUID();
-      await db.insert(jobs).values({ id, prompt: input.prompt, userId });
+      const promptHash = generatePromptHash(input.prompt, { userId: userId ?? undefined });
+      
+      await db.insert(jobs).values({ 
+        id, 
+        prompt: input.prompt, 
+        userId,
+        promptHash,
+      });
+      
+      // Store the prompt hash for future deduplication
+      await storePromptHash(id, promptHash);
       const created = await db
         .select()
         .from(jobs)
@@ -219,19 +254,44 @@ export const jobsRouter = createTRPCRouter({
         finalPrompt = `${finalPrompt}\n\n[EDIT INSTRUCTIONS]:\n${input.newPrompt}`;
       }
 
+      // Check for duplicate jobs before creating a new one
+      const deduplicationResult = await checkForDuplicateJob(finalPrompt, {
+        userId: ctx.userId,
+        windowMinutes: 5,
+      });
+
+      if (deduplicationResult.isDuplicate && deduplicationResult.existingJobId) {
+        // Return the existing job instead of creating a new one
+        const existingDuplicateJob = await db
+          .select()
+          .from(jobs)
+          .where(eq(jobs.id, deduplicationResult.existingJobId))
+          .limit(1);
+
+        if (existingDuplicateJob[0]) {
+          return existingDuplicateJob[0];
+        }
+      }
+
       // Create new job
       const newId = randomUUID();
+      const promptHash = generatePromptHash(finalPrompt, { userId: ctx.userId ?? undefined });
+      
       await db.insert(jobs).values({
         id: newId,
         prompt: finalPrompt,
         userId: ctx.userId,
         status: "queued",
+        promptHash,
         generatedHtml: existingJob[0].generatedHtml, // Pass base HTML
         imageUrls:
           input.imageUrls as unknown as typeof jobs.$inferInsert.imageUrls,
         regenerationCount: (existingJob[0].regenerationCount ?? 0) + 1,
         parentJobId: input.jobId,
       });
+
+      // Store the prompt hash for future deduplication
+      await storePromptHash(newId, promptHash);
 
       // Update usage (increment by credit cost as fraction)
       await db

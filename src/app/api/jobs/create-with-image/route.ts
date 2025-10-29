@@ -1,5 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
+import {
+  checkForDuplicateJobWithImage,
+  checkForDuplicateJob,
+  storePromptHash,
+  generatePromptHash,
+} from "~/lib/deduplication";
 import { getAuth } from "@clerk/nextjs/server";
 import type { NextRequest } from "next/server";
 import { db } from "~/server/db";
@@ -27,6 +34,7 @@ export async function POST(req: Request) {
 
     const ct = req.headers.get("content-type") ?? "";
     if (!ct.toLowerCase().includes("multipart/form-data")) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       return NextResponse.json(
         { ok: false, error: "Expected multipart/form-data" },
         { status: 400 },
@@ -96,8 +104,46 @@ export async function POST(req: Request) {
       fileMime = mime;
     }
 
+    // Check for duplicate jobs before creating a new one
+    let deduplicationResult;
+    if (fileBuf) {
+      // Include image data in deduplication check
+      deduplicationResult = await checkForDuplicateJobWithImage(prompt, fileBuf, {
+        userId,
+        windowMinutes: 5,
+      });
+    } else {
+      // Text-only deduplication
+      deduplicationResult = await checkForDuplicateJob(prompt, {
+        userId,
+        windowMinutes: 5,
+      });
+    }
+
+    if (deduplicationResult.isDuplicate && deduplicationResult.existingJobId) {
+      // Return the existing job instead of creating a new one
+      return NextResponse.json({
+        ok: true,
+        jobId: deduplicationResult.existingJobId,
+        message: "Job already exists for this prompt",
+      });
+    }
+
     const id = randomUUID();
-    await db.insert(jobs).values({ id, prompt, userId });
+    const promptHash = generatePromptHash(prompt, { 
+      userId: userId ?? undefined,
+      includeImage: !!fileBuf,
+    });
+    
+    await db.insert(jobs).values({ 
+      id, 
+      prompt, 
+      userId,
+      promptHash,
+    });
+
+    // Store the prompt hash for future deduplication
+    await storePromptHash(id, promptHash);
 
     if (file && fileBuf && fileMime) {
       await saveJobTempImage(id, fileBuf, fileMime);
