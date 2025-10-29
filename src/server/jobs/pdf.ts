@@ -8,6 +8,7 @@ import {
 import type { ImageMode } from "~/server/jobs/temp";
 import htmlToPdfToPath, { htmlToPdfToBuffer } from "~/server/jobs/htmlToPdf";
 import type { GenerationStage } from "~/types/pdf";
+import { env } from "~/env";
 import {
   detectLanguages,
   getMultilingualFontFamily,
@@ -40,7 +41,7 @@ export async function generatePdfToPath(
 
   // Try AI pipeline if configured
   try {
-    if (process.env.OPENROUTER_API_KEY) {
+    if (env.OPENROUTER_API_KEY) {
       const htmlBody = await generateHtmlFromPrompt({
         prompt: opts.prompt ?? "",
         brandName: "Prompt‑to‑PDF",
@@ -51,6 +52,8 @@ export async function generatePdfToPath(
         printBackground: true,
       });
       return; // success
+    } else {
+      console.warn("[pdf] generatePdfToPath - OPENROUTER_API_KEY not configured, skipping AI pipeline");
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
@@ -59,7 +62,7 @@ export async function generatePdfToPath(
       error: errorMessage,
       stack: errorStack,
       jobId: opts.jobId,
-      hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+      hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
     });
   }
 
@@ -198,8 +201,16 @@ export async function generatePdfBuffer(opts: {
   onStage?: (stage: GenerationStage, progress: number) => void | Promise<void>;
 }): Promise<Buffer> {
   // Try AI pipeline if configured
+  console.log("[pdf] generatePdfBuffer - Checking OpenRouter configuration:", {
+    hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
+    jobId: opts.jobId,
+    tier: opts.tier,
+    promptLength: opts.prompt?.length ?? 0,
+  });
+  
   try {
-    if (process.env.OPENROUTER_API_KEY) {
+    if (env.OPENROUTER_API_KEY) {
+      console.log("[pdf] generatePdfBuffer - Calling OpenRouter for job", opts.jobId);
       await opts.onStage?.("Analyzing your request", 15);
       const htmlBodyRaw = await generateHtmlFromPrompt({
         prompt: opts.prompt ?? "",
@@ -239,6 +250,11 @@ export async function generatePdfBuffer(opts: {
         printBackground: true,
       });
       return buf; // success
+    } else {
+      console.warn("[pdf] generatePdfBuffer - OPENROUTER_API_KEY not configured, skipping AI pipeline", {
+        jobId: opts.jobId,
+        tier: opts.tier,
+      });
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
@@ -247,7 +263,7 @@ export async function generatePdfBuffer(opts: {
       error: errorMessage,
       stack: errorStack,
       jobId: opts.jobId,
-      hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+      hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
       tier: opts.tier,
     });
   }
