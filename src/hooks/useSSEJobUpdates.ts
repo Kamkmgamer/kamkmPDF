@@ -27,15 +27,24 @@ export function useSSEJobUpdates(jobId: string) {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
+  const isConnectingRef = useRef(false);
 
   useEffect(() => {
     if (!jobId) return;
 
     const connect = () => {
+      // Prevent multiple simultaneous connection attempts
+      if (isConnectingRef.current) {
+        return;
+      }
+      
       try {
+        isConnectingRef.current = true;
+        
         // Close existing connection
         if (eventSourceRef.current) {
           eventSourceRef.current.close();
+          eventSourceRef.current = null;
         }
 
         const eventSource = new EventSource(`/api/jobs/${jobId}/sse`);
@@ -43,6 +52,7 @@ export function useSSEJobUpdates(jobId: string) {
 
         eventSource.onopen = () => {
           console.log(`SSE connected for job ${jobId}`);
+          isConnectingRef.current = false;
           setState(prev => ({
             ...prev,
             isConnected: true,
@@ -105,11 +115,19 @@ export function useSSEJobUpdates(jobId: string) {
         eventSource.onerror = (error) => {
           console.error(`SSE error for job ${jobId}:`, error);
           
+          isConnectingRef.current = false;
+          
           setState(prev => ({
             ...prev,
             isConnected: false,
             error: "Connection lost",
           }));
+
+          // Close the current connection
+          if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+            eventSourceRef.current = null;
+          }
 
           // Attempt to reconnect with exponential backoff
           if (reconnectAttempts.current < maxReconnectAttempts) {
@@ -132,6 +150,7 @@ export function useSSEJobUpdates(jobId: string) {
 
       } catch (error) {
         console.error(`Failed to create SSE connection for job ${jobId}:`, error);
+        isConnectingRef.current = false;
         setState(prev => ({
           ...prev,
           error: "Failed to connect",
@@ -142,6 +161,7 @@ export function useSSEJobUpdates(jobId: string) {
     connect();
 
     return () => {
+      isConnectingRef.current = false;
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;

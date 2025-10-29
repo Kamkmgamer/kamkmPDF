@@ -14,6 +14,7 @@ interface SSEConnection {
   controller: ReadableStreamDefaultController<Uint8Array>;
   encoder: TextEncoder;
   heartbeat: NodeJS.Timeout;
+  isClosed: boolean;
 }
 
 export class SSEManager {
@@ -47,15 +48,17 @@ export class SSEManager {
     const jobConnections = this.connections.get(jobId);
     if (jobConnections) {
       const connection = jobConnections.get(connectionId);
-      if (connection) {
+      if (connection && !connection.isClosed) {
         clearInterval(connection.heartbeat);
         try {
           connection.controller.close();
+          connection.isClosed = true;
         } catch (error) {
           logger.warn(
             { error: String(error) },
             "Failed to close SSE connection",
           );
+          connection.isClosed = true;
         }
       }
       jobConnections.delete(connectionId);
@@ -74,13 +77,31 @@ export class SSEManager {
     if (!jobConnections) return;
 
     const promises: Promise<void>[] = [];
-    for (const [_connectionId, connection] of jobConnections.entries()) {
-      promises.push(this.sendEvent(connection, "job-update", update));
+    const failedConnections: string[] = [];
+    
+    for (const [connectionId, connection] of jobConnections.entries()) {
+      if (connection.isClosed) {
+        failedConnections.push(connectionId);
+        continue;
+      }
+      
+      promises.push(
+        this.sendEvent(connection, "job-update", update).catch((error) => {
+          logger.warn({ connectionId, error: String(error) }, "Failed to send job update to connection");
+          failedConnections.push(connectionId);
+        })
+      );
     }
 
     await Promise.allSettled(promises);
+    
+    // Remove failed connections
+    for (const connectionId of failedConnections) {
+      this.removeConnection(jobId, connectionId);
+    }
+    
     logger.info(
-      { jobId, connections: jobConnections.size },
+      { jobId, connections: jobConnections.size, failed: failedConnections.length },
       "SSE job update sent",
     );
   }
@@ -90,16 +111,33 @@ export class SSEManager {
     event: string,
     data: unknown,
   ): Promise<void> {
+    if (connection.isClosed) {
+      throw new Error("Connection is closed");
+    }
+    
     try {
       const eventString = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
       connection.controller.enqueue(connection.encoder.encode(eventString));
     } catch (error) {
       logger.warn({ error: String(error) }, "Failed to send SSE event");
+      connection.isClosed = true;
+      // If we can't send the event, the connection is likely broken
+      throw error;
     }
   }
 
   getConnectionCount(jobId: string): number {
     return this.connections.get(jobId)?.size ?? 0;
+  }
+
+  markConnectionAsClosed(jobId: string, connectionId: string) {
+    const jobConnections = this.connections.get(jobId);
+    if (jobConnections) {
+      const connection = jobConnections.get(connectionId);
+      if (connection) {
+        connection.isClosed = true;
+      }
+    }
   }
 
   /**
@@ -119,22 +157,28 @@ export class SSEManager {
   async cleanup(): Promise<void> {
     for (const [jobId, jobConnections] of this.connections.entries()) {
       for (const [_connectionId, connection] of jobConnections.entries()) {
-        try {
-          await this.sendEvent(connection, "server-shutdown", { jobId });
-        } catch (error) {
-          logger.warn(
-            { error: String(error) },
-            "Failed to send shutdown event",
-          );
+        if (!connection.isClosed) {
+          try {
+            await this.sendEvent(connection, "server-shutdown", { jobId });
+          } catch (error) {
+            logger.warn(
+              { error: String(error) },
+              "Failed to send shutdown event",
+            );
+          }
         }
         clearInterval(connection.heartbeat);
-        try {
-          connection.controller.close();
-        } catch (error) {
-          logger.warn(
-            { error: String(error) },
-            "Failed to close connection during cleanup",
-          );
+        if (!connection.isClosed) {
+          try {
+            connection.controller.close();
+            connection.isClosed = true;
+          } catch (error) {
+            logger.warn(
+              { error: String(error) },
+              "Failed to close connection during cleanup",
+            );
+            connection.isClosed = true;
+          }
         }
       }
     }
@@ -184,6 +228,7 @@ export function createSSEResponse(jobId: string): Response {
         controller: controller as ReadableStreamDefaultController<Uint8Array>,
         encoder,
         heartbeat,
+        isClosed: false,
       };
 
       sseManager.addConnection(jobId, connectionId, connection);
@@ -191,6 +236,8 @@ export function createSSEResponse(jobId: string): Response {
     cancel() {
       // Clean up when stream is cancelled/closed
       clearInterval(heartbeat);
+      // Mark connection as closed before removing
+      sseManager.markConnectionAsClosed(jobId, connectionId);
       sseManager.removeConnection(jobId, connectionId);
     },
   });

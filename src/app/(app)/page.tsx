@@ -51,7 +51,12 @@ export default function Home() {
   const createJob = api.jobs.create.useMutation();
   const { data: subscription } = api.subscription.getCurrent.useQuery(
     undefined,
-    { enabled: isSignedIn ?? false },
+    { 
+      enabled: isSignedIn ?? false,
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+    },
   );
 
   // Effects for autosave and unload warning

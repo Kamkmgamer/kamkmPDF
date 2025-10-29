@@ -22,7 +22,11 @@ import { api } from "~/trpc/react";
 export default function UsagePage() {
   const { isSignedIn } = useAuth();
   const { data: subscription, isLoading } =
-    api.subscription.getCurrent.useQuery(undefined, { enabled: isSignedIn });
+    api.subscription.getCurrent.useQuery(undefined, { 
+      enabled: isSignedIn,
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+    });
 
   const { data: usageHistory } = api.subscription.getUsageHistory.useQuery(
     { limit: 10 },

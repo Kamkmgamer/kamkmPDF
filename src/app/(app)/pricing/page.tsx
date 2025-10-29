@@ -15,6 +15,8 @@ export default function PricingPage() {
   const { isSignedIn } = useAuth();
   const { data: currentSub } = api.subscription.getCurrent.useQuery(undefined, {
     enabled: isSignedIn,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
   });
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(

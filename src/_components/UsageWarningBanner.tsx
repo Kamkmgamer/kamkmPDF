@@ -13,7 +13,11 @@ export default function UsageWarningBanner() {
 
   const { data: subscription } = api.subscription.getCurrent.useQuery(
     undefined,
-    { enabled: isSignedIn },
+    { 
+      enabled: isSignedIn,
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+    },
   );
 
   if (!isSignedIn || !subscription || isDismissed) {
