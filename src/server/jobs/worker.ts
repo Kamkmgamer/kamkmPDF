@@ -19,6 +19,7 @@ import type { InferSelectModel } from "drizzle-orm";
 import { UTFile } from "uploadthing/server";
 import { utapi } from "~/server/uploadthing";
 import { sendJobUpdate } from "~/lib/sse";
+import { preWarmBrowserPool } from "~/lib/pdf-generator";
 import {
   getTierConfig,
   type SubscriptionTier,
@@ -325,6 +326,14 @@ export async function drain(
   const start = Date.now();
   let processed = 0;
   const defaultBatch = Number(process.env.PDFPROMPT_BATCH_SIZE ?? 5);
+
+  // Pre-warm browser pool for faster PDF generation
+  try {
+    await preWarmBrowserPool();
+  } catch (error) {
+    console.warn("[worker] Failed to pre-warm browser pool:", error);
+  }
+
   while (processed < maxJobs && Date.now() - start < maxMs) {
     const toClaim = Math.max(1, Math.min(defaultBatch, maxJobs - processed));
     const ids = await claimNextJobsBatch(toClaim);

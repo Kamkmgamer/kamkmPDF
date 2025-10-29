@@ -31,6 +31,7 @@ export const jobs = createTable("job", (d) => ({
   id: d.text().primaryKey(), // use UUID string
   userId: d.text(),
   prompt: d.text(),
+  promptHash: d.text(), // Hash for deduplication
   status: d
     .varchar({ length: 32 })
     .default(sql`'queued'`)

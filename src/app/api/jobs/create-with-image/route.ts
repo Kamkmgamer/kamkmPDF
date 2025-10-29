@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import {
@@ -34,7 +33,6 @@ export async function POST(req: Request) {
 
     const ct = req.headers.get("content-type") ?? "";
     if (!ct.toLowerCase().includes("multipart/form-data")) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       return NextResponse.json(
         { ok: false, error: "Expected multipart/form-data" },
         { status: 400 },
