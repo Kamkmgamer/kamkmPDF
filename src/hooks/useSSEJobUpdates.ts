@@ -200,9 +200,16 @@ export function useSSEJobUpdates(jobId: string) {
           }));
 
           // Close the current connection if not already closed
+          // If connection is in CONNECTING state and errors, we need to close it manually
+          let connectionWasClosed = isClosed;
           if (eventSourceRef.current && !isClosed) {
             closedByUsRef.current = true;
-            eventSourceRef.current.close();
+            try {
+              eventSourceRef.current.close();
+              connectionWasClosed = true;
+            } catch (err) {
+              console.warn("Failed to close SSE connection:", err);
+            }
             eventSourceRef.current = null;
           }
 
@@ -210,12 +217,13 @@ export function useSSEJobUpdates(jobId: string) {
           // 1. Job is not in terminal state
           // 2. We haven't exceeded per-cycle max attempts
           // 3. We haven't exceeded total max attempts across all cycles
-          // 4. Connection is actually closed (not just connecting)
+          // 4. Connection is closed (either naturally or we closed it due to error)
+          // Note: If connection errors during CONNECTING state, we close it manually above
           const shouldReconnect =
             !isTerminalRef.current &&
             reconnectAttempts.current < maxReconnectAttempts &&
             totalReconnectAttempts.current < maxTotalReconnectAttempts &&
-            isClosed;
+            connectionWasClosed;
 
           if (shouldReconnect) {
             const delay = Math.min(
