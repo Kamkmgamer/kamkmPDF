@@ -27,13 +27,20 @@ export class SSEManager {
     return SSEManager.instance;
   }
 
-  addConnection(jobId: string, connectionId: string, connection: SSEConnection) {
+  addConnection(
+    jobId: string,
+    connectionId: string,
+    connection: SSEConnection,
+  ) {
     if (!this.connections.has(jobId)) {
       this.connections.set(jobId, new Map());
     }
     this.connections.get(jobId)?.set(connectionId, connection);
 
-    logger.info({ jobId, connectionId, connections: this.connections.get(jobId)?.size }, "SSE connection added");
+    logger.info(
+      { jobId, connectionId, connections: this.connections.get(jobId)?.size },
+      "SSE connection added",
+    );
   }
 
   removeConnection(jobId: string, connectionId: string) {
@@ -45,7 +52,10 @@ export class SSEManager {
         try {
           connection.controller.close();
         } catch (error) {
-          logger.warn({ error: String(error) }, "Failed to close SSE connection");
+          logger.warn(
+            { error: String(error) },
+            "Failed to close SSE connection",
+          );
         }
       }
       jobConnections.delete(connectionId);
@@ -53,7 +63,10 @@ export class SSEManager {
         this.connections.delete(jobId);
       }
     }
-    logger.info({ jobId, connectionId, connections: this.connections.get(jobId)?.size }, "SSE connection removed");
+    logger.info(
+      { jobId, connectionId, connections: this.connections.get(jobId)?.size },
+      "SSE connection removed",
+    );
   }
 
   async sendJobUpdate(jobId: string, update: SSEJobUpdate) {
@@ -66,10 +79,17 @@ export class SSEManager {
     }
 
     await Promise.allSettled(promises);
-    logger.info({ jobId, connections: jobConnections.size }, "SSE job update sent");
+    logger.info(
+      { jobId, connections: jobConnections.size },
+      "SSE job update sent",
+    );
   }
 
-  private async sendEvent(connection: SSEConnection, event: string, data: unknown): Promise<void> {
+  private async sendEvent(
+    connection: SSEConnection,
+    event: string,
+    data: unknown,
+  ): Promise<void> {
     try {
       const eventString = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
       connection.controller.enqueue(connection.encoder.encode(eventString));
@@ -102,13 +122,19 @@ export class SSEManager {
         try {
           await this.sendEvent(connection, "server-shutdown", { jobId });
         } catch (error) {
-          logger.warn({ error: String(error) }, "Failed to send shutdown event");
+          logger.warn(
+            { error: String(error) },
+            "Failed to send shutdown event",
+          );
         }
         clearInterval(connection.heartbeat);
         try {
           connection.controller.close();
         } catch (error) {
-          logger.warn({ error: String(error) }, "Failed to close connection during cleanup");
+          logger.warn(
+            { error: String(error) },
+            "Failed to close connection during cleanup",
+          );
         }
       }
     }
@@ -124,12 +150,13 @@ const sseManager = SSEManager.getInstance();
  */
 export function createSSEResponse(jobId: string): Response {
   const connectionId = `${jobId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
+  let heartbeat: NodeJS.Timeout;
+
   // Create a readable stream for SSE
   const stream = new ReadableStream({
     start(controller) {
       const encoder = new TextEncoder();
-      
+
       const sendEvent = (event: string, data: unknown) => {
         try {
           const eventString = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -143,7 +170,7 @@ export function createSSEResponse(jobId: string): Response {
       sendEvent("connected", { jobId, timestamp: Date.now() });
 
       // Keep connection alive with periodic heartbeat
-      const heartbeat = setInterval(() => {
+      heartbeat = setInterval(() => {
         try {
           sendEvent("heartbeat", { timestamp: Date.now() });
         } catch {
@@ -158,24 +185,13 @@ export function createSSEResponse(jobId: string): Response {
         encoder,
         heartbeat,
       };
-      
+
       sseManager.addConnection(jobId, connectionId, connection);
-
-      // Clean up on close
-      const cleanup = () => {
-        clearInterval(heartbeat);
-        sseManager.removeConnection(jobId, connectionId);
-        try {
-          controller.close();
-        } catch (error) {
-          logger.warn({ error: String(error) }, "Failed to close controller");
-        }
-      };
-
-      // Handle abort signal
-      if (controller.signal) {
-        controller.signal.addEventListener("abort", cleanup);
-      }
+    },
+    cancel() {
+      // Clean up when stream is cancelled/closed
+      clearInterval(heartbeat);
+      sseManager.removeConnection(jobId, connectionId);
     },
   });
 

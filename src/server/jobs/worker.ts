@@ -73,15 +73,15 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
         console.log(`[worker] skipped job ${job.id} (already claimed)`);
         return;
       }
-      
+
       // Send SSE update for job start
       await sendJobUpdate(job.id, {
         jobId: job.id,
         status: "processing",
-        stage: "starting",
+        stage: "Processing PDF",
         progress: 0,
       });
-      
+
       // Best-effort: initialize stage/progress
       try {
         await db
@@ -115,11 +115,11 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
     // Generate PDF in-memory with tier-specific settings
     const tempImage = await readJobTempImage(job.id);
     const meta = await readJobTempMeta(job.id);
-    
+
     // Batch stage updates to reduce database round-trips
     let lastStageUpdate = 0;
     const stageUpdateThrottle = 1000; // Update at most once per second
-    
+
     const pdfBuffer = await generatePdfBuffer({
       jobId: job.id,
       prompt: job.prompt ?? "",
@@ -140,7 +140,7 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
               .update(jobs)
               .set({ stage, progress })
               .where(eq(jobs.id, job.id));
-            
+
             // Send SSE update
             await sendJobUpdate(job.id, {
               jobId: job.id,
@@ -148,7 +148,7 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
               stage,
               progress,
             });
-            
+
             lastStageUpdate = now;
           } catch (e) {
             console.warn(
@@ -197,10 +197,7 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       );
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error(
-        `[worker] job ${job.id} storage upload failed:`,
-        message,
-      );
+      console.error(`[worker] job ${job.id} storage upload failed:`, message);
       throw new Error(`PDF upload failed: ${message}`);
     }
 
@@ -217,7 +214,7 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
         fileUrl: fileUrl,
         mimeType: "application/pdf",
         size: fileSize,
-      })
+      }),
     );
 
     // 2. Update job status
@@ -225,7 +222,7 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       db
         .update(jobs)
         .set({ status: "completed", resultFileId: fileId, errorMessage: null })
-        .where(eq(jobs.id, job.id))
+        .where(eq(jobs.id, job.id)),
     );
 
     // Execute batch operations
@@ -240,9 +237,7 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       resultFileId: fileId,
     });
 
-    console.log(
-      `[worker] job ${job.id} completed, file ${fileId}`,
-    );
+    console.log(`[worker] job ${job.id} completed, file ${fileId}`);
 
     // Increment user's PDF usage count (async, non-blocking)
     if (job.userId) {
@@ -301,14 +296,14 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       .update(jobs)
       .set({ status: "failed", errorMessage })
       .where(eq(jobs.id, job.id));
-    
+
     // Send SSE failure update
     await sendJobUpdate(job.id, {
       jobId: job.id,
       status: "failed",
       errorMessage,
     });
-    
+
     // Attempt cleanup on failure as well
     await cleanupJobTemp(job.id).catch(() => undefined);
   }
