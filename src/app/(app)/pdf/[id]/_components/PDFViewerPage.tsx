@@ -67,7 +67,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   // Combine initial job data with SSE updates
   const currentJob = React.useMemo(() => {
     if (!job) return null;
-    
+
     // If we have SSE updates, merge them with the initial job data
     if (sseState.lastUpdate) {
       return {
@@ -79,7 +79,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
         resultFileId: sseState.lastUpdate.resultFileId ?? job.resultFileId,
       };
     }
-    
+
     return job;
   }, [job, sseState.lastUpdate]);
 
@@ -106,7 +106,15 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
 
   const shareMutation = api.files.createShareLink.useMutation();
   const regenerateMutation = api.jobs.recreate.useMutation();
-  const { data: subscription } = api.subscription.getCurrent.useQuery();
+  const { data: subscription } = api.subscription.getCurrent.useQuery(
+    undefined,
+    {
+      enabled: isSignedIn ?? false,
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+    },
+  );
 
   // Handle download with custom filename toast prompt
   const handleDownload = async () => {
@@ -114,10 +122,9 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
 
     try {
       // Suggest a default name based on the prompt or job id
-      const defaultBase = (currentJob.prompt?.trim() ?? `document-${currentJob.id}`).slice(
-        0,
-        50,
-      );
+      const defaultBase = (
+        currentJob.prompt?.trim() ?? `document-${currentJob.id}`
+      ).slice(0, 50);
       const suggested = defaultBase ?? "document";
 
       const input = await toastPrompt({
@@ -142,7 +149,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
 
       const url = `/api/files/${currentJob.resultFileId}/download?filename=${encodeURIComponent(filename)}`;
       window.open(url, "_blank");
-      
+
       // Show sign-in modal for unauthenticated users after download
       if (!isSignedIn) {
         // Small delay to let the download start
@@ -277,7 +284,10 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
   }
 
   // Processing state
-  if (currentJob && (currentJob.status === "processing" || currentJob.status === "queued")) {
+  if (
+    currentJob &&
+    (currentJob.status === "processing" || currentJob.status === "queued")
+  ) {
     // If we're regenerating, show the regeneration status
     if (isRegenerating) {
       return (
@@ -305,7 +315,10 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
     }
     const pct = Math.min(
       99,
-      Math.max(0, currentJob.progress ?? (currentJob.status === "processing" ? 20 : 5)),
+      Math.max(
+        0,
+        currentJob.progress ?? (currentJob.status === "processing" ? 20 : 5),
+      ),
     );
     const allowed: GenerationStage[] = [
       "Processing PDF",
@@ -315,7 +328,8 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
       "Finalizing document",
     ];
     const stageStr =
-      currentJob.stage ?? (currentJob.status === "queued" ? "Processing PDF" : undefined);
+      currentJob.stage ??
+      (currentJob.status === "queued" ? "Processing PDF" : undefined);
     const stage = allowed.includes(stageStr as GenerationStage)
       ? (stageStr as GenerationStage)
       : undefined;
