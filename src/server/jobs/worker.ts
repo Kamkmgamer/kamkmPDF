@@ -214,19 +214,13 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       const keyVal = typeof dataObj.key === "string" ? dataObj.key : undefined;
       const ufsUrlVal =
         typeof dataObj.ufsUrl === "string" ? dataObj.ufsUrl : undefined;
-      const urlVal = typeof dataObj.url === "string" ? dataObj.url : undefined;
       const sizeVal = typeof dataObj.size === "number" ? dataObj.size : undefined;
 
-      if (!keyVal) {
+      if (!keyVal || !ufsUrlVal) {
         throw new Error("UploadThing upload failed");
       }
       fileKey = keyVal;
-
-      const resolvedUrl = ufsUrlVal ?? urlVal;
-      if (!resolvedUrl) {
-        throw new Error("UploadThing upload failed");
-      }
-      fileUrl = resolvedUrl;
+      fileUrl = ufsUrlVal;
       fileSize = sizeVal ?? nodeBuffer.length;
 
       console.log(
