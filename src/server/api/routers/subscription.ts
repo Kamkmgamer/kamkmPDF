@@ -50,23 +50,22 @@ export const subscriptionRouter = createTRPCRouter({
       periodEnd.setMonth(periodEnd.getMonth() + 1);
       const referralCode = generateReferralCode(userId);
 
-      await db.insert(userSubscriptions).values({
-        id,
-        userId,
-        tier: "starter",
-        status: "active",
-        pdfsUsedThisMonth: 0,
-        storageUsedBytes: 0,
-        referralCode,
-        periodStart: now,
-        periodEnd,
-      });
+      const inserted = await db
+        .insert(userSubscriptions)
+        .values({
+          id,
+          userId,
+          tier: "starter",
+          status: "active",
+          pdfsUsedThisMonth: 0,
+          storageUsedBytes: 0,
+          referralCode,
+          periodStart: now,
+          periodEnd,
+        })
+        .returning();
 
-      subscription = await db
-        .select()
-        .from(userSubscriptions)
-        .where(eq(userSubscriptions.userId, userId))
-        .limit(1);
+      subscription = inserted;
     }
 
     const sub = subscription[0];

@@ -181,16 +181,53 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       const uploadResArr = await utapi.uploadFiles([utFile]);
 
       const uploadRes = uploadResArr[0];
-      if (!uploadRes || uploadRes.error || !uploadRes.data) {
-        const message =
-          uploadRes?.error?.message ?? "UploadThing upload failed";
-        throw new Error(message);
+      if (!uploadRes) {
+        throw new Error("UploadThing upload failed");
       }
 
-      const uploadData = uploadRes.data;
-      fileKey = uploadData.key;
-      fileUrl = uploadData.url;
-      fileSize = uploadData.size ?? nodeBuffer.length;
+      const resUnknown: unknown = uploadRes;
+
+      // Handle possible error shape
+      const maybeError =
+        typeof resUnknown === "object" && resUnknown !== null && "error" in resUnknown
+          ? (resUnknown as { error?: unknown }).error
+          : undefined;
+      if (typeof maybeError === "object" && maybeError !== null) {
+        const msg =
+          "message" in (maybeError as Record<string, unknown>) &&
+          typeof (maybeError as Record<string, unknown>).message === "string"
+            ? ((maybeError as Record<string, unknown>).message as string)
+            : "UploadThing upload failed";
+        throw new Error(msg);
+      }
+
+      // Extract data payload
+      const dataUnknown =
+        typeof resUnknown === "object" && resUnknown !== null && "data" in resUnknown
+          ? (resUnknown as { data?: unknown }).data
+          : undefined;
+      if (typeof dataUnknown !== "object" || dataUnknown === null) {
+        throw new Error("UploadThing upload failed");
+      }
+
+      const dataObj = dataUnknown as Record<string, unknown>;
+      const keyVal = typeof dataObj.key === "string" ? dataObj.key : undefined;
+      const ufsUrlVal =
+        typeof dataObj.ufsUrl === "string" ? dataObj.ufsUrl : undefined;
+      const urlVal = typeof dataObj.url === "string" ? dataObj.url : undefined;
+      const sizeVal = typeof dataObj.size === "number" ? dataObj.size : undefined;
+
+      if (!keyVal) {
+        throw new Error("UploadThing upload failed");
+      }
+      fileKey = keyVal;
+
+      const resolvedUrl = ufsUrlVal ?? urlVal;
+      if (!resolvedUrl) {
+        throw new Error("UploadThing upload failed");
+      }
+      fileUrl = resolvedUrl;
+      fileSize = sizeVal ?? nodeBuffer.length;
 
       console.log(
         `[worker] job ${job.id} PDF uploaded to storage, file ${fileId}`,

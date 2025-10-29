@@ -9,7 +9,6 @@ import { db } from "~/server/db";
 import { jobs, userSubscriptions } from "~/server/db/schema";
 import {
   checkForDuplicateJob,
-  storePromptHash,
   generatePromptHash,
 } from "~/lib/deduplication";
 import { eq, desc } from "drizzle-orm";
@@ -129,20 +128,15 @@ export const jobsRouter = createTRPCRouter({
       const id = randomUUID();
       const promptHash = generatePromptHash(input.prompt, { userId: userId ?? undefined });
       
-      await db.insert(jobs).values({ 
-        id, 
-        prompt: input.prompt, 
-        userId,
-        promptHash,
-      });
-      
-      // Store the prompt hash for future deduplication
-      await storePromptHash(id, promptHash);
       const created = await db
-        .select()
-        .from(jobs)
-        .where(eq(jobs.id, id))
-        .limit(1);
+        .insert(jobs)
+        .values({ 
+          id, 
+          prompt: input.prompt, 
+          userId,
+          promptHash,
+        })
+        .returning();
 
       // Best-effort ping the worker drain route so processing starts ASAP on Vercel
       try {
@@ -276,21 +270,21 @@ export const jobsRouter = createTRPCRouter({
       const newId = randomUUID();
       const promptHash = generatePromptHash(finalPrompt, { userId: ctx.userId ?? undefined });
       
-      await db.insert(jobs).values({
-        id: newId,
-        prompt: finalPrompt,
-        userId: ctx.userId,
-        status: "queued",
-        promptHash,
-        generatedHtml: existingJob[0].generatedHtml, // Pass base HTML
-        imageUrls:
-          input.imageUrls as unknown as typeof jobs.$inferInsert.imageUrls,
-        regenerationCount: (existingJob[0].regenerationCount ?? 0) + 1,
-        parentJobId: input.jobId,
-      });
-
-      // Store the prompt hash for future deduplication
-      await storePromptHash(newId, promptHash);
+      const created = await db
+        .insert(jobs)
+        .values({
+          id: newId,
+          prompt: finalPrompt,
+          userId: ctx.userId,
+          status: "queued",
+          promptHash,
+          generatedHtml: existingJob[0].generatedHtml, // Pass base HTML
+          imageUrls:
+            input.imageUrls as unknown as typeof jobs.$inferInsert.imageUrls,
+          regenerationCount: (existingJob[0].regenerationCount ?? 0) + 1,
+          parentJobId: input.jobId,
+        })
+        .returning();
 
       // Update usage (increment by credit cost as fraction)
       await db
@@ -312,12 +306,6 @@ export const jobsRouter = createTRPCRouter({
       } catch {
         // ignore
       }
-
-      const created = await db
-        .select()
-        .from(jobs)
-        .where(eq(jobs.id, newId))
-        .limit(1);
 
       return created[0] ?? null;
     }),

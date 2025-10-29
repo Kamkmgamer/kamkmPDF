@@ -28,9 +28,11 @@ export function useSSEJobUpdates(jobId: string) {
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
   const isConnectingRef = useRef(false);
+  const isTerminalRef = useRef(false);
 
   useEffect(() => {
     if (!jobId) return;
+    isTerminalRef.current = false;
 
     const connect = () => {
       // Prevent multiple simultaneous connection attempts
@@ -87,6 +89,23 @@ export function useSSEJobUpdates(jobId: string) {
               ...prev,
               lastUpdate: data,
             }));
+
+            if (data.status === "completed" || data.status === "failed") {
+              isTerminalRef.current = true;
+              if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+                eventSourceRef.current = null;
+              }
+              if (reconnectTimeoutRef.current) {
+                clearTimeout(reconnectTimeoutRef.current);
+                reconnectTimeoutRef.current = null;
+              }
+              setState(prev => ({
+                ...prev,
+                isConnected: false,
+                error: null,
+              }));
+            }
           } catch (error) {
             console.error("Failed to parse SSE job update:", error);
           }
@@ -117,6 +136,10 @@ export function useSSEJobUpdates(jobId: string) {
           
           isConnectingRef.current = false;
           
+          if (isTerminalRef.current) {
+            return;
+          }
+
           setState(prev => ({
             ...prev,
             isConnected: false,
@@ -130,7 +153,7 @@ export function useSSEJobUpdates(jobId: string) {
           }
 
           // Attempt to reconnect with exponential backoff
-          if (reconnectAttempts.current < maxReconnectAttempts) {
+          if (!isTerminalRef.current && reconnectAttempts.current < maxReconnectAttempts) {
             const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
             reconnectAttempts.current++;
             
@@ -162,6 +185,7 @@ export function useSSEJobUpdates(jobId: string) {
 
     return () => {
       isConnectingRef.current = false;
+      isTerminalRef.current = false;
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;
