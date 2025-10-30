@@ -325,3 +325,67 @@ export const referralRewards = createTable("referral_reward", (d) => ({
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 }));
+
+// Blog posts table for content marketing and SEO
+export const blogPosts = createTable(
+  "blog_post",
+  (d) => ({
+    id: d.text().primaryKey(),
+    title: d.varchar({ length: 512 }).notNull(),
+    slug: d.varchar({ length: 512 }).notNull().unique(), // URL-friendly slug
+    excerpt: d.text(), // Short description for previews
+    content: d.text().notNull(), // Full blog post content (can be markdown or HTML)
+    featuredImage: d.text(), // URL to featured image
+    author: d.varchar({ length: 256 }), // Author name
+    authorId: d.text(), // Optional reference to user who created the post
+    status: d.varchar({ length: 32 }).default("published").notNull(), // draft, published, archived
+    tags: d.jsonb().$type<string[]>().default(sql`'[]'`), // Array of tags
+    seoTitle: d.varchar({ length: 512 }), // Custom SEO title
+    seoDescription: d.text(), // Custom SEO meta description
+    publishedAt: d.timestamp({ withTimezone: true }), // When the post was published
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  }),
+  (table) => ({
+    slugIdx: index("blog_post_slug_idx").on(table.slug),
+    publishedAtIdx: index("blog_post_published_at_idx").on(table.publishedAt),
+    statusIdx: index("blog_post_status_idx").on(table.status),
+  }),
+);
+
+// Documentation pages table
+export const documentationPages = createTable(
+  "documentation_page",
+  (d) => ({
+    id: d.text().primaryKey(),
+    title: d.varchar({ length: 512 }).notNull(),
+    slug: d.varchar({ length: 512 }).notNull().unique(), // URL-friendly slug
+    description: d.text(), // Short description for previews
+    content: d.text().notNull(), // Full documentation content (can be markdown or HTML)
+    category: d.varchar({ length: 128 }).notNull(), // Category: getting-started, api-reference, guides, etc.
+    section: d.varchar({ length: 128 }), // Section within category
+    order: d.integer().default(0).notNull(), // Order within category/section
+    parentId: d.text(), // Parent page ID for nested documentation
+    status: d.varchar({ length: 32 }).default("published").notNull(), // draft, published, archived
+    tags: d.jsonb().$type<string[]>().default(sql`'[]'`), // Array of tags
+    seoTitle: d.varchar({ length: 512 }), // Custom SEO title
+    seoDescription: d.text(), // Custom SEO meta description
+    author: d.varchar({ length: 256 }), // Author name
+    authorId: d.text(), // Optional reference to user who created the page
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  }),
+  (table) => ({
+    slugIdx: index("doc_page_slug_idx").on(table.slug),
+    categoryIdx: index("doc_page_category_idx").on(table.category),
+    statusIdx: index("doc_page_status_idx").on(table.status),
+    parentIdx: index("doc_page_parent_idx").on(table.parentId),
+    orderIdx: index("doc_page_order_idx").on(table.order),
+  }),
+);

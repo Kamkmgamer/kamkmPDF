@@ -28,3 +28,9 @@ export const { trpc: api, HydrateClient } = createHydrationHelpers<AppRouter>(
   caller,
   getQueryClient,
 );
+
+/**
+ * Server-side API caller for use in server components during build/static generation.
+ * Use this instead of api.*.query() when calling from server components.
+ */
+export const serverApi = caller;
