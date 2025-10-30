@@ -84,7 +84,7 @@ export function PDFViewerPage({ jobId }: PDFViewerPageProps) {
       return () => clearTimeout(t);
     }
     prevStatusRef.current = status;
-  }, [currentJob?.status, isRegenerating]);
+  }, [job?.status, isRegenerating]);
 
   // We keep getDownloadUrl for preview components elsewhere; for the download button
   // we call our own API route to allow a custom filename via Content-Disposition.

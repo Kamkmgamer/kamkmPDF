@@ -14,6 +14,8 @@
     "worker": "tsx --env-file=.env ./src/server/jobs/worker.ts",
     "worker:dev": "tsx watch --env-file=.env ./src/server/jobs/worker.ts",
     "worker:prod": "node ./dist/server/jobs/worker.js",
+    "cf:build": "pnpm exec next-on-pages build",
+    "cf:deploy": "pnpm run cf:build && pnpm exec wrangler deploy",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "lint": "next lint",
@@ -64,6 +66,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.1.15",
     "@testing-library/jest-dom": "^6.9.1",
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@types/jest": "^30.0.0",
     "@types/node": "^20.19.23",
     "@types/pdfkit": "^0.17.3",
@@ -87,7 +90,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wrangler": "^4.45.2"
   },
   "ct3aMetadata": {
     "initVersion": "7.39.3"

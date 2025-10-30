@@ -10,6 +10,8 @@ import { webhooksRouter } from "~/server/api/routers/webhooks";
 import { analyticsRouter } from "~/server/api/routers/analytics";
 import { bulkRouter } from "~/server/api/routers/bulk";
 import { referralRouter } from "~/server/api/routers/referrals";
+import { blogRouter } from "~/server/api/routers/blog";
+import { documentationRouter } from "~/server/api/routers/documentation";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -30,6 +32,8 @@ export const appRouter = createTRPCRouter({
   analytics: analyticsRouter,
   bulk: bulkRouter,
   referrals: referralRouter,
+  blog: blogRouter,
+  documentation: documentationRouter,
 });
 
 // export type definition of API
