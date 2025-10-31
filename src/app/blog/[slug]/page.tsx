@@ -3,11 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { serverApi } from "~/trpc/server";
-import type { RouterOutputs } from "~/trpc/react";
 import { format } from "date-fns";
 import { Calendar, ArrowLeft, Tag, User } from "lucide-react";
-
-type BlogPost = RouterOutputs["blog"]["getBySlug"];
 
 interface PageProps {
   params: Promise<{ slug: string }>;

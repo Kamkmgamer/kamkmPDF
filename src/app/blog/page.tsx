@@ -2,11 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { serverApi } from "~/trpc/server";
-import type { RouterOutputs } from "~/trpc/react";
 import { format } from "date-fns";
 import { Calendar, ArrowRight, Tag } from "lucide-react";
-
-type BlogPost = RouterOutputs["blog"]["getAll"]["posts"][number];
 
 export const metadata: Metadata = {
   title: "Blog - kamkmPDF",

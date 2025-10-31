@@ -4,8 +4,7 @@ import { serverApi } from "~/trpc/server";
 import type { RouterOutputs } from "~/trpc/react";
 import { Book, ChevronRight, Tag } from "lucide-react";
 
-type DocumentationPage = RouterOutputs["documentation"]["getAll"][number];
-type CategoryInfo = RouterOutputs["documentation"]["getCategories"][number];
+type DocPage = RouterOutputs["documentation"]["getAll"][number];
 
 export const metadata: Metadata = {
   title: "Documentation - kamkmPDF",
@@ -19,7 +18,7 @@ export default async function DocumentationPage() {
   // Group pages by category and section
   const groupedPages = new Map<
     string,
-    Map<string | null, DocumentationPage[]>
+    Map<string | null, DocPage[]>
   >();
 
   for (const page of allPages) {

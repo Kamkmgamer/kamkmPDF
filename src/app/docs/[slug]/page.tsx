@@ -2,12 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { serverApi } from "~/trpc/server";
-import type { RouterOutputs } from "~/trpc/react";
 import { ArrowLeft, Book, Tag, ChevronRight } from "lucide-react";
-
-type DocumentationPage = RouterOutputs["documentation"]["getBySlug"];
-type RelatedPage = RouterOutputs["documentation"]["getRelated"][number];
-type CategoryPage = RouterOutputs["documentation"]["getByCategory"][number];
 
 interface PageProps {
   params: Promise<{ slug: string }>;

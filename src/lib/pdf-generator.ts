@@ -55,7 +55,7 @@ async function waitForFonts(page: Page, timeout = 10000): Promise<void> {
       const startTime = Date.now();
       
       // Wait for fonts to be ready using Font Loading API
-      if (document.fonts && document.fonts.ready) {
+      if (document.fonts && 'ready' in document.fonts) {
         try {
           await Promise.race([
             document.fonts.ready,
@@ -63,7 +63,7 @@ async function waitForFonts(page: Page, timeout = 10000): Promise<void> {
               setTimeout(() => reject(new Error('Font loading timeout')), timeoutMs)
             ),
           ]);
-        } catch (e) {
+        } catch {
           // Fonts.ready timed out, but continue to check individual fonts
         }
       }
@@ -86,7 +86,7 @@ async function waitForFonts(page: Page, timeout = 10000): Promise<void> {
 
           let allFontsLoaded = true;
           for (const fontFamily of arabicFonts) {
-            if (document.fonts && document.fonts.check) {
+            if (document.fonts?.check) {
               // Check if font is loaded (using a test string with Arabic characters)
               const loaded = document.fonts.check(`16px "${fontFamily}"`, 'ا');
               if (!loaded) {
@@ -151,7 +151,7 @@ export async function generatePdfFromHtml(
     // Use networkidle0 for multilingual content to ensure fonts load
     // This ensures all network requests (including font files) complete
     const waitStrategy = hasMultilingualContent || options.waitForImages
-      ? ["domcontentloaded", "networkidle0"] as const
+      ? (["domcontentloaded", "networkidle0"] as ["domcontentloaded", "networkidle0"])
       : "domcontentloaded";
 
     // Optimize page loading
