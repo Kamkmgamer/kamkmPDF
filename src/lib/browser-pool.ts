@@ -399,34 +399,44 @@ export function getBrowserPool(): BrowserPool {
 }
 
 // Graceful shutdown (Node.js only - not available in Edge Runtime)
-if (typeof process !== "undefined" && process.on) {
-  process.on("SIGINT", () => {
-    if (browserPool) {
-      void browserPool.destroy().then(() => {
-        if (typeof process !== "undefined" && process.exit) {
-          process.exit(0);
-        }
-      });
-    } else {
-      if (typeof process !== "undefined" && process.exit) {
-        process.exit(0);
-      }
+// Use a function to delay evaluation and avoid static analysis issues
+(function setupGracefulShutdown() {
+  try {
+    // Check if we're in Node.js environment
+    const proc = typeof process !== "undefined" ? process : null;
+    if (!proc || typeof proc.on !== "function") {
+      return; // Edge Runtime - skip
     }
-  });
 
-  process.on("SIGTERM", () => {
-    if (browserPool) {
-      void browserPool.destroy().then(() => {
-        if (typeof process !== "undefined" && process.exit) {
-          process.exit(0);
-        }
-      });
-    } else {
-      if (typeof process !== "undefined" && process.exit) {
-        process.exit(0);
-      }
+    if (typeof proc.exit !== "function") {
+      return; // No exit function available
     }
-  });
-}
+
+    // Bind exit to process to avoid unbound method warning
+    const exit = proc.exit.bind(proc);
+
+    proc.on("SIGINT", () => {
+      if (browserPool) {
+        void browserPool.destroy().then(() => {
+          exit(0);
+        });
+      } else {
+        exit(0);
+      }
+    });
+
+    proc.on("SIGTERM", () => {
+      if (browserPool) {
+        void browserPool.destroy().then(() => {
+          exit(0);
+        });
+      } else {
+        exit(0);
+      }
+    });
+  } catch {
+    // Ignore errors in Edge Runtime
+  }
+})();
 
 export { BrowserPool };

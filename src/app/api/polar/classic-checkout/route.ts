@@ -10,6 +10,8 @@ import { db } from "~/server/db";
 import { polarProducts } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
+export const runtime = "edge";
+
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
@@ -28,14 +30,14 @@ export async function GET(request: NextRequest) {
       where: and(
         eq(polarProducts.tier, "classic"),
         eq(polarProducts.billingCycle, billingCycle as "monthly" | "yearly"),
-        eq(polarProducts.isActive, true)
+        eq(polarProducts.isActive, true),
       ),
     });
 
     if (!product) {
       return NextResponse.json(
         { error: "Classic plan not available" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -43,7 +45,10 @@ export async function GET(request: NextRequest) {
     const checkoutUrl = `https://polar.sh/checkout/${product.productId}`;
 
     // Add success/cancel URLs
-    const successUrl = new URL("/dashboard/subscription?success=true", request.url);
+    const successUrl = new URL(
+      "/dashboard/subscription?success=true",
+      request.url,
+    );
     const cancelUrl = new URL("/pricing", request.url);
 
     // Add metadata to track offer type
@@ -57,7 +62,7 @@ export async function GET(request: NextRequest) {
     console.error("Classic checkout error:", error);
     return NextResponse.json(
       { error: "Failed to create checkout session" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

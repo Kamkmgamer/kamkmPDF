@@ -8,6 +8,8 @@ import {
   hasPermission,
 } from "~/server/api/middleware/apiKeyAuth";
 
+export const runtime = "edge";
+
 /**
  * GET /api/v1/jobs/[id]
  * Get job status using API key authentication

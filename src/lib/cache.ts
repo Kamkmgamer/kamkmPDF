@@ -65,9 +65,10 @@ class RedisCache implements CacheInterface {
       try {
         // Dynamic import without eval - works in Node.js runtime only
         // Edge Runtime will fail here, which is expected
-        // Use string literal to avoid TypeScript checking for optional dependency
+        // Construct module name at runtime to avoid static analysis
+        const moduleName = "re" + "dis"; // Split to avoid static resolution
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const redisModule = await import("redis" as string).catch(() => null);
+        const redisModule = await import(moduleName).catch(() => null);
         if (!redisModule) {
           throw new Error("Redis package not installed");
         }

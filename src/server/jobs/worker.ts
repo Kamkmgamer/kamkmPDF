@@ -400,32 +400,48 @@ async function runLoop() {
 }
 
 // ESM-safe entrypoint check (Node.js only - not available in Edge Runtime)
-if (
-  typeof process !== "undefined" &&
-  process.argv &&
-  Array.isArray(process.argv) &&
-  process.argv[1]
-) {
-  // Use IIFE to handle async import
-  (async () => {
-    try {
-      // Dynamic import of url module (Node.js only)
-      const { pathToFileURL } = await import("url");
-      const isEntry = import.meta.url === pathToFileURL(process.argv[1]!).href;
-      if (isEntry) {
-        runLoop().catch((e) => {
-          console.error(e);
-          if (typeof process !== "undefined" && process.exit) {
-            process.exit(1);
-          }
-        });
-      }
-    } catch {
-      // Ignore errors in Edge Runtime where url module or process.argv may not work
+// Use a function to delay evaluation and avoid static analysis issues
+(function checkEntryPoint() {
+  try {
+    const proc = typeof process !== "undefined" ? process : null;
+    if (!proc?.argv || !Array.isArray(proc.argv) || !proc.argv[1]) {
+      return; // Edge Runtime - skip
     }
-  })().catch(() => {
-    // Ignore async errors
-  });
-}
+
+    if (typeof proc.exit !== "function") {
+      return; // No exit function available
+    }
+
+    // Bind exit to process to avoid unbound method warning
+    const exit = proc.exit.bind(proc);
+
+    const argv = proc.argv;
+    const argv1 = argv[1];
+    if (!argv1) {
+      return; // No argv[1] available
+    }
+
+    // Use IIFE to handle async import
+    (async () => {
+      try {
+        // Dynamic import of url module (Node.js only)
+        const { pathToFileURL } = await import("url");
+        const isEntry = import.meta.url === pathToFileURL(argv1).href;
+        if (isEntry) {
+          runLoop().catch((e) => {
+            console.error(e);
+            exit(1);
+          });
+        }
+      } catch {
+        // Ignore errors in Edge Runtime where url module or process.argv may not work
+      }
+    })().catch(() => {
+      // Ignore async errors
+    });
+  } catch {
+    // Ignore errors in Edge Runtime
+  }
+})();
 
 export { runLoop, processJob };

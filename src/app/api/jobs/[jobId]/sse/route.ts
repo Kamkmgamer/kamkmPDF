@@ -1,14 +1,14 @@
 import type { NextRequest } from "next/server";
 import { createSSEResponse } from "~/lib/sse";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ jobId: string }> }
+  { params }: { params: Promise<{ jobId: string }> },
 ) {
   const { jobId } = await params;
 
@@ -17,7 +17,8 @@ export async function GET(
   }
 
   // Validate job ID format (should be a UUID)
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(jobId)) {
     return new Response("Invalid job ID format", { status: 400 });
   }

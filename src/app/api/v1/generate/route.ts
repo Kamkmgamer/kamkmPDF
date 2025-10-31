@@ -15,6 +15,8 @@ import {
 } from "~/server/subscription/tiers";
 import { env } from "~/env";
 
+export const runtime = "edge";
+
 /**
  * POST /api/v1/generate
  * Generate a PDF using API key authentication

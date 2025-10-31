@@ -20,10 +20,9 @@ import {
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8MB
 const ACCEPTED_TYPES = new Set(["image/png", "image/jpeg"]);
 
-// Ensure Node.js runtime for filesystem and Buffer operations
-export const runtime = "nodejs";
+// Cloudflare Pages requires Edge Runtime
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {

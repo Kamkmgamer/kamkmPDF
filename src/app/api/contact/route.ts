@@ -4,6 +4,8 @@ import { audit } from "~/lib/logger";
 import { contactRateLimit } from "~/lib/rate-limit";
 import type { Resend } from "resend";
 
+export const runtime = "edge";
+
 let resend: Resend | null = null;
 
 try {

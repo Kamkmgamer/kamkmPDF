@@ -1,9 +1,7 @@
-// Ensure Node.js runtime on Vercel (required for puppeteer-core + chromium)
-export const runtime = "nodejs";
+// Cloudflare Pages requires Edge Runtime
+export const runtime = "edge";
 // Avoid static optimization; this route depends on dynamic DB/filesystem
 export const dynamic = "force-dynamic";
-// Allow longer execution for on-demand PDF generation (subject to plan limits)
-export const maxDuration = 60;
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { files as filesTable, jobs, shareLinks } from "~/server/db/schema";

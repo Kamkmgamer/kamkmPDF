@@ -5,6 +5,8 @@ import { contactRateLimit } from "~/lib/rate-limit";
 import EnterpriseDemoConfirmationEmail from "~/emails/EnterpriseDemoConfirmationEmail";
 import type { Resend } from "resend";
 
+export const runtime = "edge";
+
 let resend: Resend | null = null;
 
 try {
@@ -39,17 +41,42 @@ export async function POST(request: NextRequest) {
       audit.error(error as Error, {
         context: "enterprise_demo_parse_error",
       });
-      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid request body" },
+        { status: 400 },
+      );
     }
 
-    const { firstName, lastName, email, phone, company, companySize, role, message } = body;
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      company,
+      companySize,
+      role,
+      message,
+    } = body;
 
-    if (!firstName || !lastName || !email || !company || !companySize || !role) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !company ||
+      !companySize ||
+      !role
+    ) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     if (!validateEmail(email)) {
-      return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 },
+      );
     }
 
     if (!resend) {

@@ -9,6 +9,10 @@ import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 
+// Note: This is a client component, but Cloudflare Pages requires runtime export
+// Client components don't execute runtime config, but we add it for build compatibility
+export const runtime = "edge";
+
 export default function TemplateDetailPage() {
   const params = useParams();
   const id = params?.id && typeof params.id === "string" ? params.id : "";
