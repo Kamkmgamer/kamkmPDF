@@ -181,6 +181,18 @@ Client-side keys **must** be prefixed with `NEXT_PUBLIC_`. Do not commit `.env.l
 3. **Ensure cron scheduling** – `vercel.json` already ships with the `*/1 * * * *` drain.
 4. **Deploy** – each push to `main` triggers a production build; PRs create preview deployments.
 
+### Cloudflare Pages
+
+1. **Push to GitHub** and connect the repo in Cloudflare Pages.
+2. **Configure build settings** in Cloudflare Pages dashboard:
+   - **Build command**: `pnpm run cf:build`
+   - **Build output directory**: `.open-next` (or leave empty, auto-detected from `wrangler.toml`)
+   - **Deploy command**: Leave **empty** (Pages deploys automatically after build)
+     - If you must set a deploy command, use: `npx wrangler pages deploy .open-next`
+     - ⚠️ **Do NOT use** `npx wrangler deploy` (that's for Workers, not Pages)
+3. **Configure environment variables** in the Cloudflare Pages dashboard.
+4. **Deploy** – each push to `main` triggers a production build.
+
 ### Production Worker
 
 - **Serverless-only**: rely on the cron route. Provide `PDFPROMPT_WORKER_SECRET` and include the header `x-worker-secret` when invoking manually.
