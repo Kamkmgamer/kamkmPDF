@@ -16,12 +16,12 @@ class MemoryCache implements CacheInterface {
   async get(key: string): Promise<string | null> {
     const entry = this.store.get(key);
     if (!entry) return null;
-    
+
     if (Date.now() > entry.expiresAt) {
       this.store.delete(key);
       return null;
     }
-    
+
     return entry.value;
   }
 
@@ -63,13 +63,15 @@ class RedisCache implements CacheInterface {
   private async getClient() {
     if (!this.client) {
       try {
-        // Use eval to avoid TypeScript compilation issues with optional Redis
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-        const redisModule = await eval('import("redis")').catch(() => null);
+        // Dynamic import without eval - works in Node.js runtime only
+        // Edge Runtime will fail here, which is expected
+        // Use string literal to avoid TypeScript checking for optional dependency
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const redisModule = await import("redis" as string).catch(() => null);
         if (!redisModule) {
           throw new Error("Redis package not installed");
         }
-        
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         this.client = redisModule.createClient({
           url: process.env.REDIS_URL ?? "redis://localhost:6379",
@@ -78,17 +80,20 @@ class RedisCache implements CacheInterface {
             lazyConnect: true,
           },
         });
-        
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         this.client.on("error", (err: Error) => {
           logger.warn({ error: err.message }, "Redis connection error");
         });
-        
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         await this.client.connect();
         logger.info("Redis cache connected");
       } catch (error) {
-        logger.warn({ error: String(error) }, "Failed to connect to Redis, falling back to memory cache");
+        logger.warn(
+          { error: String(error) },
+          "Failed to connect to Redis, falling back to memory cache",
+        );
         throw error;
       }
     }
@@ -146,9 +151,23 @@ class RedisCache implements CacheInterface {
 
 // Cache factory - chooses implementation based on environment
 function createCache(): CacheInterface {
+  // Edge Runtime doesn't support Redis, always use memory cache
+  // Check for Edge Runtime by checking if process.env is available and NEXT_RUNTIME
+  const isEdgeRuntime =
+    typeof process === "undefined" || process.env.NEXT_RUNTIME === "edge";
+
+  if (isEdgeRuntime) {
+    return new MemoryCache();
+  }
+
   // Use Redis in production if available, otherwise fall back to memory cache
   if (process.env.REDIS_URL && process.env.NODE_ENV === "production") {
-    return new RedisCache();
+    try {
+      return new RedisCache();
+    } catch {
+      // Fallback to memory cache if Redis initialization fails
+      return new MemoryCache();
+    }
   }
   return new MemoryCache();
 }
@@ -158,9 +177,12 @@ const cache = createCache();
 
 // Cleanup memory cache periodically (only for memory cache)
 if (cache instanceof MemoryCache) {
-  setInterval(() => {
-    cache.cleanup();
-  }, 5 * 60 * 1000); // Cleanup every 5 minutes
+  setInterval(
+    () => {
+      cache.cleanup();
+    },
+    5 * 60 * 1000,
+  ); // Cleanup every 5 minutes
 }
 
 // Cache key generation utilities
@@ -175,16 +197,19 @@ export function generatePromptCacheKey(prompt: string, tier: string): string {
 }
 
 // Cache operations with error handling
-export async function getCachedHtml(prompt: string, tier: string): Promise<string | null> {
+export async function getCachedHtml(
+  prompt: string,
+  tier: string,
+): Promise<string | null> {
   try {
     const key = generatePromptCacheKey(prompt, tier);
     const cached = await cache.get(key);
-    
+
     if (cached) {
       logger.info({ key: key.substring(0, 20) }, "Cache hit for prompt");
       return cached;
     }
-    
+
     return null;
   } catch (error) {
     logger.warn({ error: String(error) }, "Cache get error");
@@ -192,19 +217,30 @@ export async function getCachedHtml(prompt: string, tier: string): Promise<strin
   }
 }
 
-export async function setCachedHtml(prompt: string, tier: string, html: string, ttlDays = 7): Promise<void> {
+export async function setCachedHtml(
+  prompt: string,
+  tier: string,
+  html: string,
+  ttlDays = 7,
+): Promise<void> {
   try {
     const key = generatePromptCacheKey(prompt, tier);
     const ttlSeconds = ttlDays * 24 * 60 * 60; // Convert days to seconds
-    
+
     await cache.set(key, html, ttlSeconds);
-    logger.info({ key: key.substring(0, 20), ttlDays }, "Cached HTML for prompt");
+    logger.info(
+      { key: key.substring(0, 20), ttlDays },
+      "Cached HTML for prompt",
+    );
   } catch (error) {
     logger.warn({ error: String(error) }, "Cache set error");
   }
 }
 
-export async function invalidatePromptCache(prompt: string, tier: string): Promise<void> {
+export async function invalidatePromptCache(
+  prompt: string,
+  tier: string,
+): Promise<void> {
   try {
     const key = generatePromptCacheKey(prompt, tier);
     await cache.del(key);
@@ -219,7 +255,7 @@ const inFlightRequests = new Map<string, Promise<string>>();
 
 export async function deduplicateRequest<T>(
   key: string,
-  requestFn: () => Promise<T>
+  requestFn: () => Promise<T>,
 ): Promise<T> {
   // Check if request is already in flight
   const existingRequest = inFlightRequests.get(key);
