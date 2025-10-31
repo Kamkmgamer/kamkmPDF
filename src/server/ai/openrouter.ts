@@ -54,6 +54,24 @@ export function wrapHtmlDocument(
   // Comprehensive multilingual font imports
   const multilingualFontImports = getMultilingualFontImports();
 
+  // Font loading script to ensure fonts are ready before PDF generation
+  const fontLoadingScript = `
+    <script>
+      (function() {
+        // Mark fonts as ready when document.fonts.ready resolves
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(function() {
+            window.__fontsReady = true;
+          }).catch(function() {
+            window.__fontsReady = true; // Set anyway after timeout
+          });
+        } else {
+          window.__fontsReady = true; // No font API, assume ready
+        }
+      })();
+    </script>
+  `;
+
   const multilingualCss = `
         ${multilingualFontImports}
         :root { 
@@ -127,18 +145,29 @@ export function wrapHtmlDocument(
 
     doc = doc.replace(/<html(?![^>]*\bdir=)/i, '<html dir="auto"');
 
+    // Add preconnect links for faster font loading
+    const preconnectLinks = `
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    `;
+
     if (/<\/head>/i.test(doc)) {
       doc = doc.replace(
         /<\/head>/i,
-        `<style>${multilingualCss}</style></head>`,
+        `${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}</head>`,
+      );
+    } else if (/<head[^>]*>/i.test(doc)) {
+      doc = doc.replace(
+        /<head[^>]*>/i,
+        (m) => `${m}${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}`,
       );
     } else if (/<body[^>]*>/i.test(doc)) {
       doc = doc.replace(
         /<body[^>]*>/i,
-        (m) => `${m}<style>${multilingualCss}</style>`,
+        (m) => `${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}${m}`,
       );
     } else {
-      doc = `<style>${multilingualCss}</style>` + doc;
+      doc = `${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}` + doc;
     }
 
     if (addWatermark) {
@@ -152,10 +181,13 @@ export function wrapHtmlDocument(
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <title>${title}</title>
       <style>
 ${multilingualCss}
       </style>
+      ${fontLoadingScript}
     </head>
     <body>
       <div class="container">${bodyOrDoc}</div>
