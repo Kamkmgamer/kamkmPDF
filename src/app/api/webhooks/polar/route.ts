@@ -3,8 +3,6 @@
  * Uses official @polar-sh/nextjs SDK for webhook handling
  */
 
-export const runtime = "edge";
-
 import { Webhooks } from "@polar-sh/nextjs";
 import { db } from "~/server/db";
 import {

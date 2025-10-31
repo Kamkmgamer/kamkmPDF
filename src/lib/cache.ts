@@ -75,16 +75,21 @@ class RedisCache implements CacheInterface {
     try {
       // Try dynamic import first (works in ESM and modern Node.js)
       const moduleName = "re" + "dis";
-      
+
       // Use Function constructor to make import truly dynamic and avoid static analysis
-      const dynamicImport = new Function("moduleName", "return import(moduleName)");
+      // eslint-disable-next-line @typescript-eslint/no-implied-eval
+      const dynamicImport = new Function(
+        "moduleName",
+        "return import(moduleName)",
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       const redisModule = await dynamicImport(moduleName).catch(() => {
         // Fallback to require() if import fails (CommonJS environments)
-        // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-eval
-        const requireFunc = eval('require') as (moduleName: string) => unknown;
+
+        const requireFunc = eval("require") as (moduleName: string) => unknown;
         return requireFunc(moduleName);
       });
-      
+
       if (!redisModule) {
         throw new Error("Redis package not installed");
       }
@@ -105,7 +110,11 @@ class RedisCache implements CacheInterface {
             on: (event: string, handler: (err: Error) => void) => void;
             connect: () => Promise<void>;
             get: (key: string) => Promise<string | null>;
-            setEx: (key: string, seconds: number, value: string) => Promise<void>;
+            setEx: (
+              key: string,
+              seconds: number,
+              value: string,
+            ) => Promise<void>;
             del: (key: string) => Promise<void>;
             exists: (key: string) => Promise<number>;
           };

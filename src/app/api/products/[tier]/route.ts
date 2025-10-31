@@ -6,8 +6,6 @@
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 
-export const runtime = "edge";
-
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ tier: string }> },

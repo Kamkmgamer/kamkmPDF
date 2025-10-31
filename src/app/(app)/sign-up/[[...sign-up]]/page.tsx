@@ -1,7 +1,5 @@
 import { SignUp } from "@clerk/nextjs";
 
-export const runtime = "edge";
-
 export default async function SignUpPage({
   searchParams,
 }: {

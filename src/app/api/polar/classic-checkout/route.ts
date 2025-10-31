@@ -10,8 +10,6 @@ import { db } from "~/server/db";
 import { polarProducts } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
-export const runtime = "edge";
-
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();

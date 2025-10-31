@@ -1,5 +1,3 @@
-// Cloudflare Pages requires Edge Runtime
-export const runtime = "edge";
 // Avoid static optimization; this route depends on dynamic DB/filesystem
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";

@@ -4,8 +4,6 @@ import Link from "next/link";
 import { serverApi } from "~/trpc/server";
 import { ArrowLeft, Book, Tag, ChevronRight } from "lucide-react";
 
-export const runtime = "edge";
-
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

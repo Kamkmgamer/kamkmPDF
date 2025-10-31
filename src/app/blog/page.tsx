@@ -5,8 +5,6 @@ import { serverApi } from "~/trpc/server";
 import { format } from "date-fns";
 import { Calendar, ArrowRight, Tag } from "lucide-react";
 
-export const runtime = "edge";
-
 export const metadata: Metadata = {
   title: "Blog - kamkmPDF",
   description:

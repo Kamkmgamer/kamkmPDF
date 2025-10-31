@@ -5,8 +5,6 @@ import { contactRateLimit } from "~/lib/rate-limit";
 import EnterpriseDemoConfirmationEmail from "~/emails/EnterpriseDemoConfirmationEmail";
 import type { Resend } from "resend";
 
-export const runtime = "edge";
-
 let resend: Resend | null = null;
 
 try {

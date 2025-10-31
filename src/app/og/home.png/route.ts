@@ -1,8 +1,6 @@
 import React from "react";
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
-
 export async function GET() {
   const width = 1200;
   const height = 630;

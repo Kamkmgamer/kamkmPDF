@@ -6,8 +6,6 @@ import { serverApi } from "~/trpc/server";
 import { format } from "date-fns";
 import { Calendar, ArrowLeft, Tag, User } from "lucide-react";
 
-export const runtime = "edge";
-
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

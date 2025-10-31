@@ -7,8 +7,6 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { processPendingEmails } from "~/server/email/campaign-service";
 
-export const runtime = "edge";
-
 export async function GET(request: NextRequest) {
   try {
     // Verify cron secret to prevent unauthorized access

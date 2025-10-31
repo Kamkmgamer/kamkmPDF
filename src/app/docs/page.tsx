@@ -4,8 +4,6 @@ import { serverApi } from "~/trpc/server";
 import type { RouterOutputs } from "~/trpc/react";
 import { Book, ChevronRight, Tag } from "lucide-react";
 
-export const runtime = "edge";
-
 type DocPage = RouterOutputs["documentation"]["getAll"][number];
 
 export const metadata: Metadata = {
