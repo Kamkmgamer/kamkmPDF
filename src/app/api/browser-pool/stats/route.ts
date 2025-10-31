@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getBrowserPool } from "~/lib/browser-pool";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export async function GET() {
   try {

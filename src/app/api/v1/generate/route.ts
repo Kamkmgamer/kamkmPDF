@@ -15,7 +15,7 @@ import {
 } from "~/server/subscription/tiers";
 import { env } from "~/env";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 /**
  * POST /api/v1/generate
