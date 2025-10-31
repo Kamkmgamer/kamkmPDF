@@ -1,17 +1,22 @@
 import { NextResponse } from "next/server";
-import { getBrowserPoolStats } from "~/lib/pdf-generator";
+import { getBrowserPool } from "~/lib/browser-pool";
 
 export const runtime = "edge";
 
 export async function GET() {
   try {
-    const stats = getBrowserPoolStats();
+    // Get browser pool stats directly to avoid Puppeteer imports
+    // This route only returns browser pool stats, not PDF task stats
+    const browserPool = getBrowserPool();
+    const stats = browserPool.getStats();
 
     return NextResponse.json({
       success: true,
       stats: {
         ...stats,
         timestamp: new Date().toISOString(),
+        // Note: PDF task stats (activePdfTasks, waitQueueLength) are not available
+        // in Edge Runtime due to Puppeteer dependencies
       },
     });
   } catch (error) {
