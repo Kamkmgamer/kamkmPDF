@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { randomUUID } from "crypto";
+import { randomUUID } from "~/lib/crypto-edge";
 import { eq, and, sql } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
@@ -18,13 +18,13 @@ import {
  * Generate a unique referral code based on user ID
  */
 function generateReferralCode(userId: string): string {
-  const hash = userId.split('').reduce((acc, char) => {
-    return ((acc << 5) - acc) + char.charCodeAt(0);
+  const hash = userId.split("").reduce((acc, char) => {
+    return (acc << 5) - acc + char.charCodeAt(0);
   }, 0);
-  
+
   const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
   const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
-  
+
   return `REF${code}${timestamp}`;
 }
 

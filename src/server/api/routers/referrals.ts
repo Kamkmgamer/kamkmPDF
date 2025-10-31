@@ -1,23 +1,28 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { randomUUID } from "crypto";
+import { randomUUID } from "~/lib/crypto-edge";
 import { eq, sql, desc, count } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { userSubscriptions, referrals, referralRewards, usageHistory } from "~/server/db/schema";
+import {
+  userSubscriptions,
+  referrals,
+  referralRewards,
+  usageHistory,
+} from "~/server/db/schema";
 
 /**
  * Generate a unique referral code based on user ID
  */
 function generateReferralCode(userId: string): string {
   // Create a short, readable code from user ID
-  const hash = userId.split('').reduce((acc, char) => {
-    return ((acc << 5) - acc) + char.charCodeAt(0);
+  const hash = userId.split("").reduce((acc, char) => {
+    return (acc << 5) - acc + char.charCodeAt(0);
   }, 0);
-  
+
   const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
   const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
-  
+
   return `REF${code}${timestamp}`;
 }
 
@@ -47,7 +52,7 @@ export const referralRouter = createTRPCRouter({
     // Generate referral code if it doesn't exist
     if (!referralCode) {
       referralCode = generateReferralCode(userId);
-      
+
       // Update subscription with new referral code
       await db
         .update(userSubscriptions)
@@ -109,7 +114,7 @@ export const referralRouter = createTRPCRouter({
     .input(
       z.object({
         referralCode: z.string().min(1),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.userId;
@@ -178,7 +183,8 @@ export const referralRouter = createTRPCRouter({
 
       return {
         success: true,
-        message: "Referral code applied successfully! Your referrer will receive credits when you subscribe to a paid plan.",
+        message:
+          "Referral code applied successfully! Your referrer will receive credits when you subscribe to a paid plan.",
       };
     }),
 
@@ -189,7 +195,7 @@ export const referralRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number().min(1).max(100).default(10),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const leaderboard = await db
@@ -199,7 +205,11 @@ export const referralRouter = createTRPCRouter({
         })
         .from(referrals)
         .groupBy(referrals.referrerId)
-        .orderBy(desc(sql`COUNT(CASE WHEN ${referrals.status} = 'rewarded' THEN 1 END)`))
+        .orderBy(
+          desc(
+            sql`COUNT(CASE WHEN ${referrals.status} = 'rewarded' THEN 1 END)`,
+          ),
+        )
         .limit(input.limit);
 
       return leaderboard;

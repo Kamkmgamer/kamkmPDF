@@ -1,12 +1,12 @@
-import { randomBytes } from "crypto";
+import { randomBytesHex } from "~/lib/crypto-edge";
 
 /**
  * Generate a secure random token for share links
  * @param length - Length of the token in bytes (default: 32)
  * @returns Hex string token
  */
-export function generateShareToken(length = 32): string {
-  return randomBytes(length).toString("hex");
+export async function generateShareToken(length = 32): Promise<string> {
+  return await randomBytesHex(length);
 }
 
 /**

@@ -167,7 +167,7 @@ export const filesRouter = createTRPCRouter({
       }
 
       // Generate share token and create share link
-      const token = generateShareToken();
+      const token = await generateShareToken();
       const expiresAt = new Date(Date.now() + input.expiresInSeconds * 1000);
 
       // Create share link in database

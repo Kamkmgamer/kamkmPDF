@@ -16,7 +16,7 @@ import {
 } from "~/server/db/schema";
 import { eq, sql, and } from "drizzle-orm";
 import { getTierFromProductId } from "~/server/polar/config";
-import { randomUUID } from "crypto";
+import { randomUUID } from "~/lib/crypto-edge";
 import { env } from "~/env";
 
 // Type definitions for Polar webhook events

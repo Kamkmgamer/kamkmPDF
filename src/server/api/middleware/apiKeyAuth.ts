@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { createHash } from "crypto";
+import { createHashSync } from "~/lib/crypto-edge";
 import { eq, and } from "drizzle-orm";
 import { db } from "~/server/db";
 import { apiKeys } from "~/server/db/schema";
@@ -19,7 +19,7 @@ export async function verifyApiKey(key: string): Promise<{
   }
 
   // Hash the provided key
-  const keyHash = createHash("sha256").update(key).digest("hex");
+  const keyHash = createHashSync("sha256", key);
 
   // Look up the key in the database
   const apiKey = await db

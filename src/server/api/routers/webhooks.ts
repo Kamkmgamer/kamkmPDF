@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { randomUUID, createHash } from "crypto";
+import { randomUUID, createHashSync } from "~/lib/crypto-edge";
 import { eq, and } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
@@ -214,9 +214,10 @@ export const webhooksRouter = createTRPCRouter({
       };
 
       // Create signature
-      const signature = createHash("sha256")
-        .update(JSON.stringify(payload) + webhook[0].secret)
-        .digest("hex");
+      const signature = createHashSync(
+        "sha256",
+        JSON.stringify(payload) + webhook[0].secret,
+      );
 
       try {
         const response = await fetch(webhook[0].url, {

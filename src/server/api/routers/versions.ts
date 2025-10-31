@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { randomUUID } from "crypto";
+import { randomUUID } from "~/lib/crypto-edge";
 import { eq, desc } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";

@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { jobs, userSubscriptions } from "~/server/db/schema";
-import { randomUUID } from "crypto";
+import { randomUUID } from "~/lib/crypto-edge";
 import { eq } from "drizzle-orm";
 import {
   verifyApiKey,

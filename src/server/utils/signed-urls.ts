@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmacSync } from "~/lib/crypto-edge";
 import { env } from "~/env";
 
 /**
@@ -15,9 +15,7 @@ export function generateSignedUrl(
   const payload = `${fileId}:${expiresAt}`;
 
   // Create HMAC signature using validated environment variable
-  const signature = createHmac("sha256", env.CLERK_SECRET_KEY)
-    .update(payload)
-    .digest("hex");
+  const signature = createHmacSync("sha256", env.CLERK_SECRET_KEY, payload);
 
   const signedUrl = `/api/files/${fileId}/download?token=${signature}&expires=${expiresAt}`;
 
@@ -50,9 +48,11 @@ export function verifySignedUrl(
   const payload = `${fileId}:${expirationTime}`;
 
   // Verify signature using validated environment variable
-  const expectedSignature = createHmac("sha256", env.CLERK_SECRET_KEY)
-    .update(payload)
-    .digest("hex");
+  const expectedSignature = createHmacSync(
+    "sha256",
+    env.CLERK_SECRET_KEY,
+    payload,
+  );
 
   return token === expectedSignature;
 }

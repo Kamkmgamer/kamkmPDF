@@ -4,7 +4,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { jobs, userSubscriptions } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
-import { randomUUID } from "crypto";
+import { randomUUID } from "~/lib/crypto-edge";
 import {
   getTierConfig,
   type SubscriptionTier,

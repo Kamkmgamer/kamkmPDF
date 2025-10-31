@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { randomUUID } from "crypto";
+import { randomUUID } from "~/lib/crypto-edge";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -7,10 +7,7 @@ import {
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { jobs, userSubscriptions } from "~/server/db/schema";
-import {
-  checkForDuplicateJob,
-  generatePromptHash,
-} from "~/lib/deduplication";
+import { checkForDuplicateJob, generatePromptHash } from "~/lib/deduplication";
 import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { env } from "~/env";
@@ -51,10 +48,10 @@ export const jobsRouter = createTRPCRouter({
           const now = new Date();
           const periodEnd = new Date(now);
           periodEnd.setMonth(periodEnd.getMonth() + 1);
-          
+
           // Generate referral code
-          const hash = userId.split('').reduce((acc, char) => {
-            return ((acc << 5) - acc) + char.charCodeAt(0);
+          const hash = userId.split("").reduce((acc, char) => {
+            return (acc << 5) - acc + char.charCodeAt(0);
           }, 0);
           const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
           const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
@@ -111,7 +108,10 @@ export const jobsRouter = createTRPCRouter({
         windowMinutes: 5, // Consider jobs from last 5 minutes
       });
 
-      if (deduplicationResult.isDuplicate && deduplicationResult.existingJobId) {
+      if (
+        deduplicationResult.isDuplicate &&
+        deduplicationResult.existingJobId
+      ) {
         // Return the existing job instead of creating a new one
         const existingJob = await db
           .select()
@@ -126,13 +126,15 @@ export const jobsRouter = createTRPCRouter({
 
       // Create the job
       const id = randomUUID();
-      const promptHash = generatePromptHash(input.prompt, { userId: userId ?? undefined });
-      
+      const promptHash = generatePromptHash(input.prompt, {
+        userId: userId ?? undefined,
+      });
+
       const created = await db
         .insert(jobs)
-        .values({ 
-          id, 
-          prompt: input.prompt, 
+        .values({
+          id,
+          prompt: input.prompt,
           userId,
           promptHash,
         })
@@ -253,7 +255,10 @@ export const jobsRouter = createTRPCRouter({
         windowMinutes: 5,
       });
 
-      if (deduplicationResult.isDuplicate && deduplicationResult.existingJobId) {
+      if (
+        deduplicationResult.isDuplicate &&
+        deduplicationResult.existingJobId
+      ) {
         // Return the existing job instead of creating a new one
         const existingDuplicateJob = await db
           .select()
@@ -268,8 +273,10 @@ export const jobsRouter = createTRPCRouter({
 
       // Create new job
       const newId = randomUUID();
-      const promptHash = generatePromptHash(finalPrompt, { userId: ctx.userId ?? undefined });
-      
+      const promptHash = generatePromptHash(finalPrompt, {
+        userId: ctx.userId ?? undefined,
+      });
+
       const created = await db
         .insert(jobs)
         .values({

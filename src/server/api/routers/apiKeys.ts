@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { randomUUID } from "crypto";
+import { randomUUID, createHashSync } from "~/lib/crypto-edge";
 import { eq, and } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
@@ -9,7 +9,6 @@ import {
   getTierConfig,
   type SubscriptionTier,
 } from "~/server/subscription/tiers";
-import { createHash } from "crypto";
 
 /**
  * Generate a random API key
@@ -17,7 +16,7 @@ import { createHash } from "crypto";
 function generateApiKey(): { key: string; hash: string; prefix: string } {
   const randomBytes = randomUUID() + randomUUID();
   const key = `sk_live_${randomBytes.replace(/-/g, "")}`;
-  const hash = createHash("sha256").update(key).digest("hex");
+  const hash = createHashSync("sha256", key);
   const prefix = key.substring(0, 16); // First 16 chars for display
 
   return { key, hash, prefix };

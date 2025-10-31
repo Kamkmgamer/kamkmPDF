@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHashSync } from "~/lib/crypto-edge";
 import { logger } from "./logger";
 
 // Cache interface for abstraction
@@ -188,7 +188,7 @@ if (cache instanceof MemoryCache) {
 // Cache key generation utilities
 export function generateCacheKey(prefix: string, ...parts: string[]): string {
   const combined = parts.join(":");
-  const hash = createHash("sha256").update(combined).digest("hex");
+  const hash = createHashSync("sha256", combined);
   return `${prefix}:${hash}`;
 }
 

@@ -3,8 +3,14 @@ import { logger } from "~/lib/logger";
 
 // Browser pool configuration
 const BROWSER_POOL_SIZE = parseInt(process.env.BROWSER_POOL_SIZE ?? "3", 10);
-const BROWSER_IDLE_TIMEOUT = parseInt(process.env.BROWSER_IDLE_TIMEOUT ?? "300000", 10); // 5 minutes
-const PAGE_IDLE_TIMEOUT = parseInt(process.env.PAGE_IDLE_TIMEOUT ?? "60000", 10); // 1 minute
+const BROWSER_IDLE_TIMEOUT = parseInt(
+  process.env.BROWSER_IDLE_TIMEOUT ?? "300000",
+  10,
+); // 5 minutes
+const PAGE_IDLE_TIMEOUT = parseInt(
+  process.env.PAGE_IDLE_TIMEOUT ?? "60000",
+  10,
+); // 1 minute
 
 interface BrowserInstance {
   browser: Browser;
@@ -38,21 +44,27 @@ class BrowserPool {
 
   private async cleanup() {
     const now = Date.now();
-    
+
     // Clean up idle pages
     for (const [pageId, pageInstance] of this.pages.entries()) {
       if (now - pageInstance.createdAt > PAGE_IDLE_TIMEOUT) {
         try {
           await pageInstance.page.close();
           this.pages.delete(pageId);
-          
+
           // Update browser page count
           const browserInstance = this.browsers.get(pageInstance.browserId);
           if (browserInstance) {
-            browserInstance.pageCount = Math.max(0, browserInstance.pageCount - 1);
+            browserInstance.pageCount = Math.max(
+              0,
+              browserInstance.pageCount - 1,
+            );
           }
         } catch (error) {
-          logger.warn({ error: String(error), pageId }, "Failed to cleanup idle page");
+          logger.warn(
+            { error: String(error), pageId },
+            "Failed to cleanup idle page",
+          );
         }
       }
     }
@@ -68,7 +80,10 @@ class BrowserPool {
           this.browsers.delete(browserId);
           logger.info({ browserId }, "Cleaned up idle browser");
         } catch (error) {
-          logger.warn({ error: String(error), browserId }, "Failed to cleanup idle browser");
+          logger.warn(
+            { error: String(error), browserId },
+            "Failed to cleanup idle browser",
+          );
         }
       }
     }
@@ -94,10 +109,10 @@ class BrowserPool {
 
   private async createBrowser(): Promise<Browser> {
     const browserId = `browser-${++this.browserCounter}`;
-    
+
     try {
       const browser = await this.launchOptimizedBrowser();
-      
+
       this.browsers.set(browserId, {
         browser,
         lastUsed: Date.now(),
@@ -105,10 +120,16 @@ class BrowserPool {
         isHealthy: true,
       });
 
-      logger.info({ browserId, poolSize: this.browsers.size }, "Created new browser instance");
+      logger.info(
+        { browserId, poolSize: this.browsers.size },
+        "Created new browser instance",
+      );
       return browser;
     } catch (error) {
-      logger.error({ error: String(error), browserId }, "Failed to create browser");
+      logger.error(
+        { error: String(error), browserId },
+        "Failed to create browser",
+      );
       throw error;
     }
   }
@@ -125,16 +146,19 @@ class BrowserPool {
           return browserInstance.browser;
         }
       }
-      
+
       // Wait 100ms before checking again
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     throw new Error("Timeout waiting for available browser");
   }
 
   private async launchOptimizedBrowser(): Promise<Browser> {
-    const isServerless = !!process.env.VERCEL || !!process.env.NETLIFY || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+    const isServerless =
+      !!process.env.VERCEL ||
+      !!process.env.NETLIFY ||
+      !!process.env.AWS_LAMBDA_FUNCTION_NAME;
 
     if (isServerless) {
       return this.launchServerlessBrowser();
@@ -150,7 +174,7 @@ class BrowserPool {
     ]);
 
     const executablePath = await chromium.executablePath();
-    
+
     // Optimized Chrome arguments for serverless
     const optimizedArgs = [
       ...chromium.args,
@@ -239,13 +263,14 @@ class BrowserPool {
       });
     } catch {
       // Fallback to puppeteer-core + system Chrome
-      const [{ default: puppeteer }, { default: chromium }] = await Promise.all([
-        import("puppeteer-core"),
-        import("@sparticuz/chromium"),
-      ]);
-      
-      const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH ?? (await chromium.executablePath());
-      
+      const [{ default: puppeteer }, { default: chromium }] = await Promise.all(
+        [import("puppeteer-core"), import("@sparticuz/chromium")],
+      );
+
+      const executablePath =
+        process.env.PUPPETEER_EXECUTABLE_PATH ??
+        (await chromium.executablePath());
+
       return puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
@@ -260,21 +285,22 @@ class BrowserPool {
   async getPage(): Promise<Page> {
     const browser = await this.getBrowser();
     const page = await browser.newPage();
-    
+
     // Optimize page settings
     await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 1 });
     await page.setCacheEnabled(false); // Disable cache for consistent results
     await page.setJavaScriptEnabled(true);
-    
+
     // Set timeouts
     page.setDefaultTimeout(30000);
     page.setDefaultNavigationTimeout(30000);
-    
+
     const pageId = `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const browserId = Array.from(this.browsers.entries()).find(([_, instance]) => 
-      instance.browser === browser
-    )?.[0] ?? "unknown";
-    
+    const browserId =
+      Array.from(this.browsers.entries()).find(
+        ([_, instance]) => instance.browser === browser,
+      )?.[0] ?? "unknown";
+
     this.pages.set(pageId, {
       page,
       browserId,
@@ -293,16 +319,19 @@ class BrowserPool {
   async closePage(page: Page): Promise<void> {
     try {
       await page.close();
-      
+
       // Find and remove page from tracking
       for (const [pageId, pageInstance] of this.pages.entries()) {
         if (pageInstance.page === page) {
           this.pages.delete(pageId);
-          
+
           // Update browser page count
           const browserInstance = this.browsers.get(pageInstance.browserId);
           if (browserInstance) {
-            browserInstance.pageCount = Math.max(0, browserInstance.pageCount - 1);
+            browserInstance.pageCount = Math.max(
+              0,
+              browserInstance.pageCount - 1,
+            );
           }
           break;
         }
@@ -323,7 +352,10 @@ class BrowserPool {
       try {
         await pageInstance.page.close();
       } catch (error) {
-        logger.warn({ error: String(error), pageId }, "Failed to close page during destroy");
+        logger.warn(
+          { error: String(error), pageId },
+          "Failed to close page during destroy",
+        );
       }
     }
     this.pages.clear();
@@ -333,7 +365,10 @@ class BrowserPool {
       try {
         await browserInstance.browser.close();
       } catch (error) {
-        logger.warn({ error: String(error), browserId }, "Failed to close browser during destroy");
+        logger.warn(
+          { error: String(error), browserId },
+          "Failed to close browser during destroy",
+        );
       }
     }
     this.browsers.clear();
@@ -363,21 +398,35 @@ export function getBrowserPool(): BrowserPool {
   return browserPool;
 }
 
-// Graceful shutdown
-process.on('SIGINT', () => {
-  if (browserPool) {
-    void browserPool.destroy().then(() => process.exit(0));
-  } else {
-    process.exit(0);
-  }
-});
+// Graceful shutdown (Node.js only - not available in Edge Runtime)
+if (typeof process !== "undefined" && process.on) {
+  process.on("SIGINT", () => {
+    if (browserPool) {
+      void browserPool.destroy().then(() => {
+        if (typeof process !== "undefined" && process.exit) {
+          process.exit(0);
+        }
+      });
+    } else {
+      if (typeof process !== "undefined" && process.exit) {
+        process.exit(0);
+      }
+    }
+  });
 
-process.on('SIGTERM', () => {
-  if (browserPool) {
-    void browserPool.destroy().then(() => process.exit(0));
-  } else {
-    process.exit(0);
-  }
-});
+  process.on("SIGTERM", () => {
+    if (browserPool) {
+      void browserPool.destroy().then(() => {
+        if (typeof process !== "undefined" && process.exit) {
+          process.exit(0);
+        }
+      });
+    } else {
+      if (typeof process !== "undefined" && process.exit) {
+        process.exit(0);
+      }
+    }
+  });
+}
 
 export { BrowserPool };

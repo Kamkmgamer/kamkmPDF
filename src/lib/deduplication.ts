@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHashSync } from "~/lib/crypto-edge";
 import { db } from "~/server/db";
 import { jobs } from "~/server/db/schema";
 import { eq, and, gte } from "drizzle-orm";
@@ -27,28 +27,28 @@ export function generatePromptHash(
     tier?: string;
     includeImage?: boolean;
     imageHash?: string;
-  } = {}
+  } = {},
 ): string {
   const { userId, tier = "starter", includeImage = false, imageHash } = options;
-  
+
   // Normalize the prompt for consistent hashing
   const normalizedPrompt = prompt.trim().toLowerCase();
-  
+
   // Create hash components
   const components = [
     normalizedPrompt,
     tier,
-    includeImage ? imageHash ?? "" : "",
+    includeImage ? (imageHash ?? "") : "",
   ];
-  
+
   // Include userId for user-specific deduplication (optional)
   // This allows the same prompt to be deduplicated per user
   if (userId) {
     components.push(userId);
   }
-  
+
   const hashInput = components.join("|");
-  return createHash("sha256").update(hashInput).digest("hex");
+  return createHashSync("sha256", hashInput);
 }
 
 /**
@@ -56,31 +56,31 @@ export function generatePromptHash(
  */
 export async function checkForDuplicateJob(
   prompt: string,
-  options: DeduplicationOptions = {}
+  options: DeduplicationOptions = {},
 ): Promise<DeduplicationResult> {
   const { userId, windowMinutes = 5, includeImage = false } = options;
-  
+
   try {
     // Generate hash for the prompt
     const promptHash = generatePromptHash(prompt, {
       userId,
       includeImage,
     });
-    
+
     // Calculate time window for deduplication
     const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000);
-    
+
     // Build query conditions
     const conditions = [
       eq(jobs.promptHash, promptHash),
       gte(jobs.createdAt, windowStart),
     ];
-    
+
     // Only consider jobs from the same user if userId is provided
     if (userId) {
       conditions.push(eq(jobs.userId, userId));
     }
-    
+
     // Look for recent jobs with the same prompt hash
     const recentJobs = await db
       .select({
@@ -93,22 +93,27 @@ export async function checkForDuplicateJob(
       .where(and(...conditions))
       .orderBy(jobs.createdAt)
       .limit(1);
-    
+
     if (recentJobs.length > 0) {
       const existingJob = recentJobs[0];
-      
+
       // Only return as duplicate if the job is still processing or completed successfully
-      if (existingJob && (existingJob.status === "processing" || 
-          existingJob.status === "queued" || 
-          (existingJob.status === "completed" && existingJob.resultFileId))) {
-        
-        logger.info({
-          promptHash,
-          existingJobId: existingJob.id,
-          status: existingJob.status,
-          userId,
-        }, "Found duplicate job");
-        
+      if (
+        existingJob &&
+        (existingJob.status === "processing" ||
+          existingJob.status === "queued" ||
+          (existingJob.status === "completed" && existingJob.resultFileId))
+      ) {
+        logger.info(
+          {
+            promptHash,
+            existingJobId: existingJob.id,
+            status: existingJob.status,
+            userId,
+          },
+          "Found duplicate job",
+        );
+
         return {
           isDuplicate: true,
           existingJobId: existingJob.id,
@@ -116,15 +121,17 @@ export async function checkForDuplicateJob(
         };
       }
     }
-    
+
     return {
       isDuplicate: false,
       promptHash,
     };
-    
   } catch (error) {
-    logger.warn({ error: String(error), prompt: prompt.slice(0, 100) }, "Failed to check for duplicate job");
-    
+    logger.warn(
+      { error: String(error), prompt: prompt.slice(0, 100) },
+      "Failed to check for duplicate job",
+    );
+
     // Return no duplicate on error to avoid blocking legitimate requests
     return {
       isDuplicate: false,
@@ -136,9 +143,33 @@ export async function checkForDuplicateJob(
 /**
  * Generate hash for image data to include in prompt deduplication
  */
-export function generateImageHash(imageData: Buffer | string): string {
-  const data = typeof imageData === "string" ? Buffer.from(imageData) : imageData;
-  return createHash("sha256").update(data).digest("hex");
+export function generateImageHash(
+  imageData: Buffer | string | Uint8Array,
+): string {
+  // Convert to string for hashing (Edge Runtime compatible)
+  let dataStr: string;
+  if (typeof imageData === "string") {
+    dataStr = imageData;
+  } else if (imageData instanceof Uint8Array) {
+    // Convert Uint8Array to string
+    dataStr = Array.from(imageData)
+      .map((b) => String.fromCharCode(b))
+      .join("");
+  } else {
+    // Buffer (Node.js) - convert to string
+    // Type assertion needed because Buffer might not be available in Edge Runtime
+    const buffer = imageData as { toString: (encoding: string) => string };
+    if (buffer.toString && typeof buffer.toString === "function") {
+      dataStr = buffer.toString("binary");
+    } else {
+      // Fallback: treat as Uint8Array-like
+      const arr = imageData as unknown as Uint8Array;
+      dataStr = Array.from(arr)
+        .map((b) => String.fromCharCode(b))
+        .join("");
+    }
+  }
+  return createHashSync("sha256", dataStr);
 }
 
 /**
@@ -147,10 +178,10 @@ export function generateImageHash(imageData: Buffer | string): string {
 export async function checkForDuplicateJobWithImage(
   prompt: string,
   imageData: Buffer | string,
-  options: Omit<DeduplicationOptions, "includeImage"> = {}
+  options: Omit<DeduplicationOptions, "includeImage"> = {},
 ): Promise<DeduplicationResult> {
   const imageHash = generateImageHash(imageData);
-  
+
   return checkForDuplicateJob(prompt, {
     ...options,
     includeImage: true,
@@ -161,13 +192,13 @@ export async function checkForDuplicateJobWithImage(
 /**
  * Store prompt hash in job record for future deduplication
  */
-export async function storePromptHash(jobId: string, promptHash: string): Promise<void> {
+export async function storePromptHash(
+  jobId: string,
+  promptHash: string,
+): Promise<void> {
   try {
-    await db
-      .update(jobs)
-      .set({ promptHash })
-      .where(eq(jobs.id, jobId));
-    
+    await db.update(jobs).set({ promptHash }).where(eq(jobs.id, jobId));
+
     logger.debug({ jobId, promptHash }, "Stored prompt hash for job");
   } catch (error) {
     logger.warn({ error: String(error), jobId }, "Failed to store prompt hash");
@@ -181,21 +212,23 @@ export async function storePromptHash(jobId: string, promptHash: string): Promis
 export async function cleanupOldPromptHashes(daysToKeep = 30): Promise<number> {
   try {
     const cutoffDate = new Date(Date.now() - daysToKeep * 24 * 60 * 60 * 1000);
-    
+
     const _result = await db
       .update(jobs)
       .set({ promptHash: null })
-      .where(and(
-        gte(jobs.createdAt, cutoffDate),
-        eq(jobs.status, "completed")
-      ));
-    
+      .where(
+        and(gte(jobs.createdAt, cutoffDate), eq(jobs.status, "completed")),
+      );
+
     // Note: Drizzle doesn't return rowCount, so we'll return 0 for now
     // In a real implementation, you'd need to track this differently
     logger.info({ cutoffDate }, "Cleaned up old prompt hashes");
     return 0;
   } catch (error) {
-    logger.warn({ error: String(error) }, "Failed to cleanup old prompt hashes");
+    logger.warn(
+      { error: String(error) },
+      "Failed to cleanup old prompt hashes",
+    );
     return 0;
   }
 }

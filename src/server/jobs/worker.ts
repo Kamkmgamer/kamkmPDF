@@ -1,4 +1,3 @@
-import { pathToFileURL } from "url";
 import { db, pg } from "~/server/db";
 import {
   jobs,
@@ -6,7 +5,7 @@ import {
   userSubscriptions,
   usageHistory,
 } from "~/server/db/schema";
-import { randomUUID } from "crypto";
+import { randomUUID } from "~/lib/crypto-edge";
 import { eq, lt, asc, and, inArray } from "drizzle-orm";
 import { generatePdfBuffer } from "~/server/jobs/pdf";
 import type { GenerationStage } from "~/types/pdf";
@@ -189,7 +188,9 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
 
       // Handle possible error shape
       const maybeError =
-        typeof resUnknown === "object" && resUnknown !== null && "error" in resUnknown
+        typeof resUnknown === "object" &&
+        resUnknown !== null &&
+        "error" in resUnknown
           ? (resUnknown as { error?: unknown }).error
           : undefined;
       if (typeof maybeError === "object" && maybeError !== null) {
@@ -203,7 +204,9 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
 
       // Extract data payload
       const dataUnknown =
-        typeof resUnknown === "object" && resUnknown !== null && "data" in resUnknown
+        typeof resUnknown === "object" &&
+        resUnknown !== null &&
+        "data" in resUnknown
           ? (resUnknown as { data?: unknown }).data
           : undefined;
       if (typeof dataUnknown !== "object" || dataUnknown === null) {
@@ -214,7 +217,8 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       const keyVal = typeof dataObj.key === "string" ? dataObj.key : undefined;
       const ufsUrlVal =
         typeof dataObj.ufsUrl === "string" ? dataObj.ufsUrl : undefined;
-      const sizeVal = typeof dataObj.size === "number" ? dataObj.size : undefined;
+      const sizeVal =
+        typeof dataObj.size === "number" ? dataObj.size : undefined;
 
       if (!keyVal || !ufsUrlVal) {
         throw new Error("UploadThing upload failed");
@@ -395,19 +399,33 @@ async function runLoop() {
   }
 }
 
-// ESM-safe entrypoint check
+// ESM-safe entrypoint check (Node.js only - not available in Edge Runtime)
 if (
   typeof process !== "undefined" &&
+  process.argv &&
   Array.isArray(process.argv) &&
   process.argv[1]
 ) {
-  const isEntry = import.meta.url === pathToFileURL(process.argv[1]).href;
-  if (isEntry) {
-    runLoop().catch((e) => {
-      console.error(e);
-      process.exit(1);
-    });
-  }
+  // Use IIFE to handle async import
+  (async () => {
+    try {
+      // Dynamic import of url module (Node.js only)
+      const { pathToFileURL } = await import("url");
+      const isEntry = import.meta.url === pathToFileURL(process.argv[1]!).href;
+      if (isEntry) {
+        runLoop().catch((e) => {
+          console.error(e);
+          if (typeof process !== "undefined" && process.exit) {
+            process.exit(1);
+          }
+        });
+      }
+    } catch {
+      // Ignore errors in Edge Runtime where url module or process.argv may not work
+    }
+  })().catch(() => {
+    // Ignore async errors
+  });
 }
 
 export { runLoop, processJob };

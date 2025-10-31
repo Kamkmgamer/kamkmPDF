@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { randomUUID } from "crypto";
+import { randomUUID } from "~/lib/crypto-edge";
 import {
   checkForDuplicateJobWithImage,
   checkForDuplicateJob,
@@ -106,10 +106,14 @@ export async function POST(req: Request) {
     let deduplicationResult;
     if (fileBuf) {
       // Include image data in deduplication check
-      deduplicationResult = await checkForDuplicateJobWithImage(prompt, fileBuf, {
-        userId,
-        windowMinutes: 5,
-      });
+      deduplicationResult = await checkForDuplicateJobWithImage(
+        prompt,
+        fileBuf,
+        {
+          userId,
+          windowMinutes: 5,
+        },
+      );
     } else {
       // Text-only deduplication
       deduplicationResult = await checkForDuplicateJob(prompt, {
@@ -128,14 +132,14 @@ export async function POST(req: Request) {
     }
 
     const id = randomUUID();
-    const promptHash = generatePromptHash(prompt, { 
+    const promptHash = generatePromptHash(prompt, {
       userId: userId ?? undefined,
       includeImage: !!fileBuf,
     });
-    
-    await db.insert(jobs).values({ 
-      id, 
-      prompt, 
+
+    await db.insert(jobs).values({
+      id,
+      prompt,
       userId,
       promptHash,
     });
