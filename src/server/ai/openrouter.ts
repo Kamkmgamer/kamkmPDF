@@ -249,8 +249,11 @@ async function generateHtmlFromOpenRouter({
 
   const system = `You are an expert document designer. Given a user's prompt, produce a clean, professional, print-ready HTML document. 
 - Output only HTML (no Markdown), preferably a full <html> document or just a body that can be wrapped. 
+- **CRITICAL: Preserve ALL text from the user's prompt exactly as written, including any Arabic, Hebrew, Chinese, Japanese, Korean, or other multilingual characters. Do NOT translate, transliterate, or omit any text.**
 - Use semantic structure with headings, sections, and tables when appropriate.
+- For multilingual text (especially RTL languages like Arabic and Hebrew), use appropriate HTML attributes like dir="rtl" or dir="auto" on elements containing that text.
 - Inline minimal CSS suitable for printing on A4, and ensure good typography, spacing, and readability.
+- Use font-family declarations that include multilingual font stacks for proper rendering of non-Latin scripts.
 - Avoid external resources; embed all styling inline.`;
 
   const headers: Record<string, string> = {
@@ -291,7 +294,22 @@ async function generateHtmlFromOpenRouter({
       const data = (await res.json()) as OpenRouterResponse;
       const content: string = data?.choices?.[0]?.message?.content ?? "";
       if (content && content.trim().length > 0) {
-        return extractHtmlFromContent(content);
+        const extractedHtml = extractHtmlFromContent(content);
+        
+        // Log if Arabic text is missing from generated HTML
+        const promptHasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(prompt);
+        const htmlHasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(extractedHtml);
+        
+        if (promptHasArabic && !htmlHasArabic) {
+          console.warn(`[openrouter] Arabic text detected in prompt but missing from generated HTML`, {
+            model: currentModel,
+            promptLength: prompt.length,
+            htmlLength: extractedHtml.length,
+            promptPreview: prompt.substring(0, 100),
+          });
+        }
+        
+        return extractedHtml;
       }
       attemptErrors.push(`Model ${currentModel} -> ok but empty content`);
       continue;

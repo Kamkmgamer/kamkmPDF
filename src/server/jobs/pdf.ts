@@ -218,7 +218,39 @@ export async function generatePdfBuffer(opts: {
         tier: opts.tier,
       });
       await opts.onStage?.("Generating content", 40);
+      
+      // Check if Arabic text was lost during HTML generation
+      const promptHasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(opts.prompt ?? "");
+      const htmlHasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(htmlBodyRaw);
+      
       let body = htmlBodyRaw;
+      
+      if (promptHasArabic && !htmlHasArabic) {
+        console.warn(`[pdf] Arabic text in prompt but missing from AI-generated HTML. Appending missing Arabic text.`, {
+          jobId: opts.jobId,
+          promptLength: (opts.prompt ?? "").length,
+          htmlLength: htmlBodyRaw.length,
+        });
+        // If Arabic text is missing, we'll append it to ensure it's included
+        // This is a safety measure to ensure Arabic content is never lost
+        const arabicTextInPrompt = (opts.prompt ?? "").match(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+/g);
+        if (arabicTextInPrompt && arabicTextInPrompt.length > 0) {
+          const missingArabicSection = `<section dir="rtl" lang="ar" style="margin-top: 20px; padding: 20px; border-top: 2px solid #e2e8f0;">
+            <h2 style="font-size: 18px; margin-bottom: 12px;">النص الأصلي:</h2>
+            <p style="font-size: 14px; line-height: 1.8; font-family: 'Noto Naskh Arabic', 'Noto Sans Arabic', Arial, sans-serif;">
+              ${arabicTextInPrompt.join(' ')}
+            </p>
+          </section>`;
+          // Append Arabic text if it's missing
+          if (/<\/body>/i.test(body)) {
+            body = body.replace(/<\/body>/i, `${missingArabicSection}</body>`);
+          } else if (/<\/html>/i.test(body)) {
+            body = body.replace(/<\/html>/i, `${missingArabicSection}</html>`);
+          } else {
+            body = body + missingArabicSection;
+          }
+        }
+      }
       // If an image was provided, inline it as data URL at top, letting CSS handle sizing
       if (
         opts.image?.path &&
