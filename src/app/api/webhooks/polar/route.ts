@@ -3,9 +3,17 @@
  * Uses official @polar-sh/nextjs SDK for webhook handling
  */
 
+export const runtime = "edge";
+
 import { Webhooks } from "@polar-sh/nextjs";
 import { db } from "~/server/db";
-import { userSubscriptions, usageHistory, creditProducts, referrals, referralRewards } from "~/server/db/schema";
+import {
+  userSubscriptions,
+  usageHistory,
+  creditProducts,
+  referrals,
+  referralRewards,
+} from "~/server/db/schema";
 import { eq, sql, and } from "drizzle-orm";
 import { getTierFromProductId } from "~/server/polar/config";
 import { randomUUID } from "crypto";
@@ -35,7 +43,7 @@ export const POST = Webhooks({
   webhookSecret: env.POLAR_WEBHOOK_SECRET!,
   onPayload: async (payload) => {
     console.log("[Polar Webhook] Received event:", payload.type);
-    
+
     // Handle all events through the generic payload handler
     try {
       await handleWebhookEvent(payload);
@@ -65,7 +73,7 @@ async function handleWebhookEvent(payload: PolarWebhookPayload) {
       if (data.status === "confirmed") {
         // Check if this is a credit purchase by looking up the product
         const isCreditPurchase = await checkIfCreditProduct(data.product_id);
-        
+
         if (isCreditPurchase) {
           await handleCreditPurchase(data);
         } else if (data.customer_id) {
@@ -99,13 +107,13 @@ async function handleWebhookEvent(payload: PolarWebhookPayload) {
  * Generate a unique referral code based on user ID
  */
 function generateReferralCode(userId: string): string {
-  const hash = userId.split('').reduce((acc, char) => {
-    return ((acc << 5) - acc) + char.charCodeAt(0);
+  const hash = userId.split("").reduce((acc, char) => {
+    return (acc << 5) - acc + char.charCodeAt(0);
   }, 0);
-  
+
   const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
   const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
-  
+
   return `REF${code}${timestamp}`;
 }
 
@@ -369,8 +377,8 @@ async function processReferralReward(userId: string, tier: string) {
     .where(
       and(
         eq(referrals.referredUserId, userId),
-        eq(referrals.status, "pending")
-      )
+        eq(referrals.status, "pending"),
+      ),
     )
     .limit(1);
 
@@ -384,7 +392,9 @@ async function processReferralReward(userId: string, tier: string) {
   const referralId = referralRecord.id;
   const creditsToAward = 50;
 
-  console.log(`[Referral] Processing reward: ${creditsToAward} credits for referrer ${referrerId}`);
+  console.log(
+    `[Referral] Processing reward: ${creditsToAward} credits for referrer ${referrerId}`,
+  );
 
   // Update referral status
   await db
@@ -404,7 +414,7 @@ async function processReferralReward(userId: string, tier: string) {
         credits_balance = COALESCE(credits_balance, 0) + ${creditsToAward},
         updated_at = CURRENT_TIMESTAMP
       WHERE user_id = ${referrerId}
-    `
+    `,
   );
 
   // Create reward record
@@ -430,7 +440,9 @@ async function processReferralReward(userId: string, tier: string) {
     createdAt: new Date(),
   });
 
-  console.log(`[Referral] Successfully awarded ${creditsToAward} credits to user ${referrerId}`);
+  console.log(
+    `[Referral] Successfully awarded ${creditsToAward} credits to user ${referrerId}`,
+  );
 }
 
 /**
@@ -443,7 +455,10 @@ async function handleCreditPurchase(data: PolarEventData) {
   });
 
   if (!creditProduct) {
-    console.error("[Polar Webhook] Credit product not found for product ID:", data.product_id);
+    console.error(
+      "[Polar Webhook] Credit product not found for product ID:",
+      data.product_id,
+    );
     return;
   }
 
@@ -462,7 +477,9 @@ async function handleCreditPurchase(data: PolarEventData) {
     return;
   }
 
-  console.log(`[Polar Webhook] Processing credit purchase: ${creditProduct.credits} credits for user ${userId}`);
+  console.log(
+    `[Polar Webhook] Processing credit purchase: ${creditProduct.credits} credits for user ${userId}`,
+  );
 
   // Update user's credit balance
   await db.execute(
@@ -472,7 +489,7 @@ async function handleCreditPurchase(data: PolarEventData) {
         credits_balance = COALESCE(credits_balance, 0) + ${creditProduct.credits},
         updated_at = CURRENT_TIMESTAMP
       WHERE user_id = ${userId}
-    `
+    `,
   );
 
   // Log the credit purchase
@@ -489,5 +506,7 @@ async function handleCreditPurchase(data: PolarEventData) {
     createdAt: new Date(),
   });
 
-  console.log(`[Polar Webhook] Added ${creditProduct.credits} credits to user ${userId}`);
+  console.log(
+    `[Polar Webhook] Added ${creditProduct.credits} credits to user ${userId}`,
+  );
 }

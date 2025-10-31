@@ -6,6 +6,8 @@ import { serverApi } from "~/trpc/server";
 import { format } from "date-fns";
 import { Calendar, ArrowLeft, Tag, User } from "lucide-react";
 
+export const runtime = "edge";
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -30,7 +32,9 @@ export async function generateMetadata({
       description: post.excerpt ?? undefined,
       images: post.featuredImage ? [post.featuredImage] : undefined,
       type: "article",
-      publishedTime: post.publishedAt ? post.publishedAt.toISOString() : undefined,
+      publishedTime: post.publishedAt
+        ? post.publishedAt.toISOString()
+        : undefined,
     },
   };
 }
@@ -90,7 +94,13 @@ export default async function BlogPostPage({ params }: PageProps) {
               {post.publishedAt && (
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  <time dateTime={post.publishedAt instanceof Date ? post.publishedAt.toISOString() : post.publishedAt}>
+                  <time
+                    dateTime={
+                      post.publishedAt instanceof Date
+                        ? post.publishedAt.toISOString()
+                        : post.publishedAt
+                    }
+                  >
                     {format(new Date(post.publishedAt), "MMMM d, yyyy")}
                   </time>
                 </div>
@@ -113,7 +123,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           )}
 
           {/* Content */}
-          <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:text-slate-900 dark:prose-strong:text-white prose-code:text-blue-600 dark:prose-code:text-blue-400 prose-pre:bg-slate-900 dark:prose-pre:bg-slate-800">
+          <div className="prose prose-lg dark:prose-invert prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:text-slate-900 dark:prose-strong:text-white prose-code:text-blue-600 dark:prose-code:text-blue-400 prose-pre:bg-slate-900 dark:prose-pre:bg-slate-800 max-w-none">
             <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
 

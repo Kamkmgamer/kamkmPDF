@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { PDFViewerPage } from "./_components/PDFViewerPage";
 
+export const runtime = "edge";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }

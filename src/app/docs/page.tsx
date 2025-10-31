@@ -4,11 +4,14 @@ import { serverApi } from "~/trpc/server";
 import type { RouterOutputs } from "~/trpc/react";
 import { Book, ChevronRight, Tag } from "lucide-react";
 
+export const runtime = "edge";
+
 type DocPage = RouterOutputs["documentation"]["getAll"][number];
 
 export const metadata: Metadata = {
   title: "Documentation - kamkmPDF",
-  description: "Complete documentation for kamkmPDF. Learn how to use our API, generate PDFs, and integrate PDF generation into your applications.",
+  description:
+    "Complete documentation for kamkmPDF. Learn how to use our API, generate PDFs, and integrate PDF generation into your applications.",
 };
 
 export default async function DocumentationPage() {
@@ -16,10 +19,7 @@ export default async function DocumentationPage() {
   const allPages = await serverApi.documentation.getAll({ limit: 200 });
 
   // Group pages by category and section
-  const groupedPages = new Map<
-    string,
-    Map<string | null, DocPage[]>
-  >();
+  const groupedPages = new Map<string, Map<string | null, DocPage[]>>();
 
   for (const page of allPages) {
     if (!groupedPages.has(page.category)) {
@@ -69,13 +69,15 @@ export default async function DocumentationPage() {
             <div className="space-y-12">
               {Array.from(groupedPages.entries()).map(
                 ([category, sections]) => {
-                  const categoryInfo = categories.find((c) => c.category === category);
+                  const categoryInfo = categories.find(
+                    (c) => c.category === category,
+                  );
                   return (
                     <div
                       key={category}
                       className="rounded-2xl border border-slate-200 bg-white p-8 dark:border-slate-700 dark:bg-slate-800"
                     >
-                      <h2 className="mb-6 text-2xl font-bold capitalize text-slate-900 dark:text-white">
+                      <h2 className="mb-6 text-2xl font-bold text-slate-900 capitalize dark:text-white">
                         {category.replace(/-/g, " ")}
                         {categoryInfo && (
                           <span className="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
@@ -84,53 +86,64 @@ export default async function DocumentationPage() {
                         )}
                       </h2>
 
-                      {Array.from(sections.entries()).map(([section, pages]) => {
-                        return (
-                          <div key={section ?? "general"} className="mb-6 last:mb-0">
-                          {section && section !== "general" && (
-                            <h3 className="mb-4 text-lg font-semibold capitalize text-slate-700 dark:text-slate-300">
-                              {section.replace(/-/g, " ")}
-                            </h3>
-                          )}
-                          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                            {pages
-                              .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                              .map((page) => (
-                                <Link
-                                  key={page.id}
-                                  href={`/docs/${page.slug}`}
-                                  className="group flex items-start gap-3 rounded-lg border border-slate-200 p-4 transition-all hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:hover:border-blue-600 dark:hover:bg-blue-950/20"
-                                >
-                                  <div className="flex-1">
-                                    <h4 className="mb-1 font-semibold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                                      {page.title}
-                                    </h4>
-                                    {page.description && (
-                                      <p className="line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
-                                        {page.description}
-                                      </p>
-                                    )}
-                                    {page.tags && Array.isArray(page.tags) && page.tags.length > 0 && (
-                                      <div className="mt-2 flex flex-wrap gap-1">
-                                        {page.tags.slice(0, 2).map((tag: string) => (
-                                          <span
-                                            key={tag}
-                                            className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300"
-                                          >
-                                            <Tag className="h-3 w-3" />
-                                            {tag}
-                                          </span>
-                                        ))}
+                      {Array.from(sections.entries()).map(
+                        ([section, pages]) => {
+                          return (
+                            <div
+                              key={section ?? "general"}
+                              className="mb-6 last:mb-0"
+                            >
+                              {section && section !== "general" && (
+                                <h3 className="mb-4 text-lg font-semibold text-slate-700 capitalize dark:text-slate-300">
+                                  {section.replace(/-/g, " ")}
+                                </h3>
+                              )}
+                              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                                {pages
+                                  .sort(
+                                    (a, b) => (a.order ?? 0) - (b.order ?? 0),
+                                  )
+                                  .map((page) => (
+                                    <Link
+                                      key={page.id}
+                                      href={`/docs/${page.slug}`}
+                                      className="group flex items-start gap-3 rounded-lg border border-slate-200 p-4 transition-all hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:hover:border-blue-600 dark:hover:bg-blue-950/20"
+                                    >
+                                      <div className="flex-1">
+                                        <h4 className="mb-1 font-semibold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+                                          {page.title}
+                                        </h4>
+                                        {page.description && (
+                                          <p className="line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+                                            {page.description}
+                                          </p>
+                                        )}
+                                        {page.tags &&
+                                          Array.isArray(page.tags) &&
+                                          page.tags.length > 0 && (
+                                            <div className="mt-2 flex flex-wrap gap-1">
+                                              {page.tags
+                                                .slice(0, 2)
+                                                .map((tag: string) => (
+                                                  <span
+                                                    key={tag}
+                                                    className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                                                  >
+                                                    <Tag className="h-3 w-3" />
+                                                    {tag}
+                                                  </span>
+                                                ))}
+                                            </div>
+                                          )}
                                       </div>
-                                    )}
-                                  </div>
-                                  <ChevronRight className="h-5 w-5 flex-shrink-0 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-blue-600 dark:text-slate-500 dark:group-hover:text-blue-400" />
-                                </Link>
-                              ))}
-                          </div>
-                        </div>
-                        );
-                      })}
+                                      <ChevronRight className="h-5 w-5 flex-shrink-0 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-blue-600 dark:text-slate-500 dark:group-hover:text-blue-400" />
+                                    </Link>
+                                  ))}
+                              </div>
+                            </div>
+                          );
+                        },
+                      )}
                     </div>
                   );
                 },
@@ -142,4 +155,3 @@ export default async function DocumentationPage() {
     </main>
   );
 }
-

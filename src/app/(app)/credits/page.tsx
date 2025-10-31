@@ -1,9 +1,19 @@
-import { Zap, Check, Sparkles, ArrowLeft, Infinity, Rocket, DollarSign } from "lucide-react";
+import {
+  Zap,
+  Check,
+  Sparkles,
+  ArrowLeft,
+  Infinity,
+  Rocket,
+  DollarSign,
+} from "lucide-react";
 import Link from "next/link";
 import { creditPackages } from "~/app/_data/creditPackages";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import CreditPurchaseButton from "./_components/CreditPurchaseButton";
+
+export const runtime = "edge";
 
 export const metadata = {
   title: "Purchase Credits | PDF Prompt",
@@ -35,8 +45,9 @@ export default async function CreditsPage() {
             <Zap className="h-6 w-6" />
             <h1 className="text-2xl font-bold sm:text-3xl">Purchase Credits</h1>
           </div>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-slate-600 dark:text-slate-400 sm:text-lg">
-            Get additional credits to continue generating PDFs. Credits never expire and can be used anytime.
+          <p className="mx-auto mt-4 max-w-2xl text-base text-slate-600 sm:text-lg dark:text-slate-400">
+            Get additional credits to continue generating PDFs. Credits never
+            expire and can be used anytime.
           </p>
         </div>
 
@@ -63,14 +74,14 @@ export default async function CreditsPage() {
 
               <div className="flex flex-1 flex-col p-6 sm:p-8">
                 {/* Package Name */}
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+                <h3 className="text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
                   {pkg.name}
                 </h3>
 
                 {/* Credits */}
                 <div className="mt-6">
                   <div className="flex items-baseline gap-2">
-                    <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-5xl font-black text-transparent dark:from-blue-400 dark:to-cyan-400 sm:text-6xl">
+                    <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-5xl font-black text-transparent sm:text-6xl dark:from-blue-400 dark:to-cyan-400">
                       {pkg.credits}
                     </span>
                     <span className="text-lg text-gray-600 dark:text-gray-400">
@@ -82,7 +93,7 @@ export default async function CreditsPage() {
                 {/* Price */}
                 <div className="mt-4">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
+                    <span className="text-3xl font-bold text-gray-900 sm:text-4xl dark:text-white">
                       ${pkg.price}
                     </span>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -124,7 +135,10 @@ export default async function CreditsPage() {
 
                 {/* Purchase Button */}
                 <div className="mt-6">
-                  <CreditPurchaseButton packageId={pkg.id} popular={pkg.popular} />
+                  <CreditPurchaseButton
+                    packageId={pkg.id}
+                    popular={pkg.popular}
+                  />
                 </div>
               </div>
             </div>
@@ -132,7 +146,7 @@ export default async function CreditsPage() {
         </div>
 
         {/* Info Section */}
-        <div className="mx-auto mt-12 max-w-4xl rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800 sm:p-8">
+        <div className="mx-auto mt-12 max-w-4xl rounded-2xl bg-white p-6 shadow-lg sm:p-8 dark:bg-gray-800">
           <h3 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
             How Credits Work
           </h3>
@@ -146,7 +160,8 @@ export default async function CreditsPage() {
                   One-Time Purchase
                 </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Buy credits once and use them whenever you need. No recurring charges.
+                  Buy credits once and use them whenever you need. No recurring
+                  charges.
                 </p>
               </div>
             </div>
@@ -159,7 +174,8 @@ export default async function CreditsPage() {
                   Never Expire
                 </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Your credits stay in your account forever. Use them at your own pace.
+                  Your credits stay in your account forever. Use them at your
+                  own pace.
                 </p>
               </div>
             </div>
@@ -185,7 +201,8 @@ export default async function CreditsPage() {
                   Best Value
                 </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Larger packages offer better value - save up to 50% per credit.
+                  Larger packages offer better value - save up to 50% per
+                  credit.
                 </p>
               </div>
             </div>
@@ -193,7 +210,7 @@ export default async function CreditsPage() {
         </div>
 
         {/* FAQ */}
-        <div className="mx-auto mt-8 max-w-4xl rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 p-6 dark:from-blue-950/30 dark:to-cyan-950/30 sm:p-8">
+        <div className="mx-auto mt-8 max-w-4xl rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 p-6 sm:p-8 dark:from-blue-950/30 dark:to-cyan-950/30">
           <h3 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
             Frequently Asked Questions
           </h3>
@@ -203,7 +220,9 @@ export default async function CreditsPage() {
                 What happens to my subscription credits?
               </h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Purchased credits are separate from your subscription. They&apos;re used after your monthly subscription credits are exhausted.
+                Purchased credits are separate from your subscription.
+                They&apos;re used after your monthly subscription credits are
+                exhausted.
               </p>
             </div>
             <div>
@@ -211,7 +230,8 @@ export default async function CreditsPage() {
                 Can I use credits across different subscription tiers?
               </h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Yes! Credits work with any subscription tier, including the free Starter plan.
+                Yes! Credits work with any subscription tier, including the free
+                Starter plan.
               </p>
             </div>
             <div>
@@ -219,7 +239,8 @@ export default async function CreditsPage() {
                 What if I cancel my subscription?
               </h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Your purchased credits remain in your account and can still be used even if you cancel your subscription.
+                Your purchased credits remain in your account and can still be
+                used even if you cancel your subscription.
               </p>
             </div>
           </div>

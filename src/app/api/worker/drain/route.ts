@@ -1,5 +1,5 @@
-// Ensure Node.js runtime (required for puppeteer-core/@sparticuz/chromium)
-export const runtime = "nodejs";
+// Cloudflare Pages requires edge runtime
+export const runtime = "edge";
 // This route touches DB and external services; disable static optimization
 export const dynamic = "force-dynamic";
 // Allow a longer execution window (subject to plan limits)

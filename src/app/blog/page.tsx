@@ -5,9 +5,12 @@ import { serverApi } from "~/trpc/server";
 import { format } from "date-fns";
 import { Calendar, ArrowRight, Tag } from "lucide-react";
 
+export const runtime = "edge";
+
 export const metadata: Metadata = {
   title: "Blog - kamkmPDF",
-  description: "Latest updates, tips, and insights about AI-powered PDF generation, document automation, and more.",
+  description:
+    "Latest updates, tips, and insights about AI-powered PDF generation, document automation, and more.",
 };
 
 export default async function BlogPage() {
@@ -30,8 +33,8 @@ export default async function BlogPage() {
               Blog
             </h1>
             <p className="mx-auto max-w-2xl text-xl text-slate-600 dark:text-slate-400">
-              Latest updates, tips, and insights about AI-powered PDF generation,
-              document automation, and more.
+              Latest updates, tips, and insights about AI-powered PDF
+              generation, document automation, and more.
             </p>
           </div>
 
@@ -62,19 +65,21 @@ export default async function BlogPage() {
                     </div>
                   )}
                   <div className="p-6">
-                    {post.tags && Array.isArray(post.tags) && post.tags.length > 0 && (
-                      <div className="mb-3 flex flex-wrap gap-2">
-                        {post.tags.slice(0, 2).map((tag: string) => (
-                          <span
-                            key={tag}
-                            className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                          >
-                            <Tag className="h-3 w-3" />
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    {post.tags &&
+                      Array.isArray(post.tags) &&
+                      post.tags.length > 0 && (
+                        <div className="mb-3 flex flex-wrap gap-2">
+                          {post.tags.slice(0, 2).map((tag: string) => (
+                            <span
+                              key={tag}
+                              className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                            >
+                              <Tag className="h-3 w-3" />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     <h2 className="mb-2 text-xl font-bold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
                       {post.title}
                     </h2>

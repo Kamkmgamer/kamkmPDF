@@ -4,6 +4,8 @@ import Link from "next/link";
 import { serverApi } from "~/trpc/server";
 import { ArrowLeft, Book, Tag, ChevronRight } from "lucide-react";
 
+export const runtime = "edge";
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -21,7 +23,9 @@ export async function generateMetadata({
   }
 
   return {
-    title: page.seoTitle ?? `${page.title ?? "Documentation"} - kamkmPDF Documentation`,
+    title:
+      page.seoTitle ??
+      `${page.title ?? "Documentation"} - kamkmPDF Documentation`,
     description: page.seoDescription ?? page.description ?? undefined,
   };
 }
@@ -119,27 +123,29 @@ export default async function DocumentationPage({ params }: PageProps) {
               {/* Header */}
               <header className="mb-8">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium capitalize text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 capitalize dark:bg-blue-900/30 dark:text-blue-400">
                     {page.category.replace(/-/g, " ")}
                   </span>
                   {page.section && (
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium capitalize text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 capitalize dark:bg-slate-700 dark:text-slate-300">
                       {page.section.replace(/-/g, " ")}
                     </span>
                   )}
-                  {page.tags && Array.isArray(page.tags) && page.tags.length > 0 && (
-                    <>
-                      {page.tags.map((tag: string) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-300"
-                        >
-                          <Tag className="h-3 w-3" />
-                          {tag}
-                        </span>
-                      ))}
-                    </>
-                  )}
+                  {page.tags &&
+                    Array.isArray(page.tags) &&
+                    page.tags.length > 0 && (
+                      <>
+                        {page.tags.map((tag: string) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-300"
+                          >
+                            <Tag className="h-3 w-3" />
+                            {tag}
+                          </span>
+                        ))}
+                      </>
+                    )}
                 </div>
                 <h1 className="mb-4 text-4xl font-black tracking-tight text-slate-900 lg:text-5xl dark:text-white">
                   {page.title}
@@ -152,7 +158,7 @@ export default async function DocumentationPage({ params }: PageProps) {
               </header>
 
               {/* Content */}
-              <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:text-slate-900 dark:prose-strong:text-white prose-code:text-blue-600 dark:prose-code:text-blue-400 prose-pre:bg-slate-900 dark:prose-pre:bg-slate-800 prose-ul:text-slate-700 dark:prose-ul:text-slate-300 prose-ol:text-slate-700 dark:prose-ol:text-slate-300">
+              <div className="prose prose-lg dark:prose-invert prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:text-slate-900 dark:prose-strong:text-white prose-code:text-blue-600 dark:prose-code:text-blue-400 prose-pre:bg-slate-900 dark:prose-pre:bg-slate-800 prose-ul:text-slate-700 dark:prose-ul:text-slate-300 prose-ol:text-slate-700 dark:prose-ol:text-slate-300 max-w-none">
                 <div dangerouslySetInnerHTML={{ __html: page.content }} />
               </div>
 
@@ -173,4 +179,3 @@ export default async function DocumentationPage({ params }: PageProps) {
     </main>
   );
 }
-
