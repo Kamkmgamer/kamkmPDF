@@ -82,15 +82,25 @@ export const bulkRouter = createTRPCRouter({
 
       // Trigger worker for all jobs
       try {
-        const base = env.NEXT_PUBLIC_APP_URL;
-        const url = new URL("/api/worker/drain", base).toString();
-        const headers: Record<string, string> = {};
-        if (process.env.PDFPROMPT_WORKER_SECRET) {
-          headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+        if (process.env.NETLIFY) {
+          // Direct function call on Netlify - process all jobs in this batch
+          const { drain } = await import("~/server/jobs/worker");
+          void drain({ maxJobs: jobIds.length }).catch(() => undefined);
+        } else {
+          // Use HTTP fetch for other platforms
+          const base = env.NEXT_PUBLIC_APP_URL;
+          const url = new URL("/api/worker/drain", base).toString();
+          const headers: Record<string, string> = {};
+          if (process.env.PDFPROMPT_WORKER_SECRET) {
+            headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+          }
+          void fetch(url, { 
+            headers,
+            signal: AbortSignal.timeout(5000),
+          }).catch(() => undefined);
         }
-        void fetch(url, { headers }).catch(() => undefined);
       } catch {
-        // ignore
+        // ignore - jobs will be processed by scheduled functions or next request
       }
 
       return {

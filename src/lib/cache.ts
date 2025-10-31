@@ -69,16 +69,22 @@ class RedisCache implements CacheInterface {
     // Lazy load Redis client to avoid issues in environments without Redis
   }
 
-  private loadRedisModule(): unknown {
-    // Use require() directly in Node.js runtime (this code only runs server-side)
-    // The require is dynamically constructed to prevent static analysis by bundlers
+  private async loadRedisModule(): Promise<unknown> {
+    // Use dynamic import for ESM compatibility (works in both CommonJS and ESM environments)
     // This function is only called at runtime when Redis is actually needed
     try {
-      // Dynamic require to avoid static analysis
-       
-      const requireFunc = eval('require') as (moduleName: string) => unknown;
+      // Try dynamic import first (works in ESM and modern Node.js)
       const moduleName = "re" + "dis";
-      const redisModule = requireFunc(moduleName);
+      
+      // Use Function constructor to make import truly dynamic and avoid static analysis
+      const dynamicImport = new Function("moduleName", "return import(moduleName)");
+      const redisModule = await dynamicImport(moduleName).catch(() => {
+        // Fallback to require() if import fails (CommonJS environments)
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-eval
+        const requireFunc = eval('require') as (moduleName: string) => unknown;
+        return requireFunc(moduleName);
+      });
+      
       if (!redisModule) {
         throw new Error("Redis package not installed");
       }
@@ -91,7 +97,7 @@ class RedisCache implements CacheInterface {
   private async getClient() {
     if (!this.client) {
       try {
-        const redisModule = this.loadRedisModule() as {
+        const redisModule = (await this.loadRedisModule()) as {
           createClient: (options: {
             url?: string;
             socket?: { connectTimeout?: number; lazyConnect?: boolean };

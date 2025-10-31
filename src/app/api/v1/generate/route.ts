@@ -106,17 +106,27 @@ export async function POST(req: NextRequest) {
       status: "queued",
     });
 
-    // Trigger worker
+    // Trigger worker processing
     try {
-      const base = env.NEXT_PUBLIC_APP_URL;
-      const url = new URL("/api/worker/drain", base).toString();
-      const headers: Record<string, string> = {};
-      if (process.env.PDFPROMPT_WORKER_SECRET) {
-        headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+      if (process.env.NETLIFY) {
+        // Direct function call on Netlify - more reliable than external HTTP
+        const { drain } = await import("~/server/jobs/worker");
+        void drain({ maxJobs: 1 }).catch(() => undefined); // Process one job immediately
+      } else {
+        // Use HTTP fetch for other platforms
+        const base = env.NEXT_PUBLIC_APP_URL;
+        const url = new URL("/api/worker/drain", base).toString();
+        const headers: Record<string, string> = {};
+        if (process.env.PDFPROMPT_WORKER_SECRET) {
+          headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+        }
+        void fetch(url, { 
+          headers,
+          signal: AbortSignal.timeout(5000),
+        }).catch(() => undefined);
       }
-      void fetch(url, { headers }).catch(() => undefined);
     } catch {
-      // ignore
+      // ignore - jobs will be processed by scheduled functions or next request
     }
 
     // Return job details

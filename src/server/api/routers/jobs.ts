@@ -166,19 +166,29 @@ export const jobsRouter = createTRPCRouter({
 
         console.log("[jobs.create] Job created successfully", { jobId: job.id, status: job.status });
 
-        // Best-effort ping the worker drain route so processing starts ASAP on Vercel
+        // Best-effort trigger worker processing
+        // On Netlify, call the drain function directly to avoid external HTTP calls
+        // On other platforms, use HTTP fetch
         try {
-          const base = env.NEXT_PUBLIC_APP_URL;
-          // Ensure no duplicate slashes
-          const url = new URL("/api/worker/drain", base).toString();
-          // Fire-and-forget; do not await
-          const headers: Record<string, string> = {};
-          if (process.env.PDFPROMPT_WORKER_SECRET) {
-            headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+          if (process.env.NETLIFY) {
+            // Direct function call on Netlify - more reliable than external HTTP
+            const { drain } = await import("~/server/jobs/worker");
+            void drain({ maxJobs: 1 }).catch(() => undefined); // Process one job immediately
+          } else {
+            // Use HTTP fetch for other platforms
+            const base = env.NEXT_PUBLIC_APP_URL;
+            const url = new URL("/api/worker/drain", base).toString();
+            const headers: Record<string, string> = {};
+            if (process.env.PDFPROMPT_WORKER_SECRET) {
+              headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+            }
+            void fetch(url, { 
+              headers,
+              signal: AbortSignal.timeout(5000),
+            }).catch(() => undefined);
           }
-          void fetch(url, { headers }).catch(() => undefined);
         } catch {
-          // ignore
+          // ignore - jobs will be processed by scheduled functions or next request
         }
         
         // Ensure we return a proper job object with all required fields

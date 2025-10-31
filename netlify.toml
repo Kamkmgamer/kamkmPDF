@@ -2,16 +2,19 @@
   command = "pnpm build"
   publish = ".next"
 
+[build.environment]
+  NODE_VERSION = "18"
+
+# Use Next.js plugin for proper Netlify integration
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
 [functions]
   directory = "netlify/functions"
   # Include font files for Arabic text support
   included_files = ["public/fonts/**/*", "netlify/functions/.fonts/**/*"]
-
-# Redirect all requests to Next.js
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  # Worker drain endpoint settings (60 second timeout for PDF generation)
+  node_bundler = "esbuild"
 
 # Headers for font loading
 [[headers]]
@@ -19,7 +22,3 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     Access-Control-Allow-Origin = "*"
-
-# Environment variables for serverless functions
-[build.environment]
-  NODE_VERSION = "18"
