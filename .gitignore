@@ -49,3 +49,5 @@ yarn-error.log*
 .cache/
 
 /tmp/
+# Local Netlify folder
+.netlify

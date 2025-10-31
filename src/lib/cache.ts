@@ -51,29 +51,60 @@ class MemoryCache implements CacheInterface {
 }
 
 // Redis cache implementation for production
+// This class is only instantiated in production when REDIS_URL is set
+// The Redis module is loaded lazily at runtime using require() to avoid build-time resolution
+// Note: Turbopack may show warnings about redis module not being found, but these are safe to ignore
+// The code gracefully falls back to MemoryCache if Redis is not available
 class RedisCache implements CacheInterface {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private client: any;
+  private client: {
+    on: (event: string, handler: (err: Error) => void) => void;
+    connect: () => Promise<void>;
+    get: (key: string) => Promise<string | null>;
+    setEx: (key: string, seconds: number, value: string) => Promise<void>;
+    del: (key: string) => Promise<void>;
+    exists: (key: string) => Promise<number>;
+  } | null = null;
 
   constructor() {
     // Lazy load Redis client to avoid issues in environments without Redis
-    this.client = null;
+  }
+
+  private loadRedisModule(): unknown {
+    // Use require() directly in Node.js runtime (this code only runs server-side)
+    // The require is dynamically constructed to prevent static analysis by bundlers
+    // This function is only called at runtime when Redis is actually needed
+    try {
+      // Dynamic require to avoid static analysis
+       
+      const requireFunc = eval('require') as (moduleName: string) => unknown;
+      const moduleName = "re" + "dis";
+      const redisModule = requireFunc(moduleName);
+      if (!redisModule) {
+        throw new Error("Redis package not installed");
+      }
+      return redisModule;
+    } catch (error) {
+      throw error;
+    }
   }
 
   private async getClient() {
     if (!this.client) {
       try {
-        // Dynamic import without eval - works in Node.js runtime only
-        // Edge Runtime will fail here, which is expected
-        // Construct module name at runtime to avoid static analysis
-        const moduleName = "re" + "dis"; // Split to avoid static resolution
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const redisModule = await import(moduleName).catch(() => null);
-        if (!redisModule) {
-          throw new Error("Redis package not installed");
-        }
+        const redisModule = this.loadRedisModule() as {
+          createClient: (options: {
+            url?: string;
+            socket?: { connectTimeout?: number; lazyConnect?: boolean };
+          }) => {
+            on: (event: string, handler: (err: Error) => void) => void;
+            connect: () => Promise<void>;
+            get: (key: string) => Promise<string | null>;
+            setEx: (key: string, seconds: number, value: string) => Promise<void>;
+            del: (key: string) => Promise<void>;
+            exists: (key: string) => Promise<number>;
+          };
+        };
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         this.client = redisModule.createClient({
           url: process.env.REDIS_URL ?? "redis://localhost:6379",
           socket: {
@@ -82,12 +113,10 @@ class RedisCache implements CacheInterface {
           },
         });
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         this.client.on("error", (err: Error) => {
           logger.warn({ error: err.message }, "Redis connection error");
         });
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         await this.client.connect();
         logger.info("Redis cache connected");
       } catch (error) {
@@ -98,15 +127,12 @@ class RedisCache implements CacheInterface {
         throw error;
       }
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.client;
   }
 
   async get(key: string): Promise<string | null> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const client = await this.getClient();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       return await client.get(key);
     } catch (error) {
       logger.warn({ error: String(error) }, "Redis get error");
@@ -116,9 +142,7 @@ class RedisCache implements CacheInterface {
 
   async set(key: string, value: string, ttlSeconds = 3600): Promise<void> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const client = await this.getClient();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       await client.setEx(key, ttlSeconds, value);
     } catch (error) {
       logger.warn({ error: String(error) }, "Redis set error");
@@ -127,9 +151,7 @@ class RedisCache implements CacheInterface {
 
   async del(key: string): Promise<void> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const client = await this.getClient();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       await client.del(key);
     } catch (error) {
       logger.warn({ error: String(error) }, "Redis del error");
@@ -138,9 +160,7 @@ class RedisCache implements CacheInterface {
 
   async exists(key: string): Promise<boolean> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const client = await this.getClient();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       const result = await client.exists(key);
       return result === 1;
     } catch (error) {

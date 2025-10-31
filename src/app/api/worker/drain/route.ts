@@ -1,5 +1,5 @@
-// Cloudflare Pages requires edge runtime
-export const runtime = "edge";
+// Use Node.js runtime for worker operations (requires fs, path, stream, etc.)
+export const runtime = "nodejs";
 // This route touches DB and external services; disable static optimization
 export const dynamic = "force-dynamic";
 // Allow a longer execution window (subject to plan limits)

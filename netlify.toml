@@ -3,8 +3,9 @@
   publish = ".next"
 
 [functions]
+  directory = "netlify/functions"
   # Include font files for Arabic text support
-  included_files = ["public/fonts/**/*"]
+  included_files = ["public/fonts/**/*", "netlify/functions/.fonts/**/*"]
 
 # Redirect all requests to Next.js
 [[redirects]]

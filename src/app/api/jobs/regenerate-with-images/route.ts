@@ -19,9 +19,8 @@ import { env } from "~/env";
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8MB
 const ACCEPTED_TYPES = new Set(["image/png", "image/jpeg"]);
 
-// Cloudflare Pages requires Edge Runtime
-export const runtime = "edge";
-export const dynamic = "force-dynamic";
+
+export const runtime = "nodejs";export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {

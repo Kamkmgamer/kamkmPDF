@@ -6,7 +6,21 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-  turbopack: {},
+  webpack: (config, { isServer, webpack }) => {
+    if (isServer) {
+      // Ignore the redis module resolution errors - it's loaded dynamically at runtime
+      // This prevents webpack from trying to bundle it during build
+      // Note: This only applies to webpack builds, not Turbopack
+      config.plugins = config.plugins || [];
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^redis$/,
+          contextRegExp: /src\/lib\/cache\.ts$/,
+        }),
+      );
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {

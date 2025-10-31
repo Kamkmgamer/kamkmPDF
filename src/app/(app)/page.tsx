@@ -126,13 +126,21 @@ ${prompt.trim()}`
         } else throw new Error("No job id returned");
       } else {
         // Handle text-only job
+        console.log("[page.tsx] Calling createJob mutation", { promptLength: finalPrompt.length });
         const job = await createJob.mutateAsync({ prompt: finalPrompt });
-        if (job?.id) {
-          // Clear localStorage on successful submission
-          localStorage.removeItem("home:prompt");
-          // Navigate to PDF page for both authenticated and unauthenticated users
-          router.push(`/pdf/${job.id}`);
+        console.log("[page.tsx] Mutation result", { job, hasId: !!job?.id, jobKeys: job ? Object.keys(job) : [] });
+        if (!job) {
+          console.error("[page.tsx] Job is null/undefined");
+          throw new Error("Job creation returned no result. Please try again.");
         }
+        if (!job.id) {
+          console.error("[page.tsx] Job missing id", { job });
+          throw new Error("Job was created but no ID was returned. Please try again.");
+        }
+        // Clear localStorage on successful submission
+        localStorage.removeItem("home:prompt");
+        // Navigate to PDF page for both authenticated and unauthenticated users
+        router.push(`/pdf/${job.id}`);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

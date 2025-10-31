@@ -32,129 +32,191 @@ export const jobsRouter = createTRPCRouter({
   create: publicProcedure
     .input(z.object({ prompt: z.string().min(1).max(32000) }))
     .mutation(async ({ input, ctx }) => {
-      const userId = ctx.clerkUserId ?? null;
+      try {
+        console.log("[jobs.create] Starting mutation", { 
+          promptLength: input.prompt.length,
+          hasUserId: !!ctx.clerkUserId 
+        });
+        const userId = ctx.clerkUserId ?? null;
 
-      // For authenticated users, check subscription and quota
-      if (userId) {
-        let subscription = await db
-          .select()
-          .from(userSubscriptions)
-          .where(eq(userSubscriptions.userId, userId))
-          .limit(1);
-
-        // Create subscription if doesn't exist
-        if (!subscription[0]) {
-          const subId = randomUUID();
-          const now = new Date();
-          const periodEnd = new Date(now);
-          periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-          // Generate referral code
-          const hash = userId.split("").reduce((acc, char) => {
-            return (acc << 5) - acc + char.charCodeAt(0);
-          }, 0);
-          const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
-          const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
-          const referralCode = `REF${code}${timestamp}`;
-
-          await db.insert(userSubscriptions).values({
-            id: subId,
-            userId,
-            tier: "starter",
-            status: "active",
-            pdfsUsedThisMonth: 0,
-            storageUsedBytes: 0,
-            referralCode,
-            periodStart: now,
-            periodEnd,
-          });
-
-          subscription = await db
+        // For authenticated users, check subscription and quota
+        if (userId) {
+          let subscription = await db
             .select()
             .from(userSubscriptions)
             .where(eq(userSubscriptions.userId, userId))
             .limit(1);
+
+          // Create subscription if doesn't exist
+          if (!subscription[0]) {
+            const subId = randomUUID();
+            const now = new Date();
+            const periodEnd = new Date(now);
+            periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+            // Generate referral code
+            const hash = userId.split("").reduce((acc, char) => {
+              return (acc << 5) - acc + char.charCodeAt(0);
+            }, 0);
+            const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
+            const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
+            const referralCode = `REF${code}${timestamp}`;
+
+            await db.insert(userSubscriptions).values({
+              id: subId,
+              userId,
+              tier: "starter",
+              status: "active",
+              pdfsUsedThisMonth: 0,
+              storageUsedBytes: 0,
+              referralCode,
+              periodStart: now,
+              periodEnd,
+            });
+
+            subscription = await db
+              .select()
+              .from(userSubscriptions)
+              .where(eq(userSubscriptions.userId, userId))
+              .limit(1);
+          }
+
+          const sub = subscription[0];
+          if (!sub) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to get subscription",
+            });
+          }
+
+          // Check if user has exceeded quota
+          const tier = sub.tier as SubscriptionTier;
+          const tierConfig = getTierConfig(tier);
+          const exceeded = hasExceededQuota(
+            tier,
+            sub.pdfsUsedThisMonth,
+            "pdfsPerMonth",
+          );
+
+          if (exceeded) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: `You've reached your monthly limit of ${tierConfig.quotas.pdfsPerMonth} PDFs. Please upgrade your plan to continue.`,
+            });
+          }
+        }
+        // For unauthenticated users (guests), skip quota checks and allow PDF generation
+
+        // Check for duplicate jobs before creating a new one
+        const deduplicationResult = await checkForDuplicateJob(input.prompt, {
+          userId,
+          windowMinutes: 5, // Consider jobs from last 5 minutes
+        });
+
+        if (
+          deduplicationResult.isDuplicate &&
+          deduplicationResult.existingJobId
+        ) {
+          // Return the existing job instead of creating a new one
+          const existingJob = await db
+            .select()
+            .from(jobs)
+            .where(eq(jobs.id, deduplicationResult.existingJobId))
+            .limit(1);
+
+          if (existingJob[0]) {
+            return existingJob[0];
+          }
         }
 
-        const sub = subscription[0];
-        if (!sub) {
+        // Create the job
+        const id = randomUUID();
+        const promptHash = generatePromptHash(input.prompt, {
+          userId: userId ?? undefined,
+        });
+
+        let created;
+        try {
+          created = await db
+            .insert(jobs)
+            .values({
+              id,
+              prompt: input.prompt,
+              userId,
+              promptHash,
+            })
+            .returning();
+        } catch (error) {
+          console.error("[jobs.create] Database insert error:", error);
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to get subscription",
+            message: "Failed to create job. Please try again.",
+            cause: error,
           });
         }
 
-        // Check if user has exceeded quota
-        const tier = sub.tier as SubscriptionTier;
-        const tierConfig = getTierConfig(tier);
-        const exceeded = hasExceededQuota(
-          tier,
-          sub.pdfsUsedThisMonth,
-          "pdfsPerMonth",
-        );
-
-        if (exceeded) {
+        const job = created[0];
+        if (!job) {
+          console.error("[jobs.create] Insert succeeded but no job returned", { created });
           throw new TRPCError({
-            code: "FORBIDDEN",
-            message: `You've reached your monthly limit of ${tierConfig.quotas.pdfsPerMonth} PDFs. Please upgrade your plan to continue.`,
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Job was created but could not be retrieved. Please try again.",
           });
         }
-      }
-      // For unauthenticated users (guests), skip quota checks and allow PDF generation
 
-      // Check for duplicate jobs before creating a new one
-      const deduplicationResult = await checkForDuplicateJob(input.prompt, {
-        userId,
-        windowMinutes: 5, // Consider jobs from last 5 minutes
-      });
+        console.log("[jobs.create] Job created successfully", { jobId: job.id, status: job.status });
 
-      if (
-        deduplicationResult.isDuplicate &&
-        deduplicationResult.existingJobId
-      ) {
-        // Return the existing job instead of creating a new one
-        const existingJob = await db
-          .select()
-          .from(jobs)
-          .where(eq(jobs.id, deduplicationResult.existingJobId))
-          .limit(1);
-
-        if (existingJob[0]) {
-          return existingJob[0];
+        // Best-effort ping the worker drain route so processing starts ASAP on Vercel
+        try {
+          const base = env.NEXT_PUBLIC_APP_URL;
+          // Ensure no duplicate slashes
+          const url = new URL("/api/worker/drain", base).toString();
+          // Fire-and-forget; do not await
+          const headers: Record<string, string> = {};
+          if (process.env.PDFPROMPT_WORKER_SECRET) {
+            headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+          }
+          void fetch(url, { headers }).catch(() => undefined);
+        } catch {
+          // ignore
         }
-      }
-
-      // Create the job
-      const id = randomUUID();
-      const promptHash = generatePromptHash(input.prompt, {
-        userId: userId ?? undefined,
-      });
-
-      const created = await db
-        .insert(jobs)
-        .values({
-          id,
-          prompt: input.prompt,
-          userId,
-          promptHash,
-        })
-        .returning();
-
-      // Best-effort ping the worker drain route so processing starts ASAP on Vercel
-      try {
-        const base = env.NEXT_PUBLIC_APP_URL;
-        // Ensure no duplicate slashes
-        const url = new URL("/api/worker/drain", base).toString();
-        // Fire-and-forget; do not await
-        const headers: Record<string, string> = {};
-        if (process.env.PDFPROMPT_WORKER_SECRET) {
-          headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
+        
+        // Ensure we return a proper job object with all required fields
+        const result = {
+          id: job.id,
+          userId: job.userId,
+          prompt: job.prompt,
+          promptHash: job.promptHash,
+          status: job.status,
+          attempts: job.attempts,
+          progress: job.progress,
+          createdAt: job.createdAt,
+          updatedAt: job.updatedAt,
+          // Include optional fields
+          ...(job.resultFileId && { resultFileId: job.resultFileId }),
+          ...(job.errorMessage && { errorMessage: job.errorMessage }),
+          ...(job.stage && { stage: job.stage }),
+          ...(job.generatedHtml && { generatedHtml: job.generatedHtml }),
+          ...(job.imageUrls && { imageUrls: job.imageUrls }),
+          ...(job.regenerationCount !== undefined && { regenerationCount: job.regenerationCount }),
+          ...(job.parentJobId && { parentJobId: job.parentJobId }),
+        };
+        
+        console.log("[jobs.create] Returning job", { jobId: result.id, hasId: !!result.id });
+        return result;
+      } catch (error) {
+        console.error("[jobs.create] Unhandled error in mutation", error);
+        // Re-throw TRPCErrors as-is
+        if (error instanceof TRPCError) {
+          throw error;
         }
-        void fetch(url, { headers }).catch(() => undefined);
-      } catch {
-        // ignore
+        // Wrap other errors
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "An unexpected error occurred",
+          cause: error,
+        });
       }
-      return created[0] ?? null;
     }),
 
   get: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {

@@ -56,6 +56,7 @@
     "react-dom": "^19.2.0",
     "react-pdf": "^10.2.0",
     "recharts": "^3.3.0",
+    "redis": "^5.9.0",
     "resend": "^6.2.2",
     "server-only": "^0.0.1",
     "superjson": "^2.2.2",
@@ -63,10 +64,10 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.1.15",
     "@testing-library/jest-dom": "^6.9.1",
-    "@cloudflare/next-on-pages": "^1.13.16",
     "@types/jest": "^30.0.0",
     "@types/node": "^20.19.23",
     "@types/pdfkit": "^0.17.3",
@@ -96,5 +97,5 @@
   "ct3aMetadata": {
     "initVersion": "7.39.3"
   },
-  "packageManager": "pnpm@10.16.1"
+  "packageManager": "pnpm@10.20.0"
 }
