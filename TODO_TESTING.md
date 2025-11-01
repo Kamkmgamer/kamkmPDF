@@ -10,8 +10,8 @@ This document contains all testing-related tasks organized by priority.
 
 #### 1.1 Set Up Testing Framework
 
-- [ ] Configure Vitest for unit tests
-- [ ] Set up Playwright for E2E tests
+- [x] Configure Vitest for unit tests
+- [x] Set up Playwright for E2E tests
 - [ ] Create test database setup script
 - [ ] Configure test environment variables
 - [ ] Add test scripts to package.json
