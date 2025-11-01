@@ -137,20 +137,19 @@ describe("hasExceededQuota", () => {
   describe("Storage Quota", () => {
     it("should check storage quota correctly", () => {
       const starterStorageGB = getTierConfig("starter").quotas.storageGB;
-      const usageBytes = starterStorageGB * 1024 * 1024 * 1024; // Convert GB to bytes
 
-      // Under quota
+      // Under quota - usage in GB
       const underQuota = hasExceededQuota(
         "starter",
-        usageBytes * 0.9,
+        starterStorageGB * 0.9,
         "storageGB",
       );
       expect(underQuota).toBe(false);
 
-      // Over quota
+      // Over quota - usage in GB
       const overQuota = hasExceededQuota(
         "starter",
-        usageBytes * 1.1,
+        starterStorageGB * 1.1,
         "storageGB",
       );
       expect(overQuota).toBe(true);
