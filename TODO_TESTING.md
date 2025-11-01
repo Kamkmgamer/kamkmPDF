@@ -12,8 +12,8 @@ This document contains all testing-related tasks organized by priority.
 
 - [x] Configure Vitest for unit tests
 - [x] Set up Playwright for E2E tests
-- [ ] Create test database setup script
-- [ ] Configure test environment variables
+- [x] Create test database setup script
+- [x] Configure test environment variables
 - [ ] Add test scripts to package.json
 - [ ] Set up test coverage reporting (v8 coverage)
 - [ ] Configure CI/CD to run tests on PRs
