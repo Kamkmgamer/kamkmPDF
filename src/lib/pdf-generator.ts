@@ -1,7 +1,11 @@
 import type { Page, PaperFormat } from "puppeteer-core";
 import { getBrowserPool } from "~/lib/browser-pool";
 import { logger } from "~/lib/logger";
-import { containsRTL, containsCJK, containsIndic } from "~/server/utils/multilingualText";
+import {
+  containsRTL,
+  containsCJK,
+  containsIndic,
+} from "~/server/utils/multilingualText";
 
 export interface OptimizedPdfOptions {
   format?: PaperFormat;
@@ -26,7 +30,10 @@ export interface PdfGenerationResult {
 }
 
 // Concurrency control for PDF generation
-const MAX_PDF_CONCURRENCY = parseInt(process.env.MAX_PDF_CONCURRENCY ?? "8", 10);
+const MAX_PDF_CONCURRENCY = parseInt(
+  process.env.MAX_PDF_CONCURRENCY ?? "8",
+  10,
+);
 let activePdfTasks = 0;
 const waitQueue: Array<() => void> = [];
 
@@ -53,14 +60,17 @@ async function waitForFonts(page: Page, timeout = 10000): Promise<void> {
   try {
     await page.evaluate(async (timeoutMs) => {
       const startTime = Date.now();
-      
+
       // Wait for fonts to be ready using Font Loading API
-      if (document.fonts && 'ready' in document.fonts) {
+      if (document.fonts && "ready" in document.fonts) {
         try {
           await Promise.race([
             document.fonts.ready,
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Font loading timeout')), timeoutMs)
+            new Promise((_, reject) =>
+              setTimeout(
+                () => reject(new Error("Font loading timeout")),
+                timeoutMs,
+              ),
             ),
           ]);
         } catch {
@@ -70,10 +80,10 @@ async function waitForFonts(page: Page, timeout = 10000): Promise<void> {
 
       // Additional check: verify Arabic fonts are loaded (if Arabic content exists)
       const arabicFonts = [
-        'Noto Naskh Arabic',
-        'Noto Sans Arabic',
-        'Amiri',
-        'Scheherazade New',
+        "Noto Naskh Arabic",
+        "Noto Sans Arabic",
+        "Amiri",
+        "Scheherazade New",
       ];
 
       // Poll for fonts to be loaded
@@ -88,7 +98,7 @@ async function waitForFonts(page: Page, timeout = 10000): Promise<void> {
           for (const fontFamily of arabicFonts) {
             if (document.fonts?.check) {
               // Check if font is loaded (using a test string with Arabic characters)
-              const loaded = document.fonts.check(`16px "${fontFamily}"`, 'ا');
+              const loaded = document.fonts.check(`16px "${fontFamily}"`, "ا");
               if (!loaded) {
                 allFontsLoaded = false;
                 break;
@@ -101,21 +111,27 @@ async function waitForFonts(page: Page, timeout = 10000): Promise<void> {
           }
 
           // Wait before next check
-          await new Promise(resolve => setTimeout(resolve, 200));
+          await new Promise((resolve) => setTimeout(resolve, 200));
         }
       };
 
       await Promise.race([
         checkFonts(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Font verification timeout')), timeoutMs)
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Font verification timeout")),
+            timeoutMs,
+          ),
         ),
       ]);
     }, timeout);
   } catch (error) {
     // Log warning but don't fail - fonts may still render correctly
     // The networkidle0 wait should have ensured fonts are mostly loaded
-    logger.warn({ error: String(error) }, "Font loading check timed out, proceeding anyway");
+    logger.warn(
+      { error: String(error) },
+      "Font loading check timed out, proceeding anyway",
+    );
   }
 }
 
@@ -124,7 +140,7 @@ async function waitForFonts(page: Page, timeout = 10000): Promise<void> {
  */
 export async function generatePdfFromHtml(
   html: string,
-  options: OptimizedPdfOptions = {}
+  options: OptimizedPdfOptions = {},
 ): Promise<PdfGenerationResult> {
   const startTime = Date.now();
   await acquirePdfSlot();
@@ -137,22 +153,31 @@ export async function generatePdfFromHtml(
     await browserPool.getBrowser(); // Warm up the browser
     page = await browserPool.getPage();
 
+    // Allow inline styles and font-face when sites set restrictive CSP
+    try {
+      await page.setBypassCSP(true);
+    } catch {
+      // setBypassCSP may not exist on some runtimes; ignore
+    }
+
     // Get browser ID for tracking
     const stats = browserPool.getStats();
-    const browserInstance = stats.browsers.find(b => b.pageCount > 0);
+    const browserInstance = stats.browsers.find((b) => b.pageCount > 0);
     browserId = browserInstance?.id ?? "unknown";
 
     // Detect if content contains multilingual text (Arabic, RTL, CJK, Indic)
-    const hasMultilingualContent = 
-      containsRTL(html) || 
-      containsCJK(html) || 
-      containsIndic(html);
+    const hasMultilingualContent =
+      containsRTL(html) || containsCJK(html) || containsIndic(html);
 
     // Use networkidle0 for multilingual content to ensure fonts load
     // This ensures all network requests (including font files) complete
-    const waitStrategy = hasMultilingualContent || options.waitForImages
-      ? (["domcontentloaded", "networkidle0"] as ["domcontentloaded", "networkidle0"])
-      : "domcontentloaded";
+    const waitStrategy =
+      hasMultilingualContent || options.waitForImages
+        ? (["domcontentloaded", "networkidle0"] as [
+            "domcontentloaded",
+            "networkidle0",
+          ])
+        : "domcontentloaded";
 
     // Optimize page loading
     await page.setContent(html, {
@@ -164,7 +189,37 @@ export async function generatePdfFromHtml(
     if (hasMultilingualContent) {
       await waitForFonts(page, 10000); // 10 second timeout for font loading
       // Small delay to ensure font rendering is complete
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    // Font telemetry: verify Arabic fonts and computed font-family
+    try {
+      const fontInfo = await page.evaluate(() => {
+        const families = [
+          "Noto Naskh Arabic",
+          "Noto Sans Arabic",
+          "Amiri",
+          "Scheherazade New",
+        ];
+        const checks = families.map((f) => {
+          const fonts = document.fonts;
+          let loaded = false;
+          if (fonts && "check" in fonts) {
+            loaded = (
+              fonts as { check: (font: string, text: string) => boolean }
+            ).check(`16px "${f}"`, "ا");
+          }
+          return { family: f, loaded };
+        });
+        const probe = document.querySelector(".rtl-text") ?? document.body;
+        const computedFamily = window.getComputedStyle(probe).fontFamily;
+        const fontsReady =
+          (window as { __fontsReady?: boolean }).__fontsReady === true;
+        return { checks, computedFamily, fontsReady };
+      });
+      logger.info(fontInfo, "Arabic font checks");
+    } catch {
+      // ignore telemetry errors
     }
 
     // Set media type for consistent rendering
@@ -188,13 +243,16 @@ export async function generatePdfFromHtml(
     })) as Buffer;
 
     const generationTime = Date.now() - startTime;
-    
-    logger.info({
-      browserId,
-      generationTime,
-      pdfSize: pdfBuffer.length,
-      concurrency: activePdfTasks,
-    }, "PDF generated successfully");
+
+    logger.info(
+      {
+        browserId,
+        generationTime,
+        pdfSize: pdfBuffer.length,
+        concurrency: activePdfTasks,
+      },
+      "PDF generated successfully",
+    );
 
     return {
       buffer: pdfBuffer,
@@ -204,13 +262,15 @@ export async function generatePdfFromHtml(
         browserId,
       },
     };
-
   } catch (error) {
-    logger.error({
-      error: String(error),
-      browserId,
-      generationTime: Date.now() - startTime,
-    }, "PDF generation failed");
+    logger.error(
+      {
+        error: String(error),
+        browserId,
+        generationTime: Date.now() - startTime,
+      },
+      "PDF generation failed",
+    );
 
     throw error;
   } finally {
@@ -228,11 +288,11 @@ export async function generatePdfFromHtml(
 export async function generatePdfToFile(
   html: string,
   filePath: string,
-  options: OptimizedPdfOptions = {}
+  options: OptimizedPdfOptions = {},
 ): Promise<void> {
   const fs = await import("fs");
   const path = await import("path");
-  
+
   await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
 
   const result = await generatePdfFromHtml(html, options);
@@ -246,12 +306,12 @@ export async function preWarmBrowserPool(): Promise<void> {
   try {
     const browserPool = getBrowserPool();
     await browserPool.getBrowser(); // Warm up the browser
-    
+
     // Create a test page to ensure browser is ready
     const page = await browserPool.getPage();
     await page.setContent("<html><body>Test</body></html>");
     await browserPool.closePage(page);
-    
+
     logger.info("Browser pool pre-warmed successfully");
   } catch (error) {
     logger.warn({ error: String(error) }, "Failed to pre-warm browser pool");

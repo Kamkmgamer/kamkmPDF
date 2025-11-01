@@ -23,6 +23,7 @@ export const env = createEnv({
     PDFPROMPT_MAX_JOBS_PER_INVOCATION: z.string().optional(),
     PDFPROMPT_MAX_MS_PER_INVOCATION: z.string().optional(),
     PDFPROMPT_BATCH_SIZE: z.string().optional(),
+    PDFPROMPT_BYPASS_AI_FOR_RTL: z.string().optional(),
     // Polar.sh configuration (optional - only needed for subscriptions and credit purchases)
     POLAR_ACCESS_TOKEN: z.string().optional(),
     POLAR_WEBHOOK_SECRET: z.string().optional(),
@@ -56,6 +57,7 @@ export const env = createEnv({
     PDFPROMPT_MAX_MS_PER_INVOCATION:
       process.env.PDFPROMPT_MAX_MS_PER_INVOCATION,
     PDFPROMPT_BATCH_SIZE: process.env.PDFPROMPT_BATCH_SIZE,
+    PDFPROMPT_BYPASS_AI_FOR_RTL: process.env.PDFPROMPT_BYPASS_AI_FOR_RTL,
     POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
     POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
     TRPC_LOG_DEV_ERRORS: process.env.TRPC_LOG_DEV_ERRORS,

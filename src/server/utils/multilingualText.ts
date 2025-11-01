@@ -281,6 +281,90 @@ export function getMultilingualTextStyles(): string {
 }
 
 /**
+ * Returns @font-face CSS for local Arabic fonts.
+ * If base64 is true, embeds the font files directly to avoid any network fetches.
+ * Silently falls back to empty string if files are missing.
+ */
+export function getLocalArabicFontFacesCss(
+  options: { base64?: boolean } = {},
+): string {
+  const { base64 = false } = options;
+  try {
+    if (base64) {
+      // Inline from public/fonts when available
+      // Use sync reads to keep API simple and deterministic for serverless environments
+      // Note: This is intentionally synchronous for serverless compatibility
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const fs = require("fs") as {
+        existsSync: (path: string) => boolean;
+        readFileSync: (path: string) => Buffer;
+      };
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const path = require("path") as {
+        join: (...paths: string[]) => string;
+      };
+
+      const readBase64 = (name: string): string => {
+        // Try multiple possible paths for Netlify/serverless compatibility
+        const possiblePaths: string[] = [
+          // Standard Next.js build output (local dev)
+          path.join(process.cwd(), "public", "fonts", name),
+          // Netlify serverless function context (fonts included via netlify.toml)
+          path.join(process.cwd(), "..", "public", "fonts", name),
+          // Alternative Netlify path
+          path.join("/var/task", "public", "fonts", name),
+        ];
+
+        for (const p of possiblePaths) {
+          try {
+            if (fs.existsSync(p)) {
+              const data = fs.readFileSync(p);
+              return `url(data:font/ttf;base64,${data.toString("base64")}) format('truetype')`;
+            }
+          } catch {
+            // Continue to next path
+          }
+        }
+        // Return empty - will fall back to URL-based fonts or Google Fonts
+        return "";
+      };
+
+      const naskh = readBase64("NotoNaskhArabic-Regular.ttf");
+      const sans = readBase64("NotoSansArabic-Regular.ttf");
+      const amiri = readBase64("Amiri-Regular.ttf");
+
+      const blocks: string[] = [];
+      if (naskh) {
+        blocks.push(
+          `@font-face{font-family:'Noto Naskh Arabic';src:${naskh};font-display:block;unicode-range: U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF;}`,
+        );
+      }
+      if (sans) {
+        blocks.push(
+          `@font-face{font-family:'Noto Sans Arabic';src:${sans};font-display:block;unicode-range: U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF;}`,
+        );
+      }
+      if (amiri) {
+        blocks.push(
+          `@font-face{font-family:'Amiri';src:${amiri};font-display:block;unicode-range: U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF;}`,
+        );
+      }
+      return blocks.join("\n");
+    }
+
+    // URL-based fallback pointing to public/fonts (works on Netlify via CDN)
+    // On Netlify, public/ files are served via CDN, so these URLs will work
+    return `
+      @font-face { font-family: 'Noto Naskh Arabic'; src: url('/fonts/NotoNaskhArabic-Regular.ttf') format('truetype'); font-display: block; unicode-range: U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF; }
+      @font-face { font-family: 'Noto Sans Arabic'; src: url('/fonts/NotoSansArabic-Regular.ttf') format('truetype'); font-display: block; unicode-range: U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF; }
+      @font-face { font-family: 'Amiri'; src: url('/fonts/Amiri-Regular.ttf') format('truetype'); font-display: block; unicode-range: U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF; }
+    `;
+  } catch {
+    return "";
+  }
+}
+
+/**
  * Gets the appropriate font family for Arabic text (legacy function for backward compatibility)
  */
 export function getArabicFontFamily(): string {
@@ -293,6 +377,11 @@ export function getArabicFontFamily(): string {
  */
 export function getMultilingualFontImports(): string {
   return `
+    /* Local font faces if available */
+    @font-face { font-family: 'Noto Naskh Arabic'; src: url('/fonts/NotoNaskhArabic-Regular.ttf') format('truetype'); font-display: block; }
+    @font-face { font-family: 'Noto Sans Arabic'; src: url('/fonts/NotoSansArabic-Regular.ttf') format('truetype'); font-display: block; }
+    @font-face { font-family: 'Amiri'; src: url('/fonts/Amiri-Regular.ttf') format('truetype'); font-display: block; }
+    
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=block');
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600;700&display=block');
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=block');

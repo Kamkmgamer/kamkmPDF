@@ -53,17 +53,22 @@ export async function generatePdfToPath(
       });
       return; // success
     } else {
-      console.warn("[pdf] generatePdfToPath - OPENROUTER_API_KEY not configured, skipping AI pipeline");
+      console.warn(
+        "[pdf] generatePdfToPath - OPENROUTER_API_KEY not configured, skipping AI pipeline",
+      );
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     const errorStack = err instanceof Error ? err.stack : undefined;
-    console.error("[pdf] generatePdfToPath - AI pipeline failed, falling back to PDFKit:", {
-      error: errorMessage,
-      stack: errorStack,
-      jobId: opts.jobId,
-      hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
-    });
+    console.error(
+      "[pdf] generatePdfToPath - AI pipeline failed, falling back to PDFKit:",
+      {
+        error: errorMessage,
+        stack: errorStack,
+        jobId: opts.jobId,
+        hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
+      },
+    );
   }
 
   // On serverless (Netlify/Vercel/Lambda), avoid PDFKit asset lookups; use Puppeteer-based path
@@ -207,10 +212,34 @@ export async function generatePdfBuffer(opts: {
     tier: opts.tier,
     promptLength: opts.prompt?.length ?? 0,
   });
-  
+
   try {
+    const wantsBypass = env.PDFPROMPT_BYPASS_AI_FOR_RTL === "1";
+    const hasRtl = containsRTL(opts.prompt ?? "");
+    if (wantsBypass && hasRtl) {
+      await opts.onStage?.("Formatting PDF", 40);
+      const body = `
+        <section dir="auto" style="white-space: pre-wrap; font-size: 14px;">
+          ${(opts.prompt ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+        </section>
+      `;
+      const htmlDoc = wrapHtmlDocument(
+        body,
+        "Prompt‑to‑PDF Document",
+        opts.addWatermark ?? false,
+      );
+      const buf = await htmlToPdfToBuffer(htmlDoc, {
+        format: "A4",
+        printBackground: true,
+      });
+      return buf;
+    }
+
     if (env.OPENROUTER_API_KEY) {
-      console.log("[pdf] generatePdfBuffer - Calling OpenRouter for job", opts.jobId);
+      console.log(
+        "[pdf] generatePdfBuffer - Calling OpenRouter for job",
+        opts.jobId,
+      );
       await opts.onStage?.("Analyzing your request", 15);
       const htmlBodyRaw = await generateHtmlFromPrompt({
         prompt: opts.prompt ?? "",
@@ -218,27 +247,38 @@ export async function generatePdfBuffer(opts: {
         tier: opts.tier,
       });
       await opts.onStage?.("Generating content", 40);
-      
+
       // Check if Arabic text was lost during HTML generation
-      const promptHasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(opts.prompt ?? "");
-      const htmlHasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(htmlBodyRaw);
-      
+      const promptHasArabic =
+        /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(
+          opts.prompt ?? "",
+        );
+      const htmlHasArabic =
+        /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(
+          htmlBodyRaw,
+        );
+
       let body = htmlBodyRaw;
-      
+
       if (promptHasArabic && !htmlHasArabic) {
-        console.warn(`[pdf] Arabic text in prompt but missing from AI-generated HTML. Appending missing Arabic text.`, {
-          jobId: opts.jobId,
-          promptLength: (opts.prompt ?? "").length,
-          htmlLength: htmlBodyRaw.length,
-        });
+        console.warn(
+          `[pdf] Arabic text in prompt but missing from AI-generated HTML. Appending missing Arabic text.`,
+          {
+            jobId: opts.jobId,
+            promptLength: (opts.prompt ?? "").length,
+            htmlLength: htmlBodyRaw.length,
+          },
+        );
         // If Arabic text is missing, we'll append it to ensure it's included
         // This is a safety measure to ensure Arabic content is never lost
-        const arabicTextInPrompt = (opts.prompt ?? "").match(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+/g);
+        const arabicTextInPrompt = (opts.prompt ?? "").match(
+          /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+/g,
+        );
         if (arabicTextInPrompt && arabicTextInPrompt.length > 0) {
           const missingArabicSection = `<section dir="rtl" lang="ar" style="margin-top: 20px; padding: 20px; border-top: 2px solid #e2e8f0;">
             <h2 style="font-size: 18px; margin-bottom: 12px;">النص الأصلي:</h2>
             <p style="font-size: 14px; line-height: 1.8; font-family: 'Noto Naskh Arabic', 'Noto Sans Arabic', Arial, sans-serif;">
-              ${arabicTextInPrompt.join(' ')}
+              ${arabicTextInPrompt.join(" ")}
             </p>
           </section>`;
           // Append Arabic text if it's missing
@@ -283,21 +323,27 @@ export async function generatePdfBuffer(opts: {
       });
       return buf; // success
     } else {
-      console.warn("[pdf] generatePdfBuffer - OPENROUTER_API_KEY not configured, skipping AI pipeline", {
-        jobId: opts.jobId,
-        tier: opts.tier,
-      });
+      console.warn(
+        "[pdf] generatePdfBuffer - OPENROUTER_API_KEY not configured, skipping AI pipeline",
+        {
+          jobId: opts.jobId,
+          tier: opts.tier,
+        },
+      );
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     const errorStack = err instanceof Error ? err.stack : undefined;
-    console.error("[pdf] generatePdfBuffer - AI pipeline failed, falling back to PDFKit:", {
-      error: errorMessage,
-      stack: errorStack,
-      jobId: opts.jobId,
-      hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
-      tier: opts.tier,
-    });
+    console.error(
+      "[pdf] generatePdfBuffer - AI pipeline failed, falling back to PDFKit:",
+      {
+        error: errorMessage,
+        stack: errorStack,
+        jobId: opts.jobId,
+        hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
+        tier: opts.tier,
+      },
+    );
   }
 
   // On serverless (Netlify/Vercel/Lambda), avoid PDFKit asset lookups; use Puppeteer-based path

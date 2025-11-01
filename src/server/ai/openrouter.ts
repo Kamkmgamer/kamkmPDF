@@ -5,6 +5,7 @@ import {
   getMultilingualTextStyles,
   getMultilingualFontImports,
   getMultilingualFontFamily as _getMultilingualFontFamily,
+  getLocalArabicFontFacesCss,
 } from "~/server/utils/multilingualText";
 import {
   getModelsForTier,
@@ -30,11 +31,55 @@ const OPENROUTER_BASE =
   env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
 
 function extractHtmlFromContent(content: string): string {
-  const fence = /```html\s*([\s\S]*?)```/i.exec(content);
-  if (fence?.[1]) return fence[1].trim();
-  const genericFence = /```\s*([\s\S]*?)```/.exec(content);
-  if (genericFence?.[1]) return genericFence[1].trim();
-  return content.trim();
+  // Normalize input: trim BOM/zero-width and normalize newlines
+  const normalized = content
+    .replace(/^\uFEFF/, "") // BOM
+    .replace(/[\u200B\u200C\u200D\u2060]/g, "") // zero-width variants
+    .replace(/\r\n|\r/g, "\n")
+    .trim();
+
+  // Try to find a fenced code block with (optional) language label
+  // Supports ```html, ``` HTML, ```Html, or generic ```
+  const fenceRegex = /```\s*([a-zA-Z]*)\s*\n([\s\S]*?)```/m;
+  const match = fenceRegex.exec(normalized);
+  if (match) {
+    // Language tag extracted but not currently used (reserved for future filtering)
+    const _lang = (match[1] ?? "").toLowerCase();
+    let block = match[2] ?? "";
+    // Some models prepend a language label line inside the block
+    const lines = block.split("\n");
+    const firstLine = lines[0];
+    if (lines.length > 0 && firstLine && /^\s*html\s*$/i.test(firstLine)) {
+      lines.shift();
+      block = lines.join("\n");
+    }
+    // Prefer html blocks, otherwise fall back to first fenced content
+    return block.trim();
+  }
+
+  // Handle single-backtick style or triple-backtick without language
+  const genericFence = /```\s*\n?([\s\S]*?)```/m.exec(normalized);
+  if (genericFence?.[1]) {
+    let block = genericFence[1];
+    const lines = block.split("\n");
+    const firstLine = lines[0];
+    if (lines.length > 0 && firstLine && /^\s*html\s*$/i.test(firstLine)) {
+      lines.shift();
+      block = lines.join("\n");
+    }
+    return block.trim();
+  }
+
+  // If the first non-empty line is just "HTML", drop it
+  {
+    const lines = normalized.split("\n");
+    const firstLine = lines[0];
+    if (lines.length > 0 && firstLine && /^\s*html\s*$/i.test(firstLine)) {
+      return lines.slice(1).join("\n").trim();
+    }
+  }
+
+  return normalized;
 }
 
 export function wrapHtmlDocument(
@@ -53,6 +98,7 @@ export function wrapHtmlDocument(
   // Import Arabic-capable fonts from Google Fonts for reliable rendering in Puppeteer
   // Comprehensive multilingual font imports
   const multilingualFontImports = getMultilingualFontImports();
+  const localArabicFontsBase64 = getLocalArabicFontFacesCss({ base64: true });
 
   // Font loading script to ensure fonts are ready before PDF generation
   const fontLoadingScript = `
@@ -73,6 +119,7 @@ export function wrapHtmlDocument(
   `;
 
   const multilingualCss = `
+        ${localArabicFontsBase64}
         ${multilingualFontImports}
         :root { 
           --text: #0f172a; 
@@ -86,7 +133,7 @@ export function wrapHtmlDocument(
           text-rendering: optimizeLegibility;
         }
         body { 
-          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+          font-family: ${_getMultilingualFontFamily(bodyOrDoc)}; 
           margin: 0; 
           padding: 40px; 
           color: var(--text);
@@ -159,15 +206,19 @@ export function wrapHtmlDocument(
     } else if (/<head[^>]*>/i.test(doc)) {
       doc = doc.replace(
         /<head[^>]*>/i,
-        (m) => `${m}${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}`,
+        (m) =>
+          `${m}${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}`,
       );
     } else if (/<body[^>]*>/i.test(doc)) {
       doc = doc.replace(
         /<body[^>]*>/i,
-        (m) => `${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}${m}`,
+        (m) =>
+          `${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}${m}`,
       );
     } else {
-      doc = `${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}` + doc;
+      doc =
+        `${preconnectLinks}<style>${multilingualCss}</style>${fontLoadingScript}` +
+        doc;
     }
 
     if (addWatermark) {
@@ -295,20 +346,29 @@ async function generateHtmlFromOpenRouter({
       const content: string = data?.choices?.[0]?.message?.content ?? "";
       if (content && content.trim().length > 0) {
         const extractedHtml = extractHtmlFromContent(content);
-        
+
         // Log if Arabic text is missing from generated HTML
-        const promptHasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(prompt);
-        const htmlHasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(extractedHtml);
-        
+        const promptHasArabic =
+          /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(
+            prompt,
+          );
+        const htmlHasArabic =
+          /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(
+            extractedHtml,
+          );
+
         if (promptHasArabic && !htmlHasArabic) {
-          console.warn(`[openrouter] Arabic text detected in prompt but missing from generated HTML`, {
-            model: currentModel,
-            promptLength: prompt.length,
-            htmlLength: extractedHtml.length,
-            promptPreview: prompt.substring(0, 100),
-          });
+          console.warn(
+            `[openrouter] Arabic text detected in prompt but missing from generated HTML`,
+            {
+              model: currentModel,
+              promptLength: prompt.length,
+              htmlLength: extractedHtml.length,
+              promptPreview: prompt.substring(0, 100),
+            },
+          );
         }
-        
+
         return extractedHtml;
       }
       attemptErrors.push(`Model ${currentModel} -> ok but empty content`);

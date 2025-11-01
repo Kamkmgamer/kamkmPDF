@@ -25,7 +25,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "prepare": "husky"
+    "prepare": "husky",
+    "fonts:download": "node scripts/download-arabic-fonts.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.34.1",

@@ -6,6 +6,8 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
+  // Note: Next.js may still trace files for Edge runtime routes, but standalone output is not enabled
+  // The Windows symlink errors are warnings and won't affect Netlify deployment
   webpack: (config, { isServer, webpack }) => {
     if (isServer) {
       // Ignore the redis module resolution errors - it's loaded dynamically at runtime
