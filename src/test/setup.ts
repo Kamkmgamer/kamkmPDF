@@ -4,7 +4,6 @@ import { beforeAll, afterAll, afterEach } from "vitest";
 // Set up test environment variables BEFORE any imports happen
 // This must be at the top level, not inside beforeAll
 process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";
-if (!process.env.NODE_ENV) process.env.NODE_ENV = "test";
 process.env.CLERK_SECRET_KEY = "sk_test_mock_key_for_testing";
 process.env.UPLOADTHING_TOKEN = "mock_uploadthing_token";
 process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
