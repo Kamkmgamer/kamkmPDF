@@ -14,7 +14,7 @@ This document contains all testing-related tasks organized by priority.
 - [x] Set up Playwright for E2E tests
 - [x] Create test database setup script
 - [x] Configure test environment variables
-- [ ] Add test scripts to package.json
+- [x] Add test scripts to package.json
 - [ ] Set up test coverage reporting (v8 coverage)
 - [ ] Configure CI/CD to run tests on PRs
 
