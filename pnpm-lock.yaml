@@ -9,10 +9,10 @@ importers:
     dependencies:
       "@clerk/nextjs":
         specifier: ^6.34.1
-        version: 6.34.1(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 6.34.1(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       "@polar-sh/nextjs":
         specifier: ^0.4.11
-        version: 0.4.11(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
+        version: 0.4.11(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       "@polar-sh/sdk":
         specifier: ^0.12.0
         version: 0.12.0(zod@3.25.76)
@@ -39,7 +39,7 @@ importers:
         version: 11.7.1(typescript@5.9.3)
       "@uploadthing/react":
         specifier: ^7.3.3
-        version: 7.3.3(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)(uploadthing@7.7.4(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16))
+        version: 7.3.3(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)(uploadthing@7.7.4(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16))
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -57,7 +57,7 @@ importers:
         version: 5.1.6
       next:
         specifier: ^15.5.6
-        version: 15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -108,20 +108,23 @@ importers:
         version: 2.2.5
       uploadthing:
         specifier: ^7.7.4
-        version: 7.7.4(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16)
+        version: 7.7.4(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16)
       zod:
         specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
       "@cloudflare/next-on-pages":
         specifier: ^1.13.16
-        version: 1.13.16(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(wrangler@4.45.3)
+        version: 1.13.16(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(wrangler@4.45.3)
       "@eslint/eslintrc":
         specifier: ^3.3.1
         version: 3.3.1
       "@netlify/plugin-nextjs":
         specifier: ^5.14.4
         version: 5.14.4
+      "@playwright/test":
+        specifier: ^1.56.1
+        version: 1.56.1
       "@tailwindcss/postcss":
         specifier: ^4.1.16
         version: 4.1.16
@@ -167,6 +170,9 @@ importers:
       lint-staged:
         specifier: ^16.2.6
         version: 16.2.6
+      playwright:
+        specifier: ^1.56.1
+        version: 1.56.1
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -2240,6 +2246,14 @@ packages:
       {
         integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==,
       }
+
+  "@playwright/test@1.56.1":
+    resolution:
+      {
+        integrity: sha512-vSMYtL/zOcFpvJCW71Q/OEGQb7KYBPAdKh35WNSkaZA75JlAO8ED8UN6GUNTm3drWomcbcqRPFqQbLae8yBTdg==,
+      }
+    engines: { node: ">=18" }
+    hasBin: true
 
   "@polar-sh/adapter-utils@0.2.10":
     resolution:
@@ -5485,6 +5499,14 @@ packages:
         integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==,
       }
 
+  fsevents@2.3.2:
+    resolution:
+      {
+        integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==,
+      }
+    engines: { node: ^8.16.0 || ^10.6.0 || >=11.0.0 }
+    os: [darwin]
+
   fsevents@2.3.3:
     resolution:
       {
@@ -7023,6 +7045,22 @@ packages:
       {
         integrity: sha512-8OEwKp5juEvb/MjpIc4hjqfgCNysrS94RIOMXYvpYCdm/jglrKEiAYmiumbmGhCvs+IcInsphYDFwqrjr7398w==,
       }
+    hasBin: true
+
+  playwright-core@1.56.1:
+    resolution:
+      {
+        integrity: sha512-hutraynyn31F+Bifme+Ps9Vq59hKuUCz7H1kDOcBs+2oGguKkWTU50bBWrtz34OUWmIwpBTWDxaRPXrIXkgvmQ==,
+      }
+    engines: { node: ">=18" }
+    hasBin: true
+
+  playwright@1.56.1:
+    resolution:
+      {
+        integrity: sha512-aFi5B0WovBHTEvpM3DzXTUaeN6eN0qWnTkKx4NQaH4Wvcmc153PdaY2UBdSYKaGYw+UyWXSVyxDUg5DoPEttjw==,
+      }
+    engines: { node: ">=18" }
     hasBin: true
 
   png-js@1.0.0:
@@ -8822,13 +8860,13 @@ snapshots:
       react-dom: 19.2.0(react@19.2.0)
       tslib: 2.8.1
 
-  "@clerk/nextjs@6.34.1(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)":
+  "@clerk/nextjs@6.34.1(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)":
     dependencies:
       "@clerk/backend": 2.19.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       "@clerk/clerk-react": 5.53.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       "@clerk/shared": 3.29.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       "@clerk/types": 4.96.0
-      next: 15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       server-only: 0.0.1
@@ -8854,7 +8892,7 @@ snapshots:
     dependencies:
       mime: 3.0.0
 
-  "@cloudflare/next-on-pages@1.13.16(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(wrangler@4.45.3)":
+  "@cloudflare/next-on-pages@1.13.16(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(wrangler@4.45.3)":
     dependencies:
       acorn: 8.15.0
       ast-types: 0.14.2
@@ -8865,7 +8903,7 @@ snapshots:
       esbuild: 0.15.18
       js-yaml: 4.1.0
       miniflare: 3.20250718.2
-      next: 15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       package-manager-manager: 0.2.0
       pcre-to-regexp: 1.1.0
       semver: 7.7.3
@@ -9661,15 +9699,19 @@ snapshots:
 
   "@pinojs/redact@0.4.0": {}
 
+  "@playwright/test@1.56.1":
+    dependencies:
+      playwright: 1.56.1
+
   "@polar-sh/adapter-utils@0.2.10":
     dependencies:
       "@polar-sh/sdk": 0.38.1
 
-  "@polar-sh/nextjs@0.4.11(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))":
+  "@polar-sh/nextjs@0.4.11(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))":
     dependencies:
       "@polar-sh/adapter-utils": 0.2.10
       "@polar-sh/sdk": 0.38.1
-      next: 15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
 
   "@polar-sh/sdk@0.12.0(zod@3.25.76)":
     dependencies:
@@ -10333,14 +10375,14 @@ snapshots:
 
   "@uploadthing/mime-types@0.3.6": {}
 
-  "@uploadthing/react@7.3.3(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)(uploadthing@7.7.4(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16))":
+  "@uploadthing/react@7.3.3(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)(uploadthing@7.7.4(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16))":
     dependencies:
       "@uploadthing/shared": 7.1.10
       file-selector: 0.6.0
       react: 19.2.0
-      uploadthing: 7.7.4(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16)
+      uploadthing: 7.7.4(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16)
     optionalDependencies:
-      next: 15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
 
   "@uploadthing/shared@7.1.10":
     dependencies:
@@ -11642,6 +11684,9 @@ snapshots:
 
   fs.realpath@1.0.0: {}
 
+  fsevents@2.3.2:
+    optional: true
+
   fsevents@2.3.3:
     optional: true
 
@@ -12343,7 +12388,7 @@ snapshots:
 
   netmask@2.0.2: {}
 
-  next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       "@next/env": 15.5.6
       "@swc/helpers": 0.5.15
@@ -12361,6 +12406,7 @@ snapshots:
       "@next/swc-linux-x64-musl": 15.5.6
       "@next/swc-win32-arm64-msvc": 15.5.6
       "@next/swc-win32-x64-msvc": 15.5.6
+      "@playwright/test": 1.56.1
       sharp: 0.34.4
     transitivePeerDependencies:
       - "@babel/core"
@@ -12578,6 +12624,14 @@ snapshots:
       safe-stable-stringify: 2.5.0
       sonic-boom: 4.2.0
       thread-stream: 3.1.0
+
+  playwright-core@1.56.1: {}
+
+  playwright@1.56.1:
+    dependencies:
+      playwright-core: 1.56.1
+    optionalDependencies:
+      fsevents: 2.3.2
 
   png-js@1.0.0: {}
 
@@ -13493,7 +13547,7 @@ snapshots:
       "@unrs/resolver-binding-win32-ia32-msvc": 1.11.1
       "@unrs/resolver-binding-win32-x64-msvc": 1.11.1
 
-  uploadthing@7.7.4(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16):
+  uploadthing@7.7.4(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(tailwindcss@4.1.16):
     dependencies:
       "@effect/platform": 0.90.3(effect@3.17.7)
       "@standard-schema/spec": 1.0.0-beta.4
@@ -13501,7 +13555,7 @@ snapshots:
       "@uploadthing/shared": 7.1.10
       effect: 3.17.7
     optionalDependencies:
-      next: 15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 15.5.6(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       tailwindcss: 4.1.16
 
   uri-js@4.4.1:
