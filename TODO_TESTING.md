@@ -20,13 +20,13 @@ This document contains all testing-related tasks organized by priority.
 
 #### 1.2 Integration Tests - Job Creation Flow
 
-- [ ] Test: Create job as authenticated user
-- [ ] Test: Create job as unauthenticated user
-- [ ] Test: Job queues correctly
+- [x] Test: Create job as authenticated user
+- [x] Test: Create job as unauthenticated user
+- [x] Test: Job queues correctly
 - [ ] Test: Job processes successfully
 - [ ] Test: Job fails gracefully
-- [ ] Test: Job deduplication works
-- [ ] Test: Quota enforcement works
+- [x] Test: Job deduplication works
+- [x] Test: Quota enforcement works
 - [ ] Test: Job status updates via SSE
 
 #### 1.3 Integration Tests - PDF Generation
