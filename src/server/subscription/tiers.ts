@@ -12,12 +12,12 @@ export type SubscriptionTier =
   | "enterprise";
 
 export const modelsAgents: string[] = [
+  "openai/gpt-oss-safeguard-20b",
   "google/gemma-3-27b-it:free",
   "openai/gpt-oss-20b:free",
   "x-ai/grok-4-fast:free",
   "z-ai/glm-4.5-air:free",
   "qwen/qwen3-coder:free",
-
 ];
 
 export interface TierConfig {
@@ -410,7 +410,7 @@ export function formatPrice(price: number): string {
  * Get only publicly visible tiers for pricing page
  */
 export function getPublicTiers(): TierConfig[] {
-  return Object.values(TIER_CONFIGS).filter(tier => tier.publiclyVisible);
+  return Object.values(TIER_CONFIGS).filter((tier) => tier.publiclyVisible);
 }
 
 /**

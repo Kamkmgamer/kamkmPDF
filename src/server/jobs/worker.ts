@@ -28,6 +28,7 @@ type Job = InferSelectModel<typeof jobs>;
 
 const POLL_INTERVAL_MS = Number(process.env.PDFPROMPT_POLL_MS ?? 2000);
 const MAX_ATTEMPTS = 3;
+const UPLOAD_MAX_RETRIES = 3; // Retry uploads up to 3 times
 
 async function pickNextJob() {
   const res = await db
@@ -37,6 +38,142 @@ async function pickNextJob() {
     .orderBy(asc(jobs.createdAt))
     .limit(1);
   return res[0] ?? null;
+}
+
+/**
+ * Checks if an error message indicates a transient failure that should be retried.
+ */
+function isTransientError(message: string): boolean {
+  const transientPatterns = [
+    "connection limit exceeded",
+    "ResourceExhausted",
+    "transaction pool connection limit exceeded",
+    "ECONNRESET",
+    "ETIMEDOUT",
+    "ENOTFOUND",
+    "timeout",
+    "socket hang up",
+    "network error",
+  ];
+
+  const lowerMessage = message.toLowerCase();
+  return transientPatterns.some((pattern) =>
+    lowerMessage.includes(pattern.toLowerCase()),
+  );
+}
+
+/**
+ * Uploads a file to UploadThing with automatic retry logic for transient errors.
+ * Uses exponential backoff: 1s, 2s, 4s delays between retries.
+ */
+async function uploadWithRetry(
+  utFile: UTFile,
+  fileId: string,
+  maxRetries = UPLOAD_MAX_RETRIES,
+): Promise<{ fileKey: string; fileUrl: string; fileSize: number }> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const uploadResArr = await utapi.uploadFiles([utFile]);
+      const uploadRes = uploadResArr[0];
+
+      if (!uploadRes) {
+        throw new Error("UploadThing upload failed - no response");
+      }
+
+      const resUnknown: unknown = uploadRes;
+
+      // Handle possible error shape
+      const maybeError =
+        typeof resUnknown === "object" &&
+        resUnknown !== null &&
+        "error" in resUnknown
+          ? (resUnknown as { error?: unknown }).error
+          : undefined;
+
+      if (typeof maybeError === "object" && maybeError !== null) {
+        const msg =
+          "message" in (maybeError as Record<string, unknown>) &&
+          typeof (maybeError as Record<string, unknown>).message === "string"
+            ? ((maybeError as Record<string, unknown>).message as string)
+            : "UploadThing upload failed";
+
+        // Check if this is a transient error worth retrying
+        if (isTransientError(msg) && attempt < maxRetries) {
+          const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
+          console.log(
+            `[uploadthing] Transient error on attempt ${attempt}/${maxRetries}: ${msg}`,
+          );
+          console.log(`[uploadthing] Retrying in ${backoffMs}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, backoffMs));
+          continue;
+        }
+
+        throw new Error(msg);
+      }
+
+      // Extract data payload
+      const dataUnknown =
+        typeof resUnknown === "object" &&
+        resUnknown !== null &&
+        "data" in resUnknown
+          ? (resUnknown as { data?: unknown }).data
+          : undefined;
+
+      if (typeof dataUnknown !== "object" || dataUnknown === null) {
+        throw new Error("UploadThing upload failed - invalid response data");
+      }
+
+      const dataObj = dataUnknown as Record<string, unknown>;
+      const keyVal = typeof dataObj.key === "string" ? dataObj.key : undefined;
+      const ufsUrlVal =
+        typeof dataObj.ufsUrl === "string" ? dataObj.ufsUrl : undefined;
+      const sizeVal =
+        typeof dataObj.size === "number" ? dataObj.size : undefined;
+
+      if (!keyVal || !ufsUrlVal) {
+        throw new Error("UploadThing upload failed - missing key or URL");
+      }
+
+      // Success!
+      if (attempt > 1) {
+        console.log(
+          `[uploadthing] Upload succeeded on attempt ${attempt}/${maxRetries}`,
+        );
+      }
+
+      return {
+        fileKey: keyVal,
+        fileUrl: ufsUrlVal,
+        fileSize: sizeVal ?? utFile.size,
+      };
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      const errorMsg = lastError.message;
+
+      // Check if we should retry this error
+      if (isTransientError(errorMsg) && attempt < maxRetries) {
+        const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
+        console.log(
+          `[uploadthing] Upload failed on attempt ${attempt}/${maxRetries}: ${errorMsg}`,
+        );
+        console.log(`[uploadthing] Retrying in ${backoffMs}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+        continue;
+      }
+
+      // Not a transient error or out of retries
+      if (attempt >= maxRetries) {
+        console.error(
+          `[uploadthing] Upload failed after ${maxRetries} attempts for file ${fileId}`,
+        );
+      }
+      throw lastError;
+    }
+  }
+
+  throw lastError ?? new Error("Upload failed after retries");
 }
 
 // Atomically claim up to `limit` jobs using a single statement with SKIP LOCKED.
@@ -163,69 +300,25 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       ? Buffer.from(pdfBuffer)
       : Buffer.from(pdfBuffer);
 
-    // Stream PDF directly to UploadThing instead of storing inline base64
+    // Stream PDF directly to UploadThing with automatic retry logic
     const uploadFilename = `${fileId}.pdf`;
     let fileKey: string;
     let fileUrl: string;
     let fileSize: number;
 
     try {
-      // Upload to UploadThing immediately
+      // Upload to UploadThing with retry logic
       const ab = new ArrayBuffer(nodeBuffer.length);
       new Uint8Array(ab).set(nodeBuffer);
       const utFile = new UTFile([ab], uploadFilename, {
         type: "application/pdf",
         customId: fileId,
       });
-      const uploadResArr = await utapi.uploadFiles([utFile]);
 
-      const uploadRes = uploadResArr[0];
-      if (!uploadRes) {
-        throw new Error("UploadThing upload failed");
-      }
-
-      const resUnknown: unknown = uploadRes;
-
-      // Handle possible error shape
-      const maybeError =
-        typeof resUnknown === "object" &&
-        resUnknown !== null &&
-        "error" in resUnknown
-          ? (resUnknown as { error?: unknown }).error
-          : undefined;
-      if (typeof maybeError === "object" && maybeError !== null) {
-        const msg =
-          "message" in (maybeError as Record<string, unknown>) &&
-          typeof (maybeError as Record<string, unknown>).message === "string"
-            ? ((maybeError as Record<string, unknown>).message as string)
-            : "UploadThing upload failed";
-        throw new Error(msg);
-      }
-
-      // Extract data payload
-      const dataUnknown =
-        typeof resUnknown === "object" &&
-        resUnknown !== null &&
-        "data" in resUnknown
-          ? (resUnknown as { data?: unknown }).data
-          : undefined;
-      if (typeof dataUnknown !== "object" || dataUnknown === null) {
-        throw new Error("UploadThing upload failed");
-      }
-
-      const dataObj = dataUnknown as Record<string, unknown>;
-      const keyVal = typeof dataObj.key === "string" ? dataObj.key : undefined;
-      const ufsUrlVal =
-        typeof dataObj.ufsUrl === "string" ? dataObj.ufsUrl : undefined;
-      const sizeVal =
-        typeof dataObj.size === "number" ? dataObj.size : undefined;
-
-      if (!keyVal || !ufsUrlVal) {
-        throw new Error("UploadThing upload failed");
-      }
-      fileKey = keyVal;
-      fileUrl = ufsUrlVal;
-      fileSize = sizeVal ?? nodeBuffer.length;
+      const uploadResult = await uploadWithRetry(utFile, fileId);
+      fileKey = uploadResult.fileKey;
+      fileUrl = uploadResult.fileUrl;
+      fileSize = uploadResult.fileSize;
 
       console.log(
         `[worker] job ${job.id} PDF uploaded to storage, file ${fileId}`,
