@@ -30,6 +30,6 @@ export default defineConfig({
     },
     setupFiles: ["./src/test/setup.ts"],
     include: ["**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["node_modules/**", "dist/**", ".next/**"],
+    exclude: ["node_modules/**", "dist/**", ".next/**", "**/e2e/**"],
   },
 });

@@ -8,11 +8,12 @@ import "./src/env.js";
 const config = {
   // Note: Next.js may still trace files for Edge runtime routes, but standalone output is not enabled
   // The Windows symlink errors are warnings and won't affect Netlify deployment
+
+  // Webpack configuration (used when not using Turbopack)
   webpack: (config, { isServer, webpack }) => {
     if (isServer) {
       // Ignore the redis module resolution errors - it's loaded dynamically at runtime
       // This prevents webpack from trying to bundle it during build
-      // Note: This only applies to webpack builds, not Turbopack
       config.plugins = config.plugins || [];
       config.plugins.push(
         new webpack.IgnorePlugin({
@@ -23,6 +24,21 @@ const config = {
     }
     return config;
   },
+
+  // Turbopack configuration (Next.js 15.3.0+)
+  turbopack: {
+    // Turbopack-specific rules and configurations
+    rules: {
+      // Custom loader rules can be added here if needed
+      // Example: '*.svg': { loaders: ['@svgr/webpack'], as: '*.js' }
+    },
+    resolveAlias: {
+      // Match the path alias from tsconfig.json
+      "~": "./src",
+    },
+    resolveExtensions: [".tsx", ".ts", ".jsx", ".js", ".mjs", ".json"],
+  },
+
   images: {
     remotePatterns: [
       {
