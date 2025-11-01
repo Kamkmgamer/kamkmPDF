@@ -36,6 +36,7 @@
     "test:all": "pnpm test && pnpm test:e2e",
     "test:db:setup": "tsx scripts/setup-test-db.ts setup",
     "test:db:cleanup": "tsx scripts/setup-test-db.ts cleanup",
+    "coverage:badge": "tsx scripts/generate-coverage-badge.ts",
     "prepare": "husky",
     "fonts:download": "node scripts/download-arabic-fonts.js"
   },

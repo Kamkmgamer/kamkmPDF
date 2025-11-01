@@ -15,8 +15,8 @@ This document contains all testing-related tasks organized by priority.
 - [x] Create test database setup script
 - [x] Configure test environment variables
 - [x] Add test scripts to package.json
-- [ ] Set up test coverage reporting (v8 coverage)
-- [ ] Configure CI/CD to run tests on PRs
+- [x] Set up test coverage reporting (v8 coverage)
+- [x] Configure CI/CD to run tests on PRs
 
 #### 1.2 Integration Tests - Job Creation Flow
 
