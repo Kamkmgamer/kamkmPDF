@@ -30,6 +30,55 @@ export interface GenerateHtmlOptions {
 const OPENROUTER_BASE =
   env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
 
+/**
+ * Collects all available OpenRouter API keys from environment variables.
+ * Returns an array of keys in order: OPENROUTER_API_KEY, OPENROUTER_API_KEY1-10.
+ * This provides redundancy and load distribution across multiple keys.
+ */
+function getAvailableApiKeys(): string[] {
+  const keys: string[] = [];
+
+  // Collect all defined keys
+  if (env.OPENROUTER_API_KEY) keys.push(env.OPENROUTER_API_KEY);
+  if (env.OPENROUTER_API_KEY1) keys.push(env.OPENROUTER_API_KEY1);
+  if (env.OPENROUTER_API_KEY2) keys.push(env.OPENROUTER_API_KEY2);
+  if (env.OPENROUTER_API_KEY3) keys.push(env.OPENROUTER_API_KEY3);
+  if (env.OPENROUTER_API_KEY4) keys.push(env.OPENROUTER_API_KEY4);
+  if (env.OPENROUTER_API_KEY5) keys.push(env.OPENROUTER_API_KEY5);
+  if (env.OPENROUTER_API_KEY6) keys.push(env.OPENROUTER_API_KEY6);
+  if (env.OPENROUTER_API_KEY7) keys.push(env.OPENROUTER_API_KEY7);
+  if (env.OPENROUTER_API_KEY8) keys.push(env.OPENROUTER_API_KEY8);
+  if (env.OPENROUTER_API_KEY9) keys.push(env.OPENROUTER_API_KEY9);
+  if (env.OPENROUTER_API_KEY10) keys.push(env.OPENROUTER_API_KEY10);
+
+  return keys;
+}
+
+/**
+ * Check if any OpenRouter API key is configured.
+ * This is used to determine if AI generation is available.
+ */
+export function hasOpenRouterKey(): boolean {
+  return getAvailableApiKeys().length > 0;
+}
+
+// Track current key index for round-robin distribution
+let currentKeyIndex = 0;
+
+/**
+ * Gets the next API key using round-robin rotation for load distribution.
+ */
+function getNextApiKey(keys: string[]): { key: string; index: number } {
+  if (keys.length === 0) {
+    throw new Error("No OpenRouter API keys configured");
+  }
+
+  const index = currentKeyIndex % keys.length;
+  currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+
+  return { key: keys[index]!, index };
+}
+
 function extractHtmlFromContent(content: string): string {
   // Normalize input: trim BOM/zero-width and normalize newlines
   const normalized = content
@@ -293,9 +342,9 @@ async function generateHtmlFromOpenRouter({
   brandName,
   tier = "starter",
 }: GenerateHtmlOptions): Promise<string> {
-  const apiKey = env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is not set");
+  const apiKeys = getAvailableApiKeys();
+  if (apiKeys.length === 0) {
+    throw new Error("No OpenRouter API keys configured");
   }
 
   const system = `You are an expert document designer. Given a user's prompt, produce a clean, professional, print-ready HTML document. 
@@ -307,18 +356,6 @@ async function generateHtmlFromOpenRouter({
 - Use font-family declarations that include multilingual font stacks for proper rendering of non-Latin scripts.
 - Avoid external resources; embed all styling inline.`;
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${apiKey}`,
-  };
-  if (env.NEXT_PUBLIC_APP_URL) {
-    headers["HTTP-Referer"] = String(env.NEXT_PUBLIC_APP_URL);
-  }
-  if (brandName) {
-    const asciiOnly = brandName.replace(/[^\x00-\x7F]/g, "-");
-    if (asciiOnly.trim().length > 0) headers["X-Title"] = asciiOnly;
-  }
-
   const models: string[] = model
     ? model
         .split(",")
@@ -327,79 +364,157 @@ async function generateHtmlFromOpenRouter({
     : getModelsForTier(tier);
 
   const attemptErrors: string[] = [];
+
+  // Try each model with key rotation
   for (const currentModel of models) {
-    const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        model: currentModel,
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.3,
-      }),
-    });
+    // For each model, try all available keys before giving up
+    const triedKeys = new Set<number>();
 
-    if (res.ok) {
-      const data = (await res.json()) as OpenRouterResponse;
-      const content: string = data?.choices?.[0]?.message?.content ?? "";
-      if (content && content.trim().length > 0) {
-        const extractedHtml = extractHtmlFromContent(content);
+    for (let keyAttempt = 0; keyAttempt < apiKeys.length; keyAttempt++) {
+      const { key: apiKey, index: keyIndex } = getNextApiKey(apiKeys);
 
-        // Log if Arabic text is missing from generated HTML
-        const promptHasArabic =
-          /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(
-            prompt,
-          );
-        const htmlHasArabic =
-          /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(
-            extractedHtml,
-          );
+      // Skip if we've already tried this key for this model
+      if (triedKeys.has(keyIndex)) {
+        continue;
+      }
+      triedKeys.add(keyIndex);
 
-        if (promptHasArabic && !htmlHasArabic) {
-          console.warn(
-            `[openrouter] Arabic text detected in prompt but missing from generated HTML`,
-            {
-              model: currentModel,
-              promptLength: prompt.length,
-              htmlLength: extractedHtml.length,
-              promptPreview: prompt.substring(0, 100),
-            },
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      };
+      if (env.NEXT_PUBLIC_APP_URL) {
+        headers["HTTP-Referer"] = String(env.NEXT_PUBLIC_APP_URL);
+      }
+      if (brandName) {
+        const asciiOnly = brandName.replace(/[^\x00-\x7F]/g, "-");
+        if (asciiOnly.trim().length > 0) headers["X-Title"] = asciiOnly;
+      }
+
+      try {
+        const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            model: currentModel,
+            messages: [
+              { role: "system", content: system },
+              { role: "user", content: prompt },
+            ],
+            temperature: 0.3,
+          }),
+        });
+
+        if (res.ok) {
+          const data = (await res.json()) as OpenRouterResponse;
+          const content: string = data?.choices?.[0]?.message?.content ?? "";
+          if (content && content.trim().length > 0) {
+            const extractedHtml = extractHtmlFromContent(content);
+
+            // Log successful generation with key info
+            console.log(
+              `[openrouter] Success with model ${currentModel} using key #${keyIndex}`,
+            );
+
+            // Log if Arabic text is missing from generated HTML
+            const promptHasArabic =
+              /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(
+                prompt,
+              );
+            const htmlHasArabic =
+              /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(
+                extractedHtml,
+              );
+
+            if (promptHasArabic && !htmlHasArabic) {
+              console.warn(
+                `[openrouter] Arabic text detected in prompt but missing from generated HTML`,
+                {
+                  model: currentModel,
+                  keyIndex,
+                  promptLength: prompt.length,
+                  htmlLength: extractedHtml.length,
+                  promptPreview: prompt.substring(0, 100),
+                },
+              );
+            }
+
+            return extractedHtml;
+          }
+          attemptErrors.push(
+            `Model ${currentModel} (key #${keyIndex}) -> ok but empty content`,
           );
+          // Don't try other keys for empty content - it's a model issue, not key issue
+          break;
         }
 
-        return extractedHtml;
-      }
-      attemptErrors.push(`Model ${currentModel} -> ok but empty content`);
-      continue;
-    }
+        // Check if error is key-related (rate limit, auth error) or model-related
+        const text = await res.text().catch(() => "");
+        const errorDetails = text?.slice(0, 500) ?? "No error details";
+        const isKeyError =
+          res.status === 401 || res.status === 429 || res.status === 403;
 
-    const text = await res.text().catch(() => "");
-    const errorDetails = text?.slice(0, 500) ?? "No error details";
-    console.error(`[openrouter] Model ${currentModel} failed:`, {
-      status: res.status,
-      statusText: res.statusText,
-      error: errorDetails,
-      promptLength: prompt.length,
-      tier,
-    });
-    attemptErrors.push(
-      `Model ${currentModel} -> ${res.status}: ${errorDetails}`,
-    );
-    continue;
+        console.error(
+          `[openrouter] Model ${currentModel} failed with key #${keyIndex}:`,
+          {
+            status: res.status,
+            statusText: res.statusText,
+            error: errorDetails,
+            promptLength: prompt.length,
+            tier,
+            isKeyError,
+            willRetryWithAnotherKey:
+              isKeyError && keyAttempt < apiKeys.length - 1,
+          },
+        );
+
+        attemptErrors.push(
+          `Model ${currentModel} (key #${keyIndex}) -> ${res.status}: ${errorDetails}`,
+        );
+
+        // If it's a key-related error and we have more keys, try the next one
+        if (isKeyError && keyAttempt < apiKeys.length - 1) {
+          console.log(
+            `[openrouter] Retrying model ${currentModel} with different key...`,
+          );
+          continue;
+        }
+
+        // If it's not a key error or we've tried all keys, move to next model
+        break;
+      } catch (fetchError) {
+        const errorMsg =
+          fetchError instanceof Error ? fetchError.message : String(fetchError);
+        console.error(
+          `[openrouter] Network error with model ${currentModel} and key #${keyIndex}:`,
+          errorMsg,
+        );
+        attemptErrors.push(
+          `Model ${currentModel} (key #${keyIndex}) -> Network error: ${errorMsg}`,
+        );
+
+        // Try next key on network errors
+        if (keyAttempt < apiKeys.length - 1) {
+          console.log(
+            `[openrouter] Retrying model ${currentModel} with different key after network error...`,
+          );
+          continue;
+        }
+        break;
+      }
+    }
   }
 
   const finalError = new Error(
-    `OpenRouter failed after trying models in order: ${models.join(", ")}.\n` +
+    `OpenRouter failed after trying models in order: ${models.join(", ")} with ${apiKeys.length} API key(s).\n` +
       attemptErrors.join("\n---\n"),
   );
-  console.error("[openrouter] All models failed:", {
+  console.error("[openrouter] All models and keys exhausted:", {
     models,
+    numKeys: apiKeys.length,
     errors: attemptErrors,
     promptLength: prompt.length,
     tier,
-    hasApiKey: !!apiKey,
   });
   throw finalError;
 }

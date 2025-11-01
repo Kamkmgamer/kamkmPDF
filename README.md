@@ -68,7 +68,11 @@ UPLOADTHING_TOKEN=ut7_...
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Optional AI configuration
+# Multiple keys supported for redundancy and load distribution
 OPENROUTER_API_KEY=...
+OPENROUTER_API_KEY1=...
+OPENROUTER_API_KEY2=...
+# ... up to OPENROUTER_API_KEY10
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 # Optional worker tuning
@@ -87,6 +91,13 @@ Client-side keys **must** be prefixed with `NEXT_PUBLIC_`. Do not commit `.env.l
 
 - The OpenRouter model list is now **hardcoded** in `src/server/ai/openrouter.ts` as a prioritized set (1 primary + 12 backups). The code will automatically try each in order until one succeeds.
 - You can still override models per call by passing `model` (single slug or comma-separated list) to `generateHtmlFromPrompt()`.
+
+### Multiple API Keys for Redundancy
+
+- Configure up to 11 OpenRouter API keys (`OPENROUTER_API_KEY`, `OPENROUTER_API_KEY1` through `OPENROUTER_API_KEY10`) for improved reliability and scalability.
+- The system uses **round-robin distribution** to balance load across keys.
+- **Automatic failover**: If a request fails due to rate limiting (429), authentication (401), or authorization (403) errors, the system automatically retries with the next available key.
+- This provides multiple points of failure protection and allows for higher throughput.
 
 ## Project Structure Highlights
 
@@ -211,7 +222,7 @@ Client-side keys **must** be prefixed with `NEXT_PUBLIC_`. Do not commit `.env.l
 - **NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY** – Frontend Clerk key.
 - **NEXT_PUBLIC_APP_URL** – Fully qualified public URL.
 - **UPLOADTHING_TOKEN** – UploadThing V7 token.
-- **Optional** – `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`, `PDFPROMPT_WORKER_SECRET`, `PDFPROMPT_MAX_*`, `PDFPROMPT_BATCH_SIZE`.
+- **Optional** – `OPENROUTER_API_KEY` (and `OPENROUTER_API_KEY1-10` for redundancy), `OPENROUTER_BASE_URL`, `PDFPROMPT_WORKER_SECRET`, `PDFPROMPT_MAX_*`, `PDFPROMPT_BATCH_SIZE`.
 
 ## Contributing
 

@@ -16,7 +16,18 @@ export const env = createEnv({
     // UploadThing (required for external storage)
     UPLOADTHING_TOKEN: z.string().min(1),
     // OpenRouter (optional). When not provided, the system falls back to PDFKit-only generation.
+    // Multiple keys supported for redundancy and scalability
     OPENROUTER_API_KEY: z.string().optional(),
+    OPENROUTER_API_KEY1: z.string().optional(),
+    OPENROUTER_API_KEY2: z.string().optional(),
+    OPENROUTER_API_KEY3: z.string().optional(),
+    OPENROUTER_API_KEY4: z.string().optional(),
+    OPENROUTER_API_KEY5: z.string().optional(),
+    OPENROUTER_API_KEY6: z.string().optional(),
+    OPENROUTER_API_KEY7: z.string().optional(),
+    OPENROUTER_API_KEY8: z.string().optional(),
+    OPENROUTER_API_KEY9: z.string().optional(),
+    OPENROUTER_API_KEY10: z.string().optional(),
     OPENROUTER_BASE_URL: z.string().url().optional(),
     // Worker/cron coordination (optional)
     PDFPROMPT_WORKER_SECRET: z.string().optional(),
@@ -50,6 +61,16 @@ export const env = createEnv({
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+    OPENROUTER_API_KEY1: process.env.OPENROUTER_API_KEY1,
+    OPENROUTER_API_KEY2: process.env.OPENROUTER_API_KEY2,
+    OPENROUTER_API_KEY3: process.env.OPENROUTER_API_KEY3,
+    OPENROUTER_API_KEY4: process.env.OPENROUTER_API_KEY4,
+    OPENROUTER_API_KEY5: process.env.OPENROUTER_API_KEY5,
+    OPENROUTER_API_KEY6: process.env.OPENROUTER_API_KEY6,
+    OPENROUTER_API_KEY7: process.env.OPENROUTER_API_KEY7,
+    OPENROUTER_API_KEY8: process.env.OPENROUTER_API_KEY8,
+    OPENROUTER_API_KEY9: process.env.OPENROUTER_API_KEY9,
+    OPENROUTER_API_KEY10: process.env.OPENROUTER_API_KEY10,
     OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL,
     PDFPROMPT_WORKER_SECRET: process.env.PDFPROMPT_WORKER_SECRET,
     PDFPROMPT_MAX_JOBS_PER_INVOCATION:

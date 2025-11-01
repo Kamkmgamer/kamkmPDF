@@ -4,6 +4,7 @@ import { PassThrough } from "stream";
 import {
   generateHtmlFromPrompt,
   wrapHtmlDocument,
+  hasOpenRouterKey,
 } from "~/server/ai/openrouter";
 import type { ImageMode } from "~/server/jobs/temp";
 import htmlToPdfToPath, { htmlToPdfToBuffer } from "~/server/jobs/htmlToPdf";
@@ -41,7 +42,7 @@ export async function generatePdfToPath(
 
   // Try AI pipeline if configured
   try {
-    if (env.OPENROUTER_API_KEY) {
+    if (hasOpenRouterKey()) {
       const htmlBody = await generateHtmlFromPrompt({
         prompt: opts.prompt ?? "",
         brandName: "Prompt‑to‑PDF",
@@ -54,7 +55,7 @@ export async function generatePdfToPath(
       return; // success
     } else {
       console.warn(
-        "[pdf] generatePdfToPath - OPENROUTER_API_KEY not configured, skipping AI pipeline",
+        "[pdf] generatePdfToPath - No OpenRouter API keys configured, skipping AI pipeline",
       );
     }
   } catch (err) {
@@ -66,7 +67,7 @@ export async function generatePdfToPath(
         error: errorMessage,
         stack: errorStack,
         jobId: opts.jobId,
-        hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
+        hasOpenRouterKey: hasOpenRouterKey(),
       },
     );
   }
@@ -207,7 +208,7 @@ export async function generatePdfBuffer(opts: {
 }): Promise<Buffer> {
   // Try AI pipeline if configured
   console.log("[pdf] generatePdfBuffer - Checking OpenRouter configuration:", {
-    hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
+    hasOpenRouterKey: hasOpenRouterKey(),
     jobId: opts.jobId,
     tier: opts.tier,
     promptLength: opts.prompt?.length ?? 0,
@@ -235,7 +236,7 @@ export async function generatePdfBuffer(opts: {
       return buf;
     }
 
-    if (env.OPENROUTER_API_KEY) {
+    if (hasOpenRouterKey()) {
       console.log(
         "[pdf] generatePdfBuffer - Calling OpenRouter for job",
         opts.jobId,
@@ -340,7 +341,7 @@ export async function generatePdfBuffer(opts: {
         error: errorMessage,
         stack: errorStack,
         jobId: opts.jobId,
-        hasOpenRouterKey: !!env.OPENROUTER_API_KEY,
+        hasOpenRouterKey: hasOpenRouterKey(),
         tier: opts.tier,
       },
     );
