@@ -55,8 +55,8 @@ This document contains all testing-related tasks organized by priority.
 
 #### 1.5 Unit Tests - tRPC Routers
 
-- [ ] Test: `jobsRouter.create` mutation
-- [ ] Test: `jobsRouter.get` query
+- [x] Test: `jobsRouter.create` mutation
+- [x] Test: `jobsRouter.get` query
 - [ ] Test: `jobsRouter.recreate` mutation
 - [ ] Test: `jobsRouter.listRecent` query
 - [ ] Test: `subscriptionRouter.getCurrent` query
@@ -71,12 +71,12 @@ This document contains all testing-related tasks organized by priority.
 
 - [ ] Test: `generateHtmlFromPrompt` (OpenRouter)
 - [ ] Test: `generatePdfBuffer` function
-- [ ] Test: `checkForDuplicateJob` function
-- [ ] Test: `hasExceededQuota` function
-- [ ] Test: `getTierConfig` function
+- [x] Test: `checkForDuplicateJob` function
+- [x] Test: `hasExceededQuota` function
+- [x] Test: `getTierConfig` function
 - [ ] Test: `verifyApiKey` function
 - [ ] Test: Cache operations (get/set/del)
-- [ ] Test: Request deduplication logic
+- [x] Test: Request deduplication logic
 - [ ] Test: Round-robin API key rotation
 
 #### 1.7 E2E Tests - User Journeys
