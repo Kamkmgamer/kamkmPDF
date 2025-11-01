@@ -57,9 +57,9 @@ This document contains all testing-related tasks organized by priority.
 
 - [x] Test: `jobsRouter.create` mutation
 - [x] Test: `jobsRouter.get` query
-- [ ] Test: `jobsRouter.recreate` mutation
+- [x] Test: `jobsRouter.recreate` mutation
 - [ ] Test: `jobsRouter.listRecent` query
-- [ ] Test: `subscriptionRouter.getCurrent` query
+- [x] Test: `subscriptionRouter.getCurrent` query
 - [ ] Test: `filesRouter.getSignedUrl` query
 - [ ] Test: `apiKeysRouter.create` mutation
 - [ ] Test: `apiKeysRouter.list` query
