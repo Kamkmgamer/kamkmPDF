@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains the complete implementation of the PDF Preview and Download page for the Prompt-to-PDF SaaS application. The implementation provides a professional PDF viewing experience with all essential features.
+This directory contains the complete implementation of the PDF Preview and Download page for the KamkmPDF SaaS application. The implementation provides a professional PDF viewing experience with all essential features.
 
 ## Features
 
