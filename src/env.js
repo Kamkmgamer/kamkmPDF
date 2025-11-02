@@ -13,6 +13,7 @@ export const env = createEnv({
       .default("development"),
     TRPC_LOG_DEV_ERRORS: z.enum(["true", "false"]).default("false"),
     CLERK_SECRET_KEY: z.string().min(1),
+    CLERK_WEBHOOK_SECRET: z.string().optional(),
     // UploadThing (required for external storage)
     UPLOADTHING_TOKEN: z.string().min(1),
     // OpenRouter (optional). When not provided, the system falls back to PDFKit-only generation.
@@ -51,6 +52,9 @@ export const env = createEnv({
     // Polar.sh configuration (optional - only needed for subscriptions and credit purchases)
     POLAR_ACCESS_TOKEN: z.string().optional(),
     POLAR_WEBHOOK_SECRET: z.string().optional(),
+    // Resend configuration (for sending emails)
+    RESEND_API_KEY: z.string().min(1),
+    RESEND_FROM_EMAIL: z.string().email().optional(),
   },
 
   /**
@@ -72,6 +76,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+    CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     OPENROUTER_API_KEY1: process.env.OPENROUTER_API_KEY1,
@@ -104,6 +109,8 @@ export const env = createEnv({
     REDIS_TOKEN: process.env.REDIS_TOKEN,
     POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
     POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
     TRPC_LOG_DEV_ERRORS: process.env.TRPC_LOG_DEV_ERRORS,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
