@@ -12,12 +12,19 @@ export type SubscriptionTier =
   | "enterprise";
 
 export const modelsAgents: string[] = [
-  "openai/gpt-oss-safeguard-20b",
-  "google/gemma-3-27b-it:free",
   "openai/gpt-oss-20b:free",
-  "x-ai/grok-4-fast:free",
-  "z-ai/glm-4.5-air:free",
-  "qwen/qwen3-coder:free",
+  "openai/gpt-oss-120b:free",
+  "google/gemma-3-27b-it:free",
+  "alibaba/tongyi-deepresearch-30b-a3b:free",
+  "qwen/qwen3-235b-a22b:free",
+  "meta-llama/llama-4-maverick:free",
+  "meta-llama/llama-4-scout:free",
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "nousresearch/hermes-3-llama-3.1-405b:free",
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b",
+  "openai/gpt-oss-safeguard-20b",
+  "openai/gpt-oss-safeguard-120b",
 ];
 
 export interface TierConfig {
