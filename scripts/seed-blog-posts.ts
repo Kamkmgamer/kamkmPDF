@@ -73,7 +73,7 @@ const blogPostsData = [
       
       <h2>3. Key Features to Look For</h2>
       <ul>
-        <li>Prompt-to-PDF functionality</li>
+        <li>KamkmPDF functionality</li>
         <li>Custom branding options</li>
         <li>API access for automation</li>
         <li>Template library</li>
@@ -203,7 +203,7 @@ const blogPostsData = [
         <li>Marketing materials and case studies</li>
       </ul>
       
-      <h2>The Prompt-to-PDF Workflow</h2>
+      <h2>The KamkmPDF Workflow</h2>
       <p>Our platform transforms simple prompts into polished PDFs:</p>
       <ol>
         <li>Describe what you need</li>
@@ -708,7 +708,7 @@ export default async function GeneratePage() {
       <h2>Key Comparison Factors</h2>
       <h3>Features</h3>
       <ul>
-        <li>Prompt-to-PDF capability</li>
+        <li>KamkmPDF capability</li>
         <li>Template support</li>
         <li>Custom branding</li>
         <li>API flexibility</li>
