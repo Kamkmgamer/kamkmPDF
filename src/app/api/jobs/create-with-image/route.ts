@@ -16,6 +16,150 @@ import {
   saveJobTempMeta,
   type ImageMode,
 } from "~/server/jobs/temp";
+import { jobCreationRateLimit } from "~/lib/rate-limit";
+
+// Magic numbers for file type validation
+const FILE_MAGIC_NUMBERS = {
+  "image/png": [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
+  "image/jpeg": [0xff, 0xd8, 0xff],
+} as const;
+
+// Prompt injection patterns to detect and block
+const PROMPT_INJECTION_PATTERNS = [
+  /ignore\s+(previous|all)\s+(instructions?|prompts?)/i,
+  /forget\s+(everything|all\s+instructions?)/i,
+  /disregard\s+(previous|all)\s+(instructions?|prompts?)/i,
+  /you\s+are\s+now\s+(a|an)\s+(\w+\s+)?(assistant|ai|bot|model)/i,
+  /act\s+as\s+(a|an)\s+(\w+\s+)?(assistant|ai|bot|model)/i,
+  /pretend\s+(you\s+are|to\s+be)/i,
+  /instead\s+of/i,
+  /do\s+not\s+(follow|use|listen\s+to)/i,
+  /override\s+(your|the)\s+(instructions?|programming|rules)/i,
+  /jailbreak/i,
+  /dan\s+\d+/i,
+  /developer\s+mode/i,
+  /evil\s+mode/i,
+];
+
+// XSS patterns for HTML sanitization
+const XSS_PATTERNS = [
+  /<script[\s\S]*?<\/script>/gi,
+  /<iframe[\s\S]*?<\/iframe>/gi,
+  /javascript:/gi,
+  /on\w+\s*=/gi,
+];
+
+function sanitizePrompt(prompt: string): string {
+  if (typeof prompt !== "string") return "";
+
+  let sanitized = prompt;
+
+  // Remove XSS patterns
+  XSS_PATTERNS.forEach((pattern) => {
+    sanitized = sanitized.replace(pattern, "");
+  });
+
+  // Normalize whitespace
+  sanitized = sanitized.replace(/\s+/g, " ").trim();
+
+  // Remove potentially dangerous characters
+  sanitized = sanitized.replace(/[<>]/g, "");
+
+  return sanitized;
+}
+
+function detectPromptInjection(prompt: string): boolean {
+  if (typeof prompt !== "string") return false;
+
+  return PROMPT_INJECTION_PATTERNS.some((pattern) => pattern.test(prompt));
+}
+
+function validatePrompt(prompt: string): {
+  isValid: boolean;
+  sanitizedPrompt: string;
+  error?: string;
+} {
+  if (!prompt || typeof prompt !== "string") {
+    return {
+      isValid: false,
+      sanitizedPrompt: "",
+      error: "Prompt is required and must be a string",
+    };
+  }
+
+  const trimmed = prompt.trim();
+
+  if (trimmed.length < 1) {
+    return {
+      isValid: false,
+      sanitizedPrompt: "",
+      error: "Prompt cannot be empty",
+    };
+  }
+
+  if (trimmed.length > 2000) {
+    return {
+      isValid: false,
+      sanitizedPrompt: "",
+      error: "Prompt too long (max 2000 characters)",
+    };
+  }
+
+  const sanitized = sanitizePrompt(trimmed);
+
+  if (detectPromptInjection(sanitized)) {
+    return {
+      isValid: false,
+      sanitizedPrompt: "",
+      error: "Prompt contains potentially harmful content",
+    };
+  }
+
+  return {
+    isValid: true,
+    sanitizedPrompt: sanitized,
+  };
+}
+
+function validateFileType(buffer: Buffer, expectedMimeType: string): boolean {
+  const magicNumbers =
+    FILE_MAGIC_NUMBERS[expectedMimeType as keyof typeof FILE_MAGIC_NUMBERS];
+
+  if (!magicNumbers) {
+    return false;
+  }
+
+  // Check if buffer starts with expected magic numbers
+  for (let i = 0; i < magicNumbers.length; i++) {
+    if (buffer[i] !== magicNumbers[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function validateImageFile(
+  buffer: Buffer,
+  mimeType: string,
+): {
+  isValid: boolean;
+  error?: string;
+} {
+  if (!Buffer.isBuffer(buffer)) {
+    return { isValid: false, error: "Invalid file buffer" };
+  }
+
+  if (!["image/png", "image/jpeg"].includes(mimeType)) {
+    return { isValid: false, error: "Unsupported file type" };
+  }
+
+  if (!validateFileType(buffer, mimeType)) {
+    return { isValid: false, error: "File type does not match extension" };
+  }
+
+  return { isValid: true };
+}
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8MB
 const ACCEPTED_TYPES = new Set(["image/png", "image/jpeg"]);
@@ -26,6 +170,16 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
+    // Apply rate limiting
+    const rateLimitResponse = await jobCreationRateLimit(
+      req as unknown as NextRequest,
+      async () => NextResponse.next(),
+    );
+
+    if (rateLimitResponse.status === 429) {
+      return rateLimitResponse;
+    }
+
     const auth = getAuth(req as unknown as NextRequest);
     const userId = auth?.userId ?? null;
     // Allow both authenticated and unauthenticated users
@@ -41,14 +195,18 @@ export async function POST(req: Request) {
     const form = await req.formData();
     const promptValue = form.get("prompt");
 
+    // Validate and sanitize prompt
     const promptRaw = typeof promptValue === "string" ? promptValue : "";
-    const prompt = promptRaw.trim();
-    if (prompt.length < 1 || prompt.length > 2000) {
+    const promptValidation = validatePrompt(promptRaw);
+
+    if (!promptValidation.isValid) {
       return NextResponse.json(
-        { ok: false, error: "Invalid prompt length" },
+        { ok: false, error: promptValidation.error },
         { status: 400 },
       );
     }
+
+    const prompt = promptValidation.sanitizedPrompt;
 
     const modeValue = form.get("mode");
     const modeInput = typeof modeValue === "string" ? modeValue : "inline";
@@ -77,6 +235,16 @@ export async function POST(req: Request) {
       }
       const ab = await file.arrayBuffer();
       const buf = Buffer.from(ab);
+
+      // Validate file type with magic numbers
+      const fileValidation = validateImageFile(buf, mime);
+      if (!fileValidation.isValid) {
+        return NextResponse.json(
+          { ok: false, error: fileValidation.error },
+          { status: 400 },
+        );
+      }
+
       const dims = getImageSize(buf, mime);
       if (!dims) {
         return NextResponse.json(
@@ -165,7 +333,7 @@ export async function POST(req: Request) {
         if (process.env.PDFPROMPT_WORKER_SECRET) {
           headers["x-worker-secret"] = process.env.PDFPROMPT_WORKER_SECRET;
         }
-        void fetch(url, { 
+        void fetch(url, {
           headers,
           signal: AbortSignal.timeout(5000),
         }).catch(() => undefined);
