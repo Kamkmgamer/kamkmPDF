@@ -503,7 +503,7 @@ export async function drain(
 
 async function runLoop() {
   const workerConcurrency = Number(
-    process.env.PDFPROMPT_WORKER_CONCURRENCY ?? 3,
+    process.env.PDFPROMPT_WORKER_CONCURRENCY ?? 10,
   );
   console.log(
     `[worker] starting loop (poll ${POLL_INTERVAL_MS}ms, concurrency ${workerConcurrency})`,
