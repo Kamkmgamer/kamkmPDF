@@ -5,6 +5,8 @@
  * and provides testing strategies for each scenario.
  */
 
+import { describe, test } from "vitest";
+
 describe("PDF Viewer Edge Cases", () => {
   describe("Failed Jobs", () => {
     test("should handle jobs with failed status", () => {

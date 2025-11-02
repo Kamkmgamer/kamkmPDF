@@ -16,6 +16,8 @@
  * npm test -- src/app/pdf/[id]/_components/PDFViewerPage.test.tsx
  */
 
+import { describe, test, expect } from "vitest";
+
 describe("PDFViewerPage Integration Tests", () => {
   test("component renders without crashing", () => {
     // Basic smoke test - component should render
