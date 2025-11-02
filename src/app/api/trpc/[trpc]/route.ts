@@ -1,9 +1,11 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 import { env } from "~/env";
 import { appRouter } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
+import { apiRateLimit } from "~/lib/rate-limit";
 
 // Use Node.js runtime for database connections (PostgreSQL requires net module)
 export const runtime = "nodejs";
@@ -19,8 +21,17 @@ const createContext = async (req: NextRequest) => {
   });
 };
 
-const handler = (req: NextRequest) =>
-  fetchRequestHandler({
+const handler = async (req: NextRequest) => {
+  // Apply rate limiting to tRPC endpoints
+  const rateLimitResponse = await apiRateLimit(req, async () =>
+    NextResponse.next(),
+  );
+
+  if (rateLimitResponse.status === 429) {
+    return rateLimitResponse;
+  }
+
+  return fetchRequestHandler({
     endpoint: "/api/trpc",
     req,
     router: appRouter,
@@ -34,5 +45,6 @@ const handler = (req: NextRequest) =>
           }
         : undefined,
   });
+};
 
 export { handler as GET, handler as POST };
