@@ -11,6 +11,14 @@ import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { inArray } from "drizzle-orm";
 import * as schema from "../src/server/db/schema.js";
+import {
+  createHeader,
+  createSeparator,
+  createProgressBar,
+  formatMetric,
+  formatStatus,
+  styles,
+} from "./benchmark-styles.js";
 
 // Load environment variables
 config({ path: resolve(process.cwd(), ".env.local") });
@@ -18,7 +26,7 @@ config({ path: resolve(process.cwd(), ".env") });
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
-  console.error("❌ ERROR: DATABASE_URL not found");
+  console.error(styles.error("❌ ERROR: DATABASE_URL not found"));
   process.exit(1);
 }
 
@@ -51,24 +59,36 @@ const TEST_PROMPTS = [
 ];
 
 async function testConcurrentPDFs() {
-  console.log("🚀 Starting Concurrent PDF Generation Test\n");
-  console.log(`📊 Configuration:`);
-  console.log(`   - Number of PDFs: ${NUM_PDFS}`);
+  console.log(createHeader("⚡ CONCURRENT PDF LOAD TEST", `Testing ${NUM_PDFS} PDFs Simultaneously`));
+
+  console.log(`\n${styles.title("📊 Configuration")}\n`);
+  console.log(formatMetric("Number of PDFs", NUM_PDFS));
   console.log(
-    `   - Worker Concurrency: ${process.env.PDFPROMPT_WORKER_CONCURRENCY ?? 3}`,
+    formatMetric(
+      "Worker Concurrency",
+      process.env.PDFPROMPT_WORKER_CONCURRENCY ?? 10,
+    ),
   );
   console.log(
-    `   - Max PDF Concurrency: ${process.env.MAX_PDF_CONCURRENCY ?? 8}`,
+    formatMetric(
+      "Max PDF Concurrency",
+      process.env.MAX_PDF_CONCURRENCY ?? 8,
+    ),
   );
-  console.log(`   - Browser Pool Size: ${process.env.BROWSER_POOL_SIZE ?? 3}`);
-  console.log(`\n${"=".repeat(60)}\n`);
+  console.log(
+    formatMetric(
+      "Browser Pool Size",
+      process.env.BROWSER_POOL_SIZE ?? 3,
+    ),
+  );
+  console.log(`\n${createSeparator()}\n`);
 
   const jobIds: string[] = [];
   const startTime = Date.now();
 
   try {
     // Step 1: Create all jobs simultaneously
-    console.log(`⏱️  Step 1: Creating ${NUM_PDFS} jobs...`);
+    console.log(`${styles.info("⏱️  Step 1: Creating jobs...")}\n`);
     const createStart = Date.now();
 
     const jobPromises = Array.from({ length: NUM_PDFS }, (_, i) => {
@@ -87,11 +107,13 @@ async function testConcurrentPDFs() {
 
     await Promise.all(jobPromises);
     const createDuration = Date.now() - createStart;
-    console.log(`   ✅ Created ${NUM_PDFS} jobs in ${createDuration}ms\n`);
+    console.log(
+      `${styles.success(`✅ Created ${NUM_PDFS} jobs in ${createDuration}ms`)}\n`,
+    );
 
     // Step 2: Wait for all jobs to complete
-    console.log("⏱️  Step 2: Waiting for jobs to complete...");
-    console.log("   (Jobs will be processed by the worker)\n");
+    console.log(`${styles.info("⏱️  Step 2: Monitoring progress...")}\n`);
+    console.log(`${styles.dim("   (Jobs will be processed by the worker)\n")}`);
 
     const maxWaitTime = 120_000; // 2 minutes max
     const pollInterval = 2000; // Check every 2 seconds
@@ -123,13 +145,11 @@ async function testConcurrentPDFs() {
         status.failed !== lastStatus.failed
       ) {
         const progress = Math.round((status.completed / NUM_PDFS) * 100);
+        const bar = createProgressBar(progress, 40);
+        const timeStr = `${Math.floor(elapsed / 1000)}s`.padStart(4);
+
         console.log(
-          `   [${Math.floor(elapsed / 1000)}s] ` +
-            `✅ ${status.completed} | ` +
-            `⚙️  ${status.processing} | ` +
-            `⏳ ${status.queued} | ` +
-            `❌ ${status.failed} | ` +
-            `Progress: ${progress}%`,
+          `   ${styles.dim(`[${timeStr}]`)} ${bar} ${styles.metric(`${progress}%`)} | ${formatStatus(status)}`,
         );
         lastStatus = status;
       }
@@ -154,19 +174,20 @@ async function testConcurrentPDFs() {
       failed: finalJobs.filter((j) => j.status === "failed").length,
     };
 
-    console.log(`\n${"=".repeat(60)}\n`);
-    console.log("📊 RESULTS\n");
-    console.log(`⏱️  Total Time: ${(totalDuration / 1000).toFixed(2)}s`);
-    console.log(`✅ Completed: ${finalStatus.completed}/${NUM_PDFS}`);
-    console.log(`❌ Failed: ${finalStatus.failed}/${NUM_PDFS}`);
-    console.log(`⏳ Still Queued: ${finalStatus.queued}/${NUM_PDFS}`);
-    console.log(`⚙️  Processing: ${finalStatus.processing}/${NUM_PDFS}`);
+    console.log(`\n\n${createSeparator("═")}\n`);
+    console.log(`${styles.title("📊 RESULTS")}\n`);
+    console.log(formatMetric("Total Time", `${(totalDuration / 1000).toFixed(2)}s`));
+    console.log(`\n${formatStatus(finalStatus)}`);
 
     if (finalStatus.completed > 0) {
       const avgTime = totalDuration / finalStatus.completed;
-      console.log(`\n⚡ Average Time per PDF: ${(avgTime / 1000).toFixed(2)}s`);
+      console.log(`\n${styles.title("⚡ Performance Metrics")}\n`);
+      console.log(formatMetric("Average Time per PDF", `${(avgTime / 1000).toFixed(2)}s`));
       console.log(
-        `🚀 Throughput: ${((finalStatus.completed / totalDuration) * 1000 * 60).toFixed(1)} PDFs/minute`,
+        formatMetric(
+          "Throughput",
+          `${((finalStatus.completed / totalDuration) * 1000 * 60).toFixed(1)} PDFs/minute`,
+        ),
       );
     }
 
@@ -185,74 +206,59 @@ async function testConcurrentPDFs() {
       const maxTime = Math.max(...jobTimes);
       const avgJobTime = jobTimes.reduce((a, b) => a + b, 0) / jobTimes.length;
 
-      console.log(`\n📈 Job Processing Times:`);
-      console.log(`   Fastest: ${(minTime / 1000).toFixed(2)}s`);
-      console.log(`   Slowest: ${(maxTime / 1000).toFixed(2)}s`);
-      console.log(`   Average: ${(avgJobTime / 1000).toFixed(2)}s`);
+      console.log(`\n${styles.title("📈 Job Processing Times")}\n`);
+      console.log(formatMetric("Fastest", `${(minTime / 1000).toFixed(2)}s`));
+      console.log(formatMetric("Slowest", `${(maxTime / 1000).toFixed(2)}s`));
+      console.log(formatMetric("Average", `${(avgJobTime / 1000).toFixed(2)}s`));
     }
 
     // Performance verdict
-    console.log(`\n${"=".repeat(60)}\n`);
+    console.log(`\n${createSeparator("═")}\n`);
     if (totalDuration < 60_000) {
-      console.log("🎉 SUCCESS! All PDFs completed in under 1 minute!");
-      console.log(
-        `   Target: 60s | Actual: ${(totalDuration / 1000).toFixed(2)}s`,
-      );
-      console.log(
-        `   🚀 ${(((60 - totalDuration / 1000) / 60) * 100).toFixed(1)}% faster than target!`,
-      );
+      console.log(`${styles.success("🎉 SUCCESS!")} All PDFs completed in under 1 minute!\n`);
+      console.log(formatMetric("Target", "60s"));
+      console.log(formatMetric("Actual", `${(totalDuration / 1000).toFixed(2)}s`));
+      const improvement = ((60 - totalDuration / 1000) / 60) * 100;
+      console.log(formatMetric("Improvement", `${improvement.toFixed(1)}% faster than target`));
     } else {
-      console.log("⚠️  WARNING: Took longer than 1 minute");
+      console.log(`${styles.warning("⚠️  WARNING")} Took longer than 1 minute\n`);
+      console.log(formatMetric("Target", "60s"));
+      console.log(formatMetric("Actual", `${(totalDuration / 1000).toFixed(2)}s`));
+      console.log(`\n${styles.info("💡 Suggestions:")}`);
       console.log(
-        `   Target: 60s | Actual: ${(totalDuration / 1000).toFixed(2)}s`,
-      );
-      console.log(`\n💡 Suggestions:`);
-      console.log(
-        `   - Increase PDFPROMPT_WORKER_CONCURRENCY (currently ${process.env.PDFPROMPT_WORKER_CONCURRENCY ?? 3})`,
+        `   • Increase PDFPROMPT_WORKER_CONCURRENCY (currently ${process.env.PDFPROMPT_WORKER_CONCURRENCY ?? 10})`,
       );
       console.log(
-        `   - Increase MAX_PDF_CONCURRENCY (currently ${process.env.MAX_PDF_CONCURRENCY ?? 8})`,
+        `   • Increase MAX_PDF_CONCURRENCY (currently ${process.env.MAX_PDF_CONCURRENCY ?? 8})`,
       );
-      console.log(`   - Deploy additional worker instances`);
-      console.log(`   - Check if AI provider (OpenRouter) is rate limiting`);
+      console.log(`   • Deploy additional worker instances`);
+      console.log(`   • Check if AI provider (OpenRouter) is rate limiting`);
     }
 
     // Show failed jobs if any
     if (finalStatus.failed > 0) {
-      console.log(`\n❌ Failed Jobs:`);
+      console.log(`\n${styles.error("Failed Jobs:")}`);
       const failedJobs = finalJobs.filter((j) => j.status === "failed");
       for (const job of failedJobs) {
-        console.log(`   - ${job.id}: ${job.errorMessage ?? "Unknown error"}`);
+        console.log(`   ${styles.dim(`- ${job.id}: ${job.errorMessage ?? "Unknown error"}`)}`);
       }
     }
 
-    console.log(`\n${"=".repeat(60)}\n`);
-
-    // Cleanup option
-    console.log("🧹 Cleanup: Run this command to delete test jobs:");
-    console.log(
-      `   pnpm tsx -e "import {db} from './src/server/db/index.js'; import {jobs,files} from './src/server/db/schema.js'; import {inArray,eq} from 'drizzle-orm'; const ids=${JSON.stringify(jobIds)}; await db.delete(files).where(inArray(files.jobId, ids)); await db.delete(jobs).where(inArray(jobs.id, ids)); console.log('Deleted ${NUM_PDFS} test jobs'); process.exit(0);"`,
-    );
+    console.log(`\n${createSeparator()}\n`);
   } catch (error) {
-    console.error("\n❌ Error during test:", error);
+    console.error(`\n${styles.error("❌ Error during test:")}`, error);
     throw error;
+  } finally {
+    await sql.end();
   }
 }
 
-// Run the test
-console.log(`
-╔═══════════════════════════════════════════════════════════╗
-║       CONCURRENT PDF GENERATION LOAD TEST                 ║
-║       Testing ${NUM_PDFS} PDFs simultaneously                        ║
-╚═══════════════════════════════════════════════════════════╝
-`);
-
 testConcurrentPDFs()
   .then(() => {
-    console.log("✨ Test completed!");
+    console.log(`\n${styles.success("✨ Test completed!")}\n`);
     process.exit(0);
   })
   .catch((error) => {
-    console.error("💥 Test failed:", error);
+    console.error(`\n${styles.error("💥 Test failed:")}`, error);
     process.exit(1);
   });
