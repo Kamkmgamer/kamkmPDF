@@ -12,6 +12,14 @@ import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { inArray } from "drizzle-orm";
 import * as schema from "../src/server/db/schema.js";
+import {
+  createHeader,
+  createSeparator,
+  createProgressBar,
+  formatMetric,
+  formatStatus,
+  styles,
+} from "./benchmark-styles.js";
 
 config({ path: resolve(process.cwd(), ".env.local") });
 config({ path: resolve(process.cwd(), ".env") });
@@ -20,7 +28,7 @@ const DATABASE_URL = process.env.DATABASE_URL;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 if (!DATABASE_URL) {
-  console.error("❌ DATABASE_URL not found");
+  console.error(styles.error("❌ DATABASE_URL not found"));
   process.exit(1);
 }
 
@@ -59,31 +67,32 @@ const generatePrompts = (count: number): string[] => {
 
 async function test60PDFs() {
   console.clear();
-  console.log(`
-╔═══════════════════════════════════════════════════════════╗
-║           60 CONCURRENT PDFS STRESS TEST                  ║
-║           Testing System at Scale                         ║
-╚═══════════════════════════════════════════════════════════╝
-`);
+  console.log(createHeader("🔥 60 CONCURRENT PDFS STRESS TEST", "Testing System Performance at Scale"));
 
-  console.log("📊 Test Configuration:");
-  console.log(`   - Number of PDFs: ${NUM_PDFS}`);
-  console.log(`   - Server URL: ${APP_URL}`);
-  console.log(`   - Test ID: ${TEST_USER_ID}`);
+  console.log(`\n${styles.title("📊 Test Configuration")}\n`);
+  console.log(formatMetric("Number of PDFs", NUM_PDFS));
+  console.log(formatMetric("Server URL", APP_URL));
+  console.log(formatMetric("Test ID", TEST_USER_ID));
   console.log(
-    `   - Worker Concurrency: ${process.env.PDFPROMPT_WORKER_CONCURRENCY || "3 (default)"}`,
+    formatMetric(
+      "Worker Concurrency",
+      process.env.PDFPROMPT_WORKER_CONCURRENCY || "10 (default)",
+    ),
   );
   console.log(
-    `   - Max PDF Concurrency: ${process.env.MAX_PDF_CONCURRENCY || "8 (default)"}`,
+    formatMetric(
+      "Max PDF Concurrency",
+      process.env.MAX_PDF_CONCURRENCY || "8 (default)",
+    ),
   );
-  console.log(`\n${"=".repeat(60)}\n`);
+  console.log(`\n${createSeparator()}\n`);
 
   const jobIds: string[] = [];
   const overallStart = Date.now();
 
   try {
     // Step 1: Create jobs
-    console.log(`⏱️  Creating ${NUM_PDFS} jobs...`);
+    console.log(`${styles.info("⏱️  Step 1: Creating jobs...")}\n`);
     const createStart = Date.now();
 
     const prompts = generatePrompts(NUM_PDFS);
@@ -108,18 +117,21 @@ async function test60PDFs() {
       );
 
       // Progress indicator
+      const created = Math.min(i + batchSize, NUM_PDFS);
+      const progress = Math.round((created / NUM_PDFS) * 100);
+      const bar = createProgressBar(progress, 50);
       process.stdout.write(
-        `\r   Created ${Math.min(i + batchSize, NUM_PDFS)}/${NUM_PDFS} jobs...`,
+        `\r   ${bar} ${styles.metric(`${progress}%`)} | ${styles.dim(`Created ${created}/${NUM_PDFS} jobs...`)}`,
       );
     }
 
     const createDuration = Date.now() - createStart;
     console.log(
-      `\n✅ Created ${NUM_PDFS} jobs in ${(createDuration / 1000).toFixed(2)}s\n`,
+      `\n${styles.success(`✅ Created ${NUM_PDFS} jobs in ${(createDuration / 1000).toFixed(2)}s`)}\n`,
     );
 
     // Step 2: Trigger worker and monitor
-    console.log("⏱️  Step 2: Monitoring job processing...\n");
+    console.log(`${styles.info("⏱️  Step 2: Monitoring job processing...")}\n`);
 
     // Trigger drain endpoint multiple times to keep processing
     const drainUrl = `${APP_URL}/api/worker/drain?maxJobs=${NUM_PDFS}&maxMs=50000`;
@@ -129,8 +141,8 @@ async function test60PDFs() {
       headers["x-worker-secret"] = WORKER_SECRET;
     }
 
-    console.log(`🔄 Triggering worker via: ${drainUrl}`);
-    console.log(`💡 Note: Worker will process jobs in batches\n`);
+    console.log(`${styles.info(`🔄 Triggering worker via:`)} ${styles.dim(drainUrl)}`);
+    console.log(`${styles.dim("💡 Note: Worker will process jobs in batches\n")}`);
 
     // Trigger drain periodically to keep processing
     const drainInterval = setInterval(() => {
@@ -140,23 +152,23 @@ async function test60PDFs() {
     // Initial trigger
     fetch(drainUrl, { headers }).catch(() => undefined);
 
-    const maxWaitTime = 600_000; // 10 minutes max (60 PDFs × ~8s avg = ~8 minutes)
-    const pollInterval = 2000; // 2 seconds for more responsive updates
+    const maxWaitTime = 600_000; // 10 minutes max
+    const pollInterval = 2000; // 2 seconds
     let elapsed = 0;
     let lastStatus = { completed: 0, processing: 0, queued: 0, failed: 0 };
     let peakConcurrent = 0;
     let lastProgressUpdate = 0;
 
     // Give workers time to start
-    console.log("   Waiting for worker to start...");
+    console.log(`${styles.dim("   Waiting for worker to start...")}`);
     await new Promise((resolve) => setTimeout(resolve, 3000));
     console.log("");
 
     // Draw header
     console.log(
-      "   Time  | Progress Bar                                      | %   | Done | Proc | Queue | Fail",
+      `   ${styles.dim("Time")}  | ${styles.dim("Progress Bar")}                                    | ${styles.dim("%")}   | ${styles.dim("Done")} | ${styles.dim("Proc")} | ${styles.dim("Queue")} | ${styles.dim("Fail")}`,
     );
-    console.log("   " + "─".repeat(100));
+    console.log(`   ${createSeparator("─", 100)}`);
 
     while (elapsed < maxWaitTime) {
       await new Promise((resolve) => setTimeout(resolve, pollInterval));
@@ -186,13 +198,9 @@ async function test60PDFs() {
 
       if (shouldUpdate) {
         const progress = Math.round((status.completed / NUM_PDFS) * 100);
-        const barLength = 45;
-        const filled = Math.floor((progress / 100) * barLength);
-        const bar = "█".repeat(filled) + "░".repeat(barLength - filled);
+        const bar = createProgressBar(progress, 45);
 
-        const timeStr = Math.floor(elapsed / 1000)
-          .toString()
-          .padStart(4);
+        const timeStr = Math.floor(elapsed / 1000).toString().padStart(4);
         const progressStr = progress.toString().padStart(3);
         const completedStr = status.completed.toString().padStart(4);
         const processingStr = status.processing.toString().padStart(4);
@@ -200,7 +208,7 @@ async function test60PDFs() {
         const failedStr = status.failed.toString().padStart(4);
 
         process.stdout.write(
-          `\r   ${timeStr}s | ${bar} | ${progressStr}% | ${completedStr} | ${processingStr} | ${queuedStr} | ${failedStr}`,
+          `\r   ${styles.dim(`${timeStr}s`)} | ${bar} | ${styles.metric(`${progressStr}%`)} | ${styles.success(completedStr)} | ${styles.info(processingStr)} | ${styles.warning(queuedStr)} | ${styles.error(failedStr)}`,
         );
 
         lastStatus = status;
@@ -237,45 +245,48 @@ async function test60PDFs() {
       processing: finalJobs.filter((j) => j.status === "processing").length,
     };
 
-    console.log(`\n${"=".repeat(60)}\n`);
-    console.log("📊 FINAL RESULTS\n");
-    console.log(`⏱️  Total Time: ${(totalDuration / 1000).toFixed(2)}s`);
-    console.log(`⏱️  Processing Time: ${(processDuration / 1000).toFixed(2)}s`);
-    console.log(`⚡ Peak Concurrent: ${peakConcurrent} PDFs`);
-    console.log(`\n✅ Completed: ${finalStatus.completed}/${NUM_PDFS}`);
-    console.log(`❌ Failed: ${finalStatus.failed}/${NUM_PDFS}`);
-    console.log(`⏳ Still Queued: ${finalStatus.queued}/${NUM_PDFS}`);
+    console.log(`\n${createSeparator("═")}\n`);
+    console.log(`${styles.title("📊 FINAL RESULTS")}\n`);
+    console.log(formatMetric("Total Time", `${(totalDuration / 1000).toFixed(2)}s`));
+    console.log(formatMetric("Processing Time", `${(processDuration / 1000).toFixed(2)}s`));
+    console.log(formatMetric("Peak Concurrent", `${peakConcurrent} PDFs`));
+    console.log(`\n${formatStatus(finalStatus)}`);
 
     if (finalStatus.completed > 0) {
       const throughput = (finalStatus.completed / totalDuration) * 1000 * 60;
-      console.log(`\n🚀 Throughput: ${throughput.toFixed(1)} PDFs/minute`);
+      console.log(`\n${styles.title("⚡ Performance Metrics")}\n`);
+      console.log(formatMetric("Throughput", `${throughput.toFixed(1)} PDFs/minute`));
       console.log(
-        `⚡ Average: ${(totalDuration / finalStatus.completed / 1000).toFixed(2)}s per PDF`,
+        formatMetric(
+          "Average Time per PDF",
+          `${(totalDuration / finalStatus.completed / 1000).toFixed(2)}s`,
+        ),
       );
       console.log(
-        `🔥 Peak Concurrent: ${peakConcurrent} PDFs processing simultaneously`,
+        formatMetric(
+          "Peak Concurrent Processing",
+          `${peakConcurrent} PDFs simultaneously`,
+        ),
       );
     }
 
     // Performance verdict
-    console.log(`\n${"=".repeat(60)}\n`);
-
+    console.log(`\n${createSeparator("═")}\n`);
     if (totalDuration < 60_000 && finalStatus.completed === NUM_PDFS) {
-      console.log("🎉🎉🎉 OUTSTANDING! All 60 PDFs in under 1 minute! 🎉🎉🎉");
-      console.log(
-        `   Target: 60s | Actual: ${(totalDuration / 1000).toFixed(2)}s`,
-      );
+      console.log(`${styles.success("🎉🎉🎉 OUTSTANDING!")} All 60 PDFs in under 1 minute!\n`);
+      console.log(formatMetric("Target", "60s"));
+      console.log(formatMetric("Actual", `${(totalDuration / 1000).toFixed(2)}s`));
       const improvement = ((60 - totalDuration / 1000) / 60) * 100;
-      console.log(`   🚀 ${improvement.toFixed(1)}% faster than target!`);
+      console.log(formatMetric("Improvement", `${improvement.toFixed(1)}% faster than target`));
     } else if (totalDuration < 120_000 && finalStatus.completed === NUM_PDFS) {
-      console.log("✅ SUCCESS! All 60 PDFs completed in under 2 minutes!");
-      console.log(`   Time: ${(totalDuration / 1000).toFixed(2)}s`);
-      console.log(`   Great performance for high concurrency!`);
+      console.log(`${styles.success("✅ SUCCESS!")} All 60 PDFs completed in under 2 minutes!\n`);
+      console.log(formatMetric("Time", `${(totalDuration / 1000).toFixed(2)}s`));
+      console.log(`${styles.success("Great performance for high concurrency!")}`);
     } else if (finalStatus.completed === NUM_PDFS) {
       console.log(
-        `✅ All PDFs completed in ${(totalDuration / 1000).toFixed(2)}s`,
+        `${styles.success("✅ All PDFs completed")} in ${(totalDuration / 1000).toFixed(2)}s\n`,
       );
-      console.log(`\n💡 To improve speed:`);
+      console.log(`${styles.info("💡 To improve speed:")}`);
       console.log(
         `   1. Deploy more workers (current setup: ${Math.ceil(peakConcurrent / 12)} workers active)`,
       );
@@ -283,79 +294,92 @@ async function test60PDFs() {
       console.log(`   3. Increase MAX_PDF_CONCURRENCY to 20`);
     } else {
       console.log(
-        `⚠️  Only ${finalStatus.completed}/${NUM_PDFS} PDFs completed`,
+        `${styles.warning("⚠️  Incomplete")} Only ${finalStatus.completed}/${NUM_PDFS} PDFs completed\n`,
       );
 
       if (finalStatus.queued > 0) {
-        console.log(`\n💡 ${finalStatus.queued} jobs still queued:`);
-        console.log(`   - Deploy more worker instances`);
-        console.log(`   - Check worker logs for errors`);
-        console.log(`   - Verify workers are running`);
+        console.log(`${styles.warning(`${finalStatus.queued} jobs still queued:`)}`);
+        console.log(`   • Deploy more worker instances`);
+        console.log(`   • Check worker logs for errors`);
+        console.log(`   • Verify workers are running`);
       }
 
       if (finalStatus.failed > 0) {
-        console.log(`\n❌ ${finalStatus.failed} jobs failed:`);
+        console.log(`\n${styles.error(`${finalStatus.failed} jobs failed:`)}`);
         const failed = finalJobs.filter((j) => j.status === "failed");
         for (const job of failed.slice(0, 5)) {
-          console.log(`   - ${job.errorMessage || "Unknown error"}`);
+          console.log(`   ${styles.dim(`- ${job.errorMessage || "Unknown error"}`)}`);
         }
       }
     }
 
     // Performance analysis
-    console.log(`\n${"=".repeat(60)}\n`);
-    console.log("📈 PERFORMANCE ANALYSIS\n");
+    console.log(`\n${createSeparator("═")}\n`);
+    console.log(`${styles.title("📈 PERFORMANCE ANALYSIS")}\n`);
 
     const workersEstimate = Math.ceil(peakConcurrent / 12);
-    console.log(`Estimated Active Workers: ${workersEstimate}`);
+    console.log(formatMetric("Estimated Active Workers", workersEstimate));
     console.log(
-      `Average Concurrent PDFs: ${(peakConcurrent * 0.7).toFixed(1)}`,
+      formatMetric(
+        "Average Concurrent PDFs",
+        `${(peakConcurrent * 0.7).toFixed(1)}`,
+      ),
     );
     console.log(
-      `System Utilization: ${((peakConcurrent / 60) * 100).toFixed(1)}%`,
+      formatMetric(
+        "System Utilization",
+        `${((peakConcurrent / 60) * 100).toFixed(1)}%`,
+      ),
     );
 
     if (finalStatus.completed > 0) {
       const idealTime = 30; // seconds for 60 PDFs with perfect parallelism
       const efficiency = (idealTime / (totalDuration / 1000)) * 100;
       console.log(
-        `Parallelization Efficiency: ${Math.min(efficiency, 100).toFixed(1)}%`,
+        formatMetric(
+          "Parallelization Efficiency",
+          `${Math.min(efficiency, 100).toFixed(1)}%`,
+        ),
       );
     }
 
-    console.log(`\n${"=".repeat(60)}\n`);
+    console.log(`\n${createSeparator("═")}\n`);
 
     // Recommendations
     if (peakConcurrent < 30) {
-      console.log("💡 RECOMMENDATIONS:\n");
+      console.log(`${styles.info("💡 RECOMMENDATIONS:")}\n`);
+      console.log(`Low concurrent processing detected. To reach 60+ concurrent:\n`);
+      console.log(`   1. Deploy 5 worker instances`);
+      console.log(`   2. Set PDFPROMPT_WORKER_CONCURRENCY=12 per worker`);
+      console.log(`   3. Set MAX_PDF_CONCURRENCY=15 per worker`);
+      console.log(`   4. Total capacity: 5 × 12 = 60 concurrent PDFs`);
+      console.log(`\n${formatMetric("Current capacity", `~${peakConcurrent} concurrent PDFs`)}`);
       console.log(
-        "Low concurrent processing detected. To reach 60+ concurrent:",
-      );
-      console.log("   1. Deploy 5 worker instances");
-      console.log("   2. Set PDFPROMPT_WORKER_CONCURRENCY=12 per worker");
-      console.log("   3. Set MAX_PDF_CONCURRENCY=15 per worker");
-      console.log("   4. Total capacity: 5 × 12 = 60 concurrent PDFs");
-      console.log(`\nCurrent capacity: ~${peakConcurrent} concurrent PDFs`);
-      console.log(
-        `Additional workers needed: ${Math.ceil((60 - peakConcurrent) / 12)}`,
+        formatMetric(
+          "Additional workers needed",
+          `${Math.ceil((60 - peakConcurrent) / 12)}`,
+        ),
       );
     } else if (peakConcurrent >= 60) {
-      console.log("🎉 EXCELLENT!\n");
+      console.log(`${styles.success("🎉 EXCELLENT!")}\n`);
       console.log(
-        `Your system is handling 60+ concurrent PDFs (peak: ${peakConcurrent})!`,
+        `Your system is handling 60+ concurrent PDFs (peak: ${peakConcurrent})!\n`,
       );
-      console.log(`This setup can support 10,000+ concurrent users.`);
+      console.log(`${styles.success("This setup can support 10,000+ concurrent users.")}`);
     } else {
-      console.log("📊 GOOD PROGRESS!\n");
-      console.log(`Peak concurrent: ${peakConcurrent} PDFs`);
+      console.log(`${styles.info("📊 GOOD PROGRESS!")}\n`);
+      console.log(formatMetric("Peak concurrent", `${peakConcurrent} PDFs`));
       console.log(
-        `To reach 60+, add ${Math.ceil((60 - peakConcurrent) / 12)} more workers`,
+        formatMetric(
+          "To reach 60+",
+          `add ${Math.ceil((60 - peakConcurrent) / 12)} more workers`,
+        ),
       );
     }
 
-    console.log(`\n${"=".repeat(60)}\n`);
+    console.log(`\n${createSeparator()}\n`);
   } catch (error) {
-    console.error("\n❌ Error:", error);
+    console.error(`\n${styles.error("❌ Error:")}`, error);
     throw error;
   } finally {
     await sql.end();
@@ -364,10 +388,10 @@ async function test60PDFs() {
 
 test60PDFs()
   .then(() => {
-    console.log("\n✨ Test completed!");
+    console.log(`\n${styles.success("✨ Test completed!")}\n`);
     process.exit(0);
   })
   .catch((error) => {
-    console.error("\n💥 Test failed:", error);
+    console.error(`\n${styles.error("💥 Test failed:")}`, error);
     process.exit(1);
   });
