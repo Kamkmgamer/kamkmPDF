@@ -30,7 +30,7 @@ async function isDatabaseAvailable(): Promise<boolean> {
   try {
     await db.select().from(jobs).limit(1);
     return true;
-  } catch (_error) {
+  } catch {
     console.warn(
       "⚠️ Database not available for integration tests. Skipping...",
     );

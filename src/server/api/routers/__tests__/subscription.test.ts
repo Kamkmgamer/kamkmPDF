@@ -28,7 +28,7 @@ async function isDatabaseAvailable(): Promise<boolean> {
   try {
     await db.select().from(userSubscriptions).limit(1);
     return true;
-  } catch (_error) {
+  } catch {
     console.warn(
       "⚠️ Database not available for integration tests. Skipping...",
     );
