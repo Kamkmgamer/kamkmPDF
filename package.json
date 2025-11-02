@@ -52,6 +52,7 @@
     "@trpc/react-query": "^11.7.1",
     "@trpc/server": "^11.7.1",
     "@uploadthing/react": "^7.3.3",
+    "@upstash/redis": "^1.35.6",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.41.0",
     "framer-motion": "^12.23.24",
