@@ -3,7 +3,8 @@
  * Functions to trigger email campaigns based on user actions
  */
 
-import { scheduleFreeUserFunnel, scheduleChurnedUserFunnel, cancelUserCampaigns } from "./campaign-service";
+import { scheduleFreeUserFunnel as _scheduleFreeUserFunnel, scheduleChurnedUserFunnel, cancelUserCampaigns, scheduleEmail } from "./campaign-service";
+import { sendWelcomeEmail } from "./send-email";
 import { db } from "../db";
 import { userSubscriptions } from "../db/schema";
 import { eq } from "drizzle-orm";
@@ -18,12 +19,40 @@ export async function onUserSignup(
   userName: string
 ) {
   try {
-    // Schedule the free user funnel
-    await scheduleFreeUserFunnel(userId, userEmail, userName, 3);
+    // Send immediate welcome email
+    await sendWelcomeEmail({
+      toEmail: userEmail,
+      userName,
+      pdfsRemaining: 3,
+    });
     
-    console.log(`Scheduled free user funnel for ${userId}`);
+    console.log(`✅ Sent immediate welcome email to ${userEmail}`);
+
+    // Schedule follow-up emails (Day 3: Quota reminder, Day 7: Classic offer)
+    await scheduleEmail({
+      userId,
+      userEmail,
+      userName,
+      campaignType: "free_user_funnel",
+      emailType: "quota_reminder",
+      daysDelay: 3,
+      metadata: { pdfsUsed: 0, pdfsRemaining: 3 },
+    });
+
+    await scheduleEmail({
+      userId,
+      userEmail,
+      userName,
+      campaignType: "free_user_funnel",
+      emailType: "classic_offer",
+      daysDelay: 7,
+      metadata: { pdfsUsed: 0 },
+    });
+    
+    console.log(`✅ Scheduled follow-up email funnel for ${userId}`);
   } catch (error) {
-    console.error("Failed to schedule free user funnel:", error);
+    console.error("Failed to send welcome email or schedule funnel:", error);
+    // Don't throw - we don't want to block user registration if emails fail
   }
 }
 
