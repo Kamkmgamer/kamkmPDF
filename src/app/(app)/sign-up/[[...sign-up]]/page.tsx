@@ -18,7 +18,7 @@ export default async function SignUpPage({
           Create your account
         </h1>
         <p className="mt-2 text-[--color-text-muted]">
-          Get started with Prompt-to-PDF
+          Get started with KamkmPDF
         </p>
       </div>
       <SignUpForm redirectUrl={redirectUrl} />
