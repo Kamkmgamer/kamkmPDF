@@ -30,7 +30,8 @@ const POLL_INTERVAL_MS = Number(process.env.PDFPROMPT_POLL_MS ?? 2000);
 const MAX_ATTEMPTS = 3;
 const UPLOAD_MAX_RETRIES = 3; // Retry uploads up to 3 times
 
-async function pickNextJob() {
+// Legacy function - kept for compatibility but not used with batch processing
+async function _pickNextJob() {
   const res = await db
     .select()
     .from(jobs)
@@ -229,19 +230,37 @@ async function processJob(job: Job, opts?: { alreadyClaimed?: boolean }) {
       }
     }
 
-    // Get user's subscription tier
+    // Get user's subscription tier (with caching for performance)
     let userTier: SubscriptionTier = "starter";
     let shouldAddWatermark = true;
     if (job.userId) {
-      const subscription = await db
-        .select()
-        .from(userSubscriptions)
-        .where(eq(userSubscriptions.userId, job.userId))
-        .limit(1);
-      if (subscription[0]) {
-        userTier = subscription[0].tier as SubscriptionTier;
-        const tierConfig = getTierConfig(userTier);
-        shouldAddWatermark = tierConfig.features.watermark;
+      try {
+        // Use cached subscription lookup to reduce database load
+        const { getCachedSubscription } = await import(
+          "~/lib/subscription-cache"
+        );
+        const subscription = await getCachedSubscription(job.userId);
+        if (subscription) {
+          userTier = subscription.tier as SubscriptionTier;
+          const tierConfig = getTierConfig(userTier);
+          shouldAddWatermark = tierConfig.features.watermark;
+        }
+      } catch (error) {
+        // Fallback to direct database query if caching fails
+        console.warn(
+          `[worker] Cache lookup failed for ${job.userId}, using direct query`,
+          error,
+        );
+        const subscription = await db
+          .select()
+          .from(userSubscriptions)
+          .where(eq(userSubscriptions.userId, job.userId))
+          .limit(1);
+        if (subscription[0]) {
+          userTier = subscription[0].tier as SubscriptionTier;
+          const tierConfig = getTierConfig(userTier);
+          shouldAddWatermark = tierConfig.features.watermark;
+        }
       }
     }
 
@@ -462,32 +481,67 @@ export async function drain(
     const ids = await claimNextJobsBatch(toClaim);
     if (ids.length === 0) break;
     const rows = await db.select().from(jobs).where(inArray(jobs.id, ids));
-    for (const job of rows) {
-      if (processed >= maxJobs || Date.now() - start >= maxMs) break;
-      await processJob(job, { alreadyClaimed: true });
+
+    // Process jobs in parallel using Promise.allSettled
+    const jobPromises = rows.map((job) => {
+      if (processed >= maxJobs || Date.now() - start >= maxMs) {
+        return Promise.resolve();
+      }
       processed++;
-      // short pause to yield between jobs
-      await new Promise((r) => setTimeout(r, 50));
-    }
+      return processJob(job, { alreadyClaimed: true });
+    });
+
+    // Wait for all jobs in this batch to complete
+    await Promise.allSettled(jobPromises);
+
+    // Short pause between batches
+    await new Promise((r) => setTimeout(r, 50));
   }
   const tookMs = Date.now() - start;
   return { processed, tookMs, timedOut: tookMs >= maxMs };
 }
 
 async function runLoop() {
-  console.log(`[worker] starting loop (poll ${POLL_INTERVAL_MS}ms)`);
+  const workerConcurrency = Number(
+    process.env.PDFPROMPT_WORKER_CONCURRENCY ?? 3,
+  );
+  console.log(
+    `[worker] starting loop (poll ${POLL_INTERVAL_MS}ms, concurrency ${workerConcurrency})`,
+  );
+
+  // Pre-warm browser pool for faster PDF generation
+  try {
+    await preWarmBrowserPool();
+  } catch (error) {
+    console.warn("[worker] Failed to pre-warm browser pool:", error);
+  }
+
   while (true) {
     try {
-      const job = await pickNextJob();
-      if (job) {
-        await processJob(job);
-        // small pause after processing
+      // Claim multiple jobs at once for concurrent processing
+      const ids = await claimNextJobsBatch(workerConcurrency);
+
+      if (ids.length > 0) {
+        console.log(`[worker] processing ${ids.length} jobs concurrently`);
+        const rows = await db.select().from(jobs).where(inArray(jobs.id, ids));
+
+        // Process all jobs in parallel
+        const jobPromises = rows.map((job) =>
+          processJob(job, { alreadyClaimed: true }),
+        );
+
+        // Wait for all jobs in this batch to complete
+        await Promise.allSettled(jobPromises);
+
+        // Small pause after batch processing
         await new Promise((r) => setTimeout(r, 200));
         continue;
       }
     } catch (err) {
       console.error("[worker] loop error", err);
     }
+
+    // No jobs found, wait before polling again
     await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
   }
 }

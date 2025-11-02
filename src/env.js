@@ -34,7 +34,17 @@ export const env = createEnv({
     PDFPROMPT_MAX_JOBS_PER_INVOCATION: z.string().optional(),
     PDFPROMPT_MAX_MS_PER_INVOCATION: z.string().optional(),
     PDFPROMPT_BATCH_SIZE: z.string().optional(),
+    PDFPROMPT_WORKER_CONCURRENCY: z.string().optional(),
+    MAX_PDF_CONCURRENCY: z.string().optional(),
     PDFPROMPT_BYPASS_AI_FOR_RTL: z.string().optional(),
+    // Database connection pooling
+    DATABASE_MAX_CONNECTIONS: z.string().optional(),
+    DATABASE_IDLE_TIMEOUT: z.string().optional(),
+    DATABASE_CONNECT_TIMEOUT: z.string().optional(),
+    // Browser pool scaling
+    BROWSER_POOL_SIZE: z.string().optional(),
+    BROWSER_IDLE_TIMEOUT: z.string().optional(),
+    BROWSER_MAX_AGE_MS: z.string().optional(),
     // Polar.sh configuration (optional - only needed for subscriptions and credit purchases)
     POLAR_ACCESS_TOKEN: z.string().optional(),
     POLAR_WEBHOOK_SECRET: z.string().optional(),
@@ -78,7 +88,15 @@ export const env = createEnv({
     PDFPROMPT_MAX_MS_PER_INVOCATION:
       process.env.PDFPROMPT_MAX_MS_PER_INVOCATION,
     PDFPROMPT_BATCH_SIZE: process.env.PDFPROMPT_BATCH_SIZE,
+    PDFPROMPT_WORKER_CONCURRENCY: process.env.PDFPROMPT_WORKER_CONCURRENCY,
+    MAX_PDF_CONCURRENCY: process.env.MAX_PDF_CONCURRENCY,
     PDFPROMPT_BYPASS_AI_FOR_RTL: process.env.PDFPROMPT_BYPASS_AI_FOR_RTL,
+    DATABASE_MAX_CONNECTIONS: process.env.DATABASE_MAX_CONNECTIONS,
+    DATABASE_IDLE_TIMEOUT: process.env.DATABASE_IDLE_TIMEOUT,
+    DATABASE_CONNECT_TIMEOUT: process.env.DATABASE_CONNECT_TIMEOUT,
+    BROWSER_POOL_SIZE: process.env.BROWSER_POOL_SIZE,
+    BROWSER_IDLE_TIMEOUT: process.env.BROWSER_IDLE_TIMEOUT,
+    BROWSER_MAX_AGE_MS: process.env.BROWSER_MAX_AGE_MS,
     POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
     POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
     TRPC_LOG_DEV_ERRORS: process.env.TRPC_LOG_DEV_ERRORS,
