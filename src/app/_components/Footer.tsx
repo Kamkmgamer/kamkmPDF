@@ -33,7 +33,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="mb-4 inline-block text-2xl font-bold">
-              Prompt-to-PDF
+              KamkmPDF
             </Link>
             <p className="mb-6 max-w-md text-[--color-text-muted]">
               Transform natural language into professional PDFs instantly. Join
@@ -161,7 +161,7 @@ export default function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between border-t border-[--color-border] pt-8 md:flex-row">
           <p className="text-sm text-[--color-text-muted]">
-            © 2025 Prompt-to-PDF. All rights reserved.
+            © 2025 KamkmPDF. All rights reserved.
           </p>
           <p className="mt-4 text-sm text-[--color-text-muted] md:mt-0">
             Made with <span className="text-[--color-text-primary]">❤️</span> for PDF creators everywhere
