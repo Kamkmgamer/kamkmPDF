@@ -45,6 +45,9 @@ export const env = createEnv({
     BROWSER_POOL_SIZE: z.string().optional(),
     BROWSER_IDLE_TIMEOUT: z.string().optional(),
     BROWSER_MAX_AGE_MS: z.string().optional(),
+    // Redis configuration (for rate limiting)
+    REDIS_URL: z.string().url().optional(),
+    REDIS_TOKEN: z.string().optional(),
     // Polar.sh configuration (optional - only needed for subscriptions and credit purchases)
     POLAR_ACCESS_TOKEN: z.string().optional(),
     POLAR_WEBHOOK_SECRET: z.string().optional(),
@@ -97,6 +100,8 @@ export const env = createEnv({
     BROWSER_POOL_SIZE: process.env.BROWSER_POOL_SIZE,
     BROWSER_IDLE_TIMEOUT: process.env.BROWSER_IDLE_TIMEOUT,
     BROWSER_MAX_AGE_MS: process.env.BROWSER_MAX_AGE_MS,
+    REDIS_URL: process.env.REDIS_URL,
+    REDIS_TOKEN: process.env.REDIS_TOKEN,
     POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
     POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
     TRPC_LOG_DEV_ERRORS: process.env.TRPC_LOG_DEV_ERRORS,
