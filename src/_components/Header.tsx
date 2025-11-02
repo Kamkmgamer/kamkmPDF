@@ -31,8 +31,8 @@ export default function Header() {
             href={isSignedIn ? "/" : "/"}
             className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white"
           >
-            <File className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-transparent">
+            <File className="h-6 w-6 text-blue-600 dark:text-cyan-400" />
+            <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-transparent dark:from-cyan-400 dark:via-blue-400 dark:to-sky-400">
               Prompt‑to‑PDF
             </span>
           </Link>
