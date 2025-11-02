@@ -10,7 +10,7 @@
 - **[/security]**
   - Add sections: Encryption, Access Controls, Audit Logs, Compliance. Link to `/gdpr`.
 - **[/help]**
-  - Add Getting Started (prompt-to-PDF), API quickstart, Billing/Usage FAQs.
+  - Add Getting Started (KamkmPDF), API quickstart, Billing/Usage FAQs.
 
 ## Blog long-tail ideas
 
