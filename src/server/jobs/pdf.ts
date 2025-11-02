@@ -122,7 +122,7 @@ export async function generatePdfToPath(
         .replace(/>/g, "&gt;")}</pre>
       <p style="margin-top:16px; font-size: 12px;">Generated at: ${new Date().toISOString()}</p>
     </main>`;
-    const htmlDoc = wrapHtmlDocument(fallbackBody, "Prompt-to-PDF Document");
+    const htmlDoc = wrapHtmlDocument(fallbackBody, "KamkmPDF Document");
     await htmlToPdfToPath(htmlDoc, filePath, {
       format: "A4",
       printBackground: true,
@@ -433,7 +433,7 @@ export async function generatePdfBuffer(opts: {
       <p style="margin-top:16px; font-size: 12px; font-feature-settings: 'liga' 1, 'kern' 1;">Generated at: ${new Date().toISOString()}</p>
       ${detectedLanguages.length > 0 ? `<p style="margin-top:8px; font-size: 10px; color: #666;">Detected languages: ${detectedLanguages.join(", ")}</p>` : ""}
     </main>`;
-    const htmlDoc = wrapHtmlDocument(fallbackBody, "Prompt-to-PDF Document");
+    const htmlDoc = wrapHtmlDocument(fallbackBody, "KamkmPDF Document");
     await opts.onStage?.("Formatting PDF", 70);
     const buf = await htmlToPdfToBuffer(htmlDoc, {
       format: "A4",
