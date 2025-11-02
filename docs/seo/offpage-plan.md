@@ -9,7 +9,7 @@
 
 ## Guest post topics
 
-- Prompt-to-PDF: shipping proposals 10x faster
+- KamkmPDF: shipping proposals 10x faster
 - Practical guide to PDF generation in modern web stacks
 - AI-assisted document automation: workflows that work
 
