@@ -31,14 +31,14 @@ export const createTRPCContext = async (opts: {
   headers: Headers;
   req?: Request;
 }) => {
-  // Use Clerk to get the current user/session from the request headers if present.
-  // Note: When using Next.js API handlers, pass the incoming Request to this helper via opts.req.
+  // Use Clerk to get the current user/session from the request
   let clerkUserId: string | null = null;
   try {
-    // getAuth works with Next.js / Next API; it expects headers and cookies context. If this call
-    // doesn't apply in your environment, it will safely return null fields.
-    const auth = getAuth(opts.req as unknown as NextRequest);
-    if (auth?.userId) clerkUserId = auth.userId;
+    // getAuth() works with API routes in Next.js App Router
+    if (opts.req) {
+      const authResult = getAuth(opts.req as unknown as NextRequest);
+      if (authResult?.userId) clerkUserId = authResult.userId;
+    }
   } catch {
     // ignore parsing errors; auth stays null
     clerkUserId = null;
