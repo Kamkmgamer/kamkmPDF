@@ -13,6 +13,65 @@ export default function Header() {
   const [open, setOpen] = React.useState(false);
   const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
+  const isDark = theme === "dark";
+
+  const clerkAppearance = {
+    layout: {
+      socialButtonsVariant: "blockButton" as const,
+    },
+    variables: isDark
+      ? {
+          colorBackground: "#0a0a0a",
+          colorInputBackground: "#1a1a1a",
+          colorInputText: "#ffffff",
+          colorText: "#ffffff",
+          colorTextSecondary: "#a1a1aa",
+          colorPrimary: "#3b82f6",
+          colorDanger: "#ef4444",
+          borderRadius: "0.5rem",
+        }
+      : {
+          colorBackground: "#ffffff",
+          colorInputBackground: "#ffffff",
+          colorInputText: "#0f172a",
+          colorText: "#0f172a",
+          colorTextSecondary: "#475569",
+          colorPrimary: "#2563eb",
+          colorDanger: "#dc2626",
+          borderRadius: "0.5rem",
+        },
+    elements: isDark
+      ? {
+          card: "bg-[#0a0a0a] border border-zinc-800",
+          headerTitle: "text-white",
+          headerSubtitle: "text-zinc-400",
+          socialButtonsBlockButton:
+            "bg-[#1a1a1a] border border-zinc-800 text-white hover:bg-[#252525]",
+          formButtonPrimary: "bg-blue-600 hover:bg-blue-700 text-white",
+          footerActionLink: "text-blue-500 hover:text-blue-400",
+          identityPreviewText: "text-white",
+          identityPreviewEditButton: "text-blue-500",
+          formFieldLabel: "text-zinc-300",
+          formFieldInput: "bg-[#1a1a1a] border-zinc-800 text-white",
+          dividerLine: "bg-zinc-800",
+          dividerText: "text-zinc-500",
+        }
+      : {
+          card: "bg-white border border-gray-200",
+          headerTitle: "text-gray-900",
+          headerSubtitle: "text-gray-600",
+          socialButtonsBlockButton:
+            "bg-white border border-gray-300 text-gray-900 hover:bg-gray-50",
+          formButtonPrimary: "bg-blue-600 hover:bg-blue-700 text-white",
+          footerActionLink: "text-blue-600 hover:text-blue-700",
+          identityPreviewText: "text-gray-900",
+          identityPreviewEditButton: "text-blue-600",
+          formFieldLabel: "text-gray-700",
+          formFieldInput: "bg-white border-gray-300 text-gray-900",
+          dividerLine: "bg-gray-300",
+          dividerText: "text-gray-600",
+        },
+  };
 
   React.useEffect(() => {
     setMounted(true);
@@ -33,7 +92,7 @@ export default function Header() {
           >
             <File className="h-6 w-6 text-blue-600 dark:text-cyan-400" />
             <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-transparent dark:from-cyan-400 dark:via-blue-400 dark:to-sky-400">
-              Prompt‑to‑PDF
+              KamkmPDF
             </span>
           </Link>
         </div>
@@ -117,6 +176,7 @@ export default function Header() {
                     mode="modal"
                     forceRedirectUrl="/dashboard"
                     fallbackRedirectUrl="/dashboard"
+                    appearance={clerkAppearance}
                   >
                     <button className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
                       Sign In
@@ -126,6 +186,7 @@ export default function Header() {
                     mode="modal"
                     forceRedirectUrl="/dashboard"
                     fallbackRedirectUrl="/dashboard"
+                    appearance={clerkAppearance}
                   >
                     <button className="rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg">
                       Get Started
@@ -205,6 +266,7 @@ export default function Header() {
                     mode="modal"
                     forceRedirectUrl="/dashboard"
                     fallbackRedirectUrl="/dashboard"
+                    appearance={clerkAppearance}
                   >
                     <button className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
                       Sign In
@@ -214,6 +276,7 @@ export default function Header() {
                     mode="modal"
                     forceRedirectUrl="/dashboard"
                     fallbackRedirectUrl="/dashboard"
+                    appearance={clerkAppearance}
                   >
                     <button className="w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-lg font-medium text-white">
                       Get Started

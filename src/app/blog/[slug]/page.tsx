@@ -18,7 +18,7 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: "Post Not Found - kamkmPDF Blog",
+      title: "Post Not Found - KamkmPDF Blog",
     };
   }
 

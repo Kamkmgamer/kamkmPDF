@@ -18,12 +18,16 @@ interface WelcomeEmailProps {
   pdfsRemaining: number;
 }
 
-export default function WelcomeEmail({ name, pdfsRemaining = 3 }: WelcomeEmailProps) {
+export default function WelcomeEmail({
+  name,
+  pdfsRemaining = 3,
+}: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
       <Preview>
-        Welcome to kamkmPDF! You have {String(pdfsRemaining)} free PDFs to get started.
+        Welcome to KamkmPDF! You have {String(pdfsRemaining)} free PDFs to get
+        started.
       </Preview>
       <Body style={main}>
         <Container style={container}>
@@ -33,21 +37,23 @@ export default function WelcomeEmail({ name, pdfsRemaining = 3 }: WelcomeEmailPr
               src="https://ik.imagekit.io/gtnmxyt2d/servises%20store/K.png"
               width="140"
               height="140"
-              alt="kamkmPDF Logo"
+              alt="KamkmPDF Logo"
               style={logoImage}
             />
           </Section>
 
           {/* Greeting */}
-          <Heading style={h1}>Welcome to kamkmPDF, {name}! 🎉</Heading>
+          <Heading style={h1}>Welcome to KamkmPDF, {name}! 🎉</Heading>
           <Text style={lead}>
-            Thank you for signing up! We're excited to help you create amazing PDFs with AI.
+            Thank you for signing up! We're excited to help you create amazing
+            PDFs with AI.
           </Text>
 
           {/* Free PDFs Info */}
           <Section style={highlightBox}>
             <Text style={highlightText}>
-              <strong>You have {String(pdfsRemaining)} free PDFs</strong> to generate this month with our AI-powered platform.
+              <strong>You have {String(pdfsRemaining)} free PDFs</strong> to
+              generate this month with our AI-powered platform.
             </Text>
           </Section>
 
@@ -64,7 +70,7 @@ export default function WelcomeEmail({ name, pdfsRemaining = 3 }: WelcomeEmailPr
           <Section style={buttonContainer}>
             <Link
               style={button}
-              href="https://kamkmpdf.com/dashboard"
+              href="https://KamkmPDF.com/dashboard"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -76,13 +82,15 @@ export default function WelcomeEmail({ name, pdfsRemaining = 3 }: WelcomeEmailPr
 
           {/* Upgrade Teaser */}
           <Text style={text}>
-            <strong>Want more?</strong> Upgrade to Professional or Pro+ for unlimited PDFs, no watermarks, and premium AI models with priority processing.
+            <strong>Want more?</strong> Upgrade to Professional or Pro+ for
+            unlimited PDFs, no watermarks, and premium AI models with priority
+            processing.
           </Text>
 
           <Section style={buttonContainer}>
             <Link
               style={secondaryButton}
-              href="https://kamkmpdf.com/pricing"
+              href="https://KamkmPDF.com/pricing"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -96,12 +104,13 @@ export default function WelcomeEmail({ name, pdfsRemaining = 3 }: WelcomeEmailPr
           <Text style={footerText}>
             Happy creating!
             <br />
-            <span style={{ fontWeight: "bold" }}>The kamkmPDF Team</span>
+            <span style={{ fontWeight: "bold" }}>The KamkmPDF Team</span>
           </Text>
 
           {/* Disclaimer */}
           <Text style={disclaimer}>
-            You're receiving this email because you signed up for kamkmPDF. If you didn't create this account, please ignore this message.
+            You're receiving this email because you signed up for KamkmPDF. If
+            you didn't create this account, please ignore this message.
           </Text>
         </Container>
       </Body>

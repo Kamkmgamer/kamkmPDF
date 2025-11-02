@@ -23,7 +23,7 @@ const steps: OnboardingStep[] = [
   {
     id: 0,
     icon: <Rocket className="h-12 w-12" />,
-    title: "Welcome to kamkmpdf!",
+    title: "Welcome to KamkmPDF!",
     description:
       "Let's show you how easy it is to create professional PDFs in seconds.",
     gradient: "from-blue-500 via-cyan-500 to-sky-500",

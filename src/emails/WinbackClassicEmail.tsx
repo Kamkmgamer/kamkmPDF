@@ -18,9 +18,9 @@ interface WinbackClassicEmailProps {
   previousTier: string;
 }
 
-export default function WinbackClassicEmail({ 
-  name, 
-  previousTier = "Professional"
+export default function WinbackClassicEmail({
+  name,
+  previousTier = "Professional",
 }: WinbackClassicEmailProps) {
   return (
     <Html>
@@ -36,7 +36,7 @@ export default function WinbackClassicEmail({
               src="https://ik.imagekit.io/gtnmxyt2d/servises%20store/K.png"
               width="140"
               height="140"
-              alt="kamkmPDF Logo"
+              alt="KamkmPDF Logo"
               style={logoImage}
             />
           </Section>
@@ -49,24 +49,19 @@ export default function WinbackClassicEmail({
           {/* Greeting */}
           <Heading style={h1}>We Miss You, {name}! 💙</Heading>
           <Text style={lead}>
-            We noticed you cancelled your {previousTier} plan. We'd love to have you back!
+            We noticed you cancelled your {previousTier} plan. We'd love to have
+            you back!
           </Text>
 
           {/* Offer Box */}
           <Section style={offerBox}>
-            <Text style={offerTitle}>
-              Exclusive Comeback Offer
-            </Text>
-            <Text style={offerSubtitle}>
-              Classic Plan - Just for You
-            </Text>
+            <Text style={offerTitle}>Exclusive Comeback Offer</Text>
+            <Text style={offerSubtitle}>Classic Plan - Just for You</Text>
             <Text style={offerPrice}>
               <span style={bigPrice}>$5</span>
               <span style={perMonth}>/month</span>
             </Text>
-            <Text style={offerSavings}>
-              58% OFF Regular Price!
-            </Text>
+            <Text style={offerSavings}>58% OFF Regular Price!</Text>
           </Section>
 
           {/* What's Included */}
@@ -74,18 +69,30 @@ export default function WinbackClassicEmail({
             <strong>Get back to creating with Classic:</strong>
           </Text>
 
-          <Text style={listItem}>✅ <strong>50 PDFs per month</strong></Text>
-          <Text style={listItem}>✅ <strong>No watermarks</strong></Text>
-          <Text style={listItem}>✅ <strong>Premium templates</strong></Text>
-          <Text style={listItem}>✅ <strong>500 MB permanent storage</strong></Text>
-          <Text style={listItem}>✅ <strong>Version history</strong> (5 versions)</Text>
-          <Text style={listItem}>✅ <strong>Email support</strong></Text>
+          <Text style={listItem}>
+            ✅ <strong>50 PDFs per month</strong>
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>No watermarks</strong>
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>Premium templates</strong>
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>500 MB permanent storage</strong>
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>Version history</strong> (5 versions)
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>Email support</strong>
+          </Text>
 
           {/* Call-to-action */}
           <Section style={buttonContainer}>
             <Link
               style={button}
-              href="https://kamkmpdf.com/api/polar/create-checkout?tier=classic&offer=winback"
+              href="https://KamkmPDF.com/api/polar/create-checkout?tier=classic&offer=winback"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -102,7 +109,9 @@ export default function WinbackClassicEmail({
           {/* Why Come Back */}
           <Section style={testimonialBox}>
             <Text style={testimonialText}>
-              "I cancelled my subscription but realized I was using kamkmPDF more than I thought. The Classic plan is perfect for my needs at an amazing price!"
+              "I cancelled my subscription but realized I was using KamkmPDF
+              more than I thought. The Classic plan is perfect for my needs at
+              an amazing price!"
             </Text>
             <Text style={testimonialAuthor}>
               - Sarah M., Freelance Designer
@@ -125,22 +134,30 @@ export default function WinbackClassicEmail({
             <tr>
               <td style={comparisonCell}>PDFs/month</td>
               <td style={comparisonCell}>3</td>
-              <td style={comparisonCellHighlight}><strong>50</strong></td>
+              <td style={comparisonCellHighlight}>
+                <strong>50</strong>
+              </td>
             </tr>
             <tr>
               <td style={comparisonCell}>Watermarks</td>
               <td style={comparisonCell}>Yes ❌</td>
-              <td style={comparisonCellHighlight}><strong>No ✅</strong></td>
+              <td style={comparisonCellHighlight}>
+                <strong>No ✅</strong>
+              </td>
             </tr>
             <tr>
               <td style={comparisonCell}>Storage</td>
               <td style={comparisonCell}>50 MB (30 days)</td>
-              <td style={comparisonCellHighlight}><strong>500 MB (permanent)</strong></td>
+              <td style={comparisonCellHighlight}>
+                <strong>500 MB (permanent)</strong>
+              </td>
             </tr>
             <tr>
               <td style={comparisonCell}>Templates</td>
               <td style={comparisonCell}>3 basic</td>
-              <td style={comparisonCellHighlight}><strong>10+ premium</strong></td>
+              <td style={comparisonCellHighlight}>
+                <strong>10+ premium</strong>
+              </td>
             </tr>
           </table>
 
@@ -148,14 +165,15 @@ export default function WinbackClassicEmail({
 
           {/* Closing */}
           <Text style={footerText}>
-            We'd love to have you back in the kamkmPDF family!
+            We'd love to have you back in the KamkmPDF family!
             <br />
-            <span style={{ fontWeight: "bold" }}>The kamkmPDF Team</span>
+            <span style={{ fontWeight: "bold" }}>The KamkmPDF Team</span>
           </Text>
 
           {/* Disclaimer */}
           <Text style={disclaimer}>
-            This is an exclusive comeback offer for previous subscribers. Offer valid for 72 hours from receipt of this email.
+            This is an exclusive comeback offer for previous subscribers. Offer
+            valid for 72 hours from receipt of this email.
           </Text>
         </Container>
       </Body>

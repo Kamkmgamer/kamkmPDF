@@ -16,14 +16,14 @@ export async function generateMetadata({
 
   if (!page) {
     return {
-      title: "Page Not Found - kamkmPDF Documentation",
+      title: "Page Not Found - KamkmPDF Documentation",
     };
   }
 
   return {
     title:
       page.seoTitle ??
-      `${page.title ?? "Documentation"} - kamkmPDF Documentation`,
+      `${page.title ?? "Documentation"} - KamkmPDF Documentation`,
     description: page.seoDescription ?? page.description ?? undefined,
   };
 }

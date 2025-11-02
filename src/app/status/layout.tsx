@@ -4,19 +4,19 @@ import Footer from "~/app/_components/Footer";
 export const revalidate = 86400; // 24h ISR for marketing page
 
 export const metadata: Metadata = {
-  title: "Status | kamkmPDF",
-  description: "Service status and uptime for kamkmPDF.",
+  title: "Status | KamkmPDF",
+  description: "Service status and uptime for KamkmPDF.",
   alternates: { canonical: "/status" },
   openGraph: {
-    title: "Status | kamkmPDF",
-    description: "Service status and uptime for kamkmPDF",
+    title: "Status | KamkmPDF",
+    description: "Service status and uptime for KamkmPDF",
     url: "/status",
     images: ["/og/status.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Status | kamkmPDF",
-    description: "Service status and uptime for kamkmPDF",
+    title: "Status | KamkmPDF",
+    description: "Service status and uptime for KamkmPDF",
     images: ["/og/status.png"],
   },
 };

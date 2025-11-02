@@ -4,19 +4,19 @@ import Footer from "~/app/_components/Footer";
 export const revalidate = 86400; // 24h ISR for marketing page
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | kamkmPDF",
-  description: "Read the kamkmPDF Privacy Policy.",
+  title: "Privacy Policy | KamkmPDF",
+  description: "Read the KamkmPDF Privacy Policy.",
   alternates: { canonical: "/privacy" },
   openGraph: {
-    title: "Privacy Policy | kamkmPDF",
-    description: "Read the kamkmPDF Privacy Policy",
+    title: "Privacy Policy | KamkmPDF",
+    description: "Read the KamkmPDF Privacy Policy",
     url: "/privacy",
     images: ["/og/privacy.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Privacy Policy | kamkmPDF",
-    description: "Read the kamkmPDF Privacy Policy",
+    title: "Privacy Policy | KamkmPDF",
+    description: "Read the KamkmPDF Privacy Policy",
     images: ["/og/privacy.png"],
   },
 };

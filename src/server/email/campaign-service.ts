@@ -4,7 +4,11 @@
  */
 
 import { db } from "../db";
-import { emailCampaigns, emailCampaignEvents, emailPreferences } from "../db/schema";
+import {
+  emailCampaigns,
+  emailCampaignEvents,
+  emailPreferences,
+} from "../db/schema";
 import { eq, and, lte } from "drizzle-orm";
 import { Resend } from "resend";
 import { nanoid } from "nanoid";
@@ -18,12 +22,12 @@ import FinalWinbackEmail from "~/emails/FinalWinbackEmail";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export type CampaignType = "free_user_funnel" | "churned_user_funnel";
-export type EmailType = 
-  | "welcome" 
-  | "quota_reminder" 
-  | "classic_offer" 
-  | "cancellation" 
-  | "winback" 
+export type EmailType =
+  | "welcome"
+  | "quota_reminder"
+  | "classic_offer"
+  | "cancellation"
+  | "winback"
   | "final_winback";
 
 interface ScheduleEmailParams {
@@ -62,15 +66,18 @@ export async function scheduleEmail(params: ScheduleEmailParams) {
   scheduledFor.setDate(scheduledFor.getDate() + daysDelay);
 
   // Create campaign record
-  const campaign = await db.insert(emailCampaigns).values({
-    id: nanoid(),
-    userId,
-    campaignType,
-    emailType,
-    scheduledFor,
-    status: "scheduled",
-    metadata: metadata ?? {},
-  }).returning();
+  const campaign = await db
+    .insert(emailCampaigns)
+    .values({
+      id: nanoid(),
+      userId,
+      campaignType,
+      emailType,
+      scheduledFor,
+      status: "scheduled",
+      metadata: metadata ?? {},
+    })
+    .returning();
 
   return campaign[0];
 }
@@ -82,7 +89,7 @@ export async function scheduleFreeUserFunnel(
   userId: string,
   userEmail: string,
   userName: string,
-  pdfsRemaining = 3
+  pdfsRemaining = 3,
 ) {
   // Day 0: Welcome email
   await scheduleEmail({
@@ -126,7 +133,7 @@ export async function scheduleChurnedUserFunnel(
   userEmail: string,
   userName: string,
   previousTier: string,
-  subscriptionEndDate: string
+  subscriptionEndDate: string,
 ) {
   // Day 0: Cancellation confirmation
   await scheduleEmail({
@@ -172,7 +179,7 @@ export async function processPendingEmails() {
   const pendingCampaigns = await db.query.emailCampaigns.findMany({
     where: and(
       eq(emailCampaigns.status, "scheduled"),
-      lte(emailCampaigns.scheduledFor, now)
+      lte(emailCampaigns.scheduledFor, now),
     ),
   });
 
@@ -183,9 +190,10 @@ export async function processPendingEmails() {
       await sendCampaignEmail(campaign);
     } catch (error) {
       console.error(`Failed to send campaign ${campaign.id}:`, error);
-      
+
       // Mark as failed
-      await db.update(emailCampaigns)
+      await db
+        .update(emailCampaigns)
         .set({ status: "failed" })
         .where(eq(emailCampaigns.id, campaign.id));
     }
@@ -207,7 +215,8 @@ async function sendCampaignEmail(campaign: typeof emailCampaigns.$inferSelect) {
   });
 
   if (prefs?.unsubscribedFromMarketing) {
-    await db.update(emailCampaigns)
+    await db
+      .update(emailCampaigns)
       .set({ status: "cancelled" })
       .where(eq(emailCampaigns.id, campaign.id));
     return;
@@ -223,7 +232,7 @@ async function sendCampaignEmail(campaign: typeof emailCampaigns.$inferSelect) {
         name: userName,
         pdfsRemaining: campaign.metadata?.pdfsRemaining ?? 3,
       });
-      subject = "Welcome to kamkmPDF! 🎉";
+      subject = "Welcome to KamkmPDF! 🎉";
       break;
 
     case "quota_reminder":
@@ -274,7 +283,7 @@ async function sendCampaignEmail(campaign: typeof emailCampaigns.$inferSelect) {
 
   // Send email via Resend
   const { error } = await resend.emails.send({
-    from: "kamkmPDF <noreply@kamkmpdf.com>",
+    from: "KamkmPDF <noreply@KamkmPDF.com>",
     to: userEmail,
     subject,
     react: emailComponent,
@@ -285,8 +294,9 @@ async function sendCampaignEmail(campaign: typeof emailCampaigns.$inferSelect) {
   }
 
   // Mark as sent
-  await db.update(emailCampaigns)
-    .set({ 
+  await db
+    .update(emailCampaigns)
+    .set({
       status: "sent",
       sentAt: new Date(),
     })
@@ -310,7 +320,7 @@ export async function trackCampaignEvent(
   campaignId: string,
   userId: string,
   eventType: "opened" | "clicked" | "converted" | "unsubscribed",
-  eventData?: { link?: string; tier?: string; revenue?: number }
+  eventData?: { link?: string; tier?: string; revenue?: number },
 ) {
   await db.insert(emailCampaignEvents).values({
     id: nanoid(),
@@ -324,21 +334,22 @@ export async function trackCampaignEvent(
 /**
  * Cancel all pending campaigns for a user
  */
-export async function cancelUserCampaigns(userId: string, campaignType?: CampaignType) {
+export async function cancelUserCampaigns(
+  userId: string,
+  campaignType?: CampaignType,
+) {
   const where = campaignType
     ? and(
         eq(emailCampaigns.userId, userId),
         eq(emailCampaigns.campaignType, campaignType),
-        eq(emailCampaigns.status, "scheduled")
+        eq(emailCampaigns.status, "scheduled"),
       )
     : and(
         eq(emailCampaigns.userId, userId),
-        eq(emailCampaigns.status, "scheduled")
+        eq(emailCampaigns.status, "scheduled"),
       );
 
-  await db.update(emailCampaigns)
-    .set({ status: "cancelled" })
-    .where(where);
+  await db.update(emailCampaigns).set({ status: "cancelled" }).where(where);
 }
 
 /**
@@ -351,8 +362,9 @@ export async function unsubscribeUser(userId: string) {
   });
 
   if (existing) {
-    await db.update(emailPreferences)
-      .set({ 
+    await db
+      .update(emailPreferences)
+      .set({
         unsubscribedFromMarketing: true,
         unsubscribedAt: new Date(),
       })

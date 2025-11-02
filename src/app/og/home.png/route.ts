@@ -73,7 +73,7 @@ export async function GET() {
             flexDirection: "column",
           },
         },
-        React.createElement("div", { style: badgeStyle }, "kamkmPDF"),
+        React.createElement("div", { style: badgeStyle }, "KamkmPDF"),
         React.createElement(
           "h1",
           { style: h1Style },

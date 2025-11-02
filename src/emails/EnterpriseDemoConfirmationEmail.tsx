@@ -26,7 +26,8 @@ export default function EnterpriseDemoConfirmationEmail({
     <Html>
       <Head />
       <Preview>
-        Thanks for requesting a kamkmPDF Enterprise demo — we'll reach out within 24 hours.
+        Thanks for requesting a KamkmPDF Enterprise demo — we'll reach out
+        within 24 hours.
       </Preview>
       <Body style={main}>
         <Container style={container}>
@@ -35,28 +36,35 @@ export default function EnterpriseDemoConfirmationEmail({
               src="https://ik.imagekit.io/gtnmxyt2d/servises%20store/K.png"
               width="140"
               height="140"
-              alt="kamkmPDF Logo"
+              alt="KamkmPDF Logo"
               style={logoImage}
             />
           </Section>
 
           <Heading style={h1}>Thanks, {firstName}!</Heading>
           <Text style={lead}>
-            We've received your request for a kamkmPDF Enterprise demo for {company}. Our team will get in
-            touch within <strong>24 hours</strong> to coordinate the best time.
+            We've received your request for a KamkmPDF Enterprise demo for{" "}
+            {company}. Our team will get in touch within{" "}
+            <strong>24 hours</strong> to coordinate the best time.
           </Text>
 
           <Section style={infoBox}>
             <Text style={infoTitle}>Here's what happens next:</Text>
-            <Text style={listItem}>• We review your goals and requirements.</Text>
-            <Text style={listItem}>• Schedule a 30-minute discovery and live demo session.</Text>
-            <Text style={listItem}>• Share a custom proposal tailored to your needs.</Text>
+            <Text style={listItem}>
+              • We review your goals and requirements.
+            </Text>
+            <Text style={listItem}>
+              • Schedule a 30-minute discovery and live demo session.
+            </Text>
+            <Text style={listItem}>
+              • Share a custom proposal tailored to your needs.
+            </Text>
           </Section>
 
           <Text style={text}>
-            Need to reach us sooner? Email our enterprise team at {" "}
-            <Link style={link} href="mailto:enterprise@kamkmpdf.com">
-              enterprise@kamkmpdf.com
+            Need to reach us sooner? Email our enterprise team at{" "}
+            <Link style={link} href="mailto:enterprise@KamkmPDF.com">
+              enterprise@KamkmPDF.com
             </Link>
             .
           </Text>
@@ -64,14 +72,14 @@ export default function EnterpriseDemoConfirmationEmail({
           <Hr style={divider} />
 
           <Text style={footerText}>
-            We're excited to show you how kamkmPDF can scale with your organization.
-            <br />
-            — The kamkmPDF Enterprise Team
+            We're excited to show you how KamkmPDF can scale with your
+            organization.
+            <br />— The KamkmPDF Enterprise Team
           </Text>
 
           <Text style={disclaimer}>
-            You're receiving this email because you requested an enterprise demo. If this wasn't you, please
-            ignore this email.
+            You're receiving this email because you requested an enterprise
+            demo. If this wasn't you, please ignore this email.
           </Text>
         </Container>
       </Body>

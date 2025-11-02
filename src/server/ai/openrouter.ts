@@ -140,7 +140,7 @@ export function wrapHtmlDocument(
 
   const watermarkHtml = addWatermark
     ? `<div style="position: fixed; bottom: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #64748b; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        Generated with <strong style="color: #0ea5e9;">KamkmPDF</strong> • <a href="${env.NEXT_PUBLIC_APP_URL ?? "https://kamkmpdf.com"}/pricing" style="color: #0ea5e9; text-decoration: none;">Upgrade to remove</a>
+        Generated with <strong style="color: #0ea5e9;">KamkmPDF</strong> • <a href="${env.NEXT_PUBLIC_APP_URL ?? "https://KamkmPDF.com"}/pricing" style="color: #0ea5e9; text-decoration: none;">Upgrade to remove</a>
       </div>`
     : "";
 

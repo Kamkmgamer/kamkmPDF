@@ -4,19 +4,19 @@ import Footer from "~/app/_components/Footer";
 export const revalidate = 86400; // 24h ISR for marketing page
 
 export const metadata: Metadata = {
-  title: "GDPR | kamkmPDF",
-  description: "GDPR compliance and data protection practices at kamkmPDF.",
+  title: "GDPR | KamkmPDF",
+  description: "GDPR compliance and data protection practices at KamkmPDF.",
   alternates: { canonical: "/gdpr" },
   openGraph: {
-    title: "GDPR | kamkmPDF",
-    description: "GDPR compliance at kamkmPDF",
+    title: "GDPR | KamkmPDF",
+    description: "GDPR compliance at KamkmPDF",
     url: "/gdpr",
     images: ["/og/gdpr.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "GDPR | kamkmPDF",
-    description: "GDPR compliance at kamkmPDF",
+    title: "GDPR | KamkmPDF",
+    description: "GDPR compliance at KamkmPDF",
     images: ["/og/gdpr.png"],
   },
 };

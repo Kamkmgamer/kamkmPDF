@@ -18,7 +18,7 @@ const sections = [
   },
   {
     title: "How we use cookies",
-    text: "kamkmPDF uses cookies to provide core functionality, analyze usage, remember user settings, and deliver a smooth user experience.",
+    text: "KamkmPDF uses cookies to provide core functionality, analyze usage, remember user settings, and deliver a smooth user experience.",
     icon: Settings,
   },
   {
@@ -28,12 +28,12 @@ const sections = [
   },
   {
     title: "Managing your cookies",
-    text: "You can manage or delete cookies through your browser settings. Please note that disabling cookies may affect the functionality of kamkmPDF.",
+    text: "You can manage or delete cookies through your browser settings. Please note that disabling cookies may affect the functionality of KamkmPDF.",
     icon: Settings,
   },
   {
     title: "Third-party cookies",
-    text: "Some third-party services integrated into kamkmPDF may use their own cookies, such as payment processors or analytics providers. These are governed by their respective privacy policies.",
+    text: "Some third-party services integrated into KamkmPDF may use their own cookies, such as payment processors or analytics providers. These are governed by their respective privacy policies.",
     icon: Shield,
   },
 ];
@@ -76,7 +76,7 @@ export default function CookiesPage() {
         >
           We value your privacy. This page explains how{" "}
           <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text font-semibold text-transparent dark:from-orange-400 dark:to-red-400">
-            kamkmPDF
+            KamkmPDF
           </span>{" "}
           uses cookies to make our service fast, secure, and personalized.
         </motion.p>
@@ -144,7 +144,7 @@ export default function CookiesPage() {
               </h2>
               <p className="mt-4 text-xl text-white/90">
                 Reach out to us if you&apos;d like more information on how
-                cookies are handled at kamkmPDF.
+                cookies are handled at KamkmPDF.
               </p>
               <div className="mt-8">
                 <motion.div

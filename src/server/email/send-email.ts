@@ -29,9 +29,9 @@ export async function sendWelcomeEmail({
     console.log(`[Email] Sending welcome email to ${toEmail}`);
 
     const { data, error } = await resend.emails.send({
-      from: `kamkmPDF <${FROM_EMAIL}>`,
+      from: `KamkmPDF <${FROM_EMAIL}>`,
       to: toEmail,
-      subject: "Welcome to kamkmPDF! 🎉",
+      subject: "Welcome to KamkmPDF! 🎉",
       react: WelcomeEmail({
         name: userName,
         pdfsRemaining,
@@ -67,7 +67,7 @@ export async function sendEmail({
 }) {
   try {
     const { data, error } = await resend.emails.send({
-      from: from ?? `kamkmPDF <${FROM_EMAIL}>`,
+      from: from ?? `KamkmPDF <${FROM_EMAIL}>`,
       to,
       subject,
       react,
@@ -85,4 +85,3 @@ export async function sendEmail({
     throw error;
   }
 }
-

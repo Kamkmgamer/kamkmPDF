@@ -19,16 +19,17 @@ interface CancellationEmailProps {
   endDate: string;
 }
 
-export default function CancellationEmail({ 
-  name, 
+export default function CancellationEmail({
+  name,
   tier = "Professional",
-  endDate = "January 31, 2025"
+  endDate = "January 31, 2025",
 }: CancellationEmailProps) {
   return (
     <Html>
       <Head />
       <Preview>
-        We're sorry to see you go. Your {tier} features remain active until {endDate}.
+        We're sorry to see you go. Your {tier} features remain active until{" "}
+        {endDate}.
       </Preview>
       <Body style={main}>
         <Container style={container}>
@@ -38,16 +39,14 @@ export default function CancellationEmail({
               src="https://ik.imagekit.io/gtnmxyt2d/servises%20store/K.png"
               width="140"
               height="140"
-              alt="kamkmPDF Logo"
+              alt="KamkmPDF Logo"
               style={logoImage}
             />
           </Section>
 
           {/* Greeting */}
           <Heading style={h1}>We're Sorry to See You Go, {name} 😢</Heading>
-          <Text style={lead}>
-            Your {tier} subscription has been cancelled.
-          </Text>
+          <Text style={lead}>Your {tier} subscription has been cancelled.</Text>
 
           {/* Info Box */}
           <Section style={infoBox}>
@@ -57,7 +56,8 @@ export default function CancellationEmail({
               <span style={dateText}>{endDate}</span>
             </Text>
             <Text style={infoSubtext}>
-              You can continue using all premium features until this date. After that, your account will revert to the Free plan.
+              You can continue using all premium features until this date. After
+              that, your account will revert to the Free plan.
             </Text>
           </Section>
 
@@ -78,14 +78,16 @@ export default function CancellationEmail({
           {/* Feedback Request */}
           <Text style={text}>
             <strong>We'd love to hear from you:</strong>
-            <br /><br />
-            Could you take a moment to tell us why you cancelled? Your feedback helps us improve kamkmPDF for everyone.
+            <br />
+            <br />
+            Could you take a moment to tell us why you cancelled? Your feedback
+            helps us improve KamkmPDF for everyone.
           </Text>
 
           <Section style={buttonContainer}>
             <Link
               style={secondaryButton}
-              href="https://kamkmpdf.com/feedback?type=cancellation"
+              href="https://KamkmPDF.com/feedback?type=cancellation"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -99,13 +101,14 @@ export default function CancellationEmail({
           <Text style={centerText}>
             <strong>Changed your mind?</strong>
             <br />
-            You can reactivate your subscription anytime before {endDate} to keep all your premium features.
+            You can reactivate your subscription anytime before {endDate} to
+            keep all your premium features.
           </Text>
 
           <Section style={buttonContainer}>
             <Link
               style={button}
-              href="https://kamkmpdf.com/dashboard/subscription"
+              href="https://KamkmPDF.com/dashboard/subscription"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -117,14 +120,15 @@ export default function CancellationEmail({
 
           {/* Closing */}
           <Text style={footerText}>
-            Thank you for being part of kamkmPDF. We hope to see you again soon!
+            Thank you for being part of KamkmPDF. We hope to see you again soon!
             <br />
-            <span style={{ fontWeight: "bold" }}>The kamkmPDF Team</span>
+            <span style={{ fontWeight: "bold" }}>The KamkmPDF Team</span>
           </Text>
 
           {/* Disclaimer */}
           <Text style={disclaimer}>
-            If you didn't cancel your subscription, please contact us immediately at support@kamkmpdf.com
+            If you didn't cancel your subscription, please contact us
+            immediately at support@KamkmPDF.com
           </Text>
         </Container>
       </Body>

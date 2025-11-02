@@ -18,16 +18,14 @@ interface ClassicOfferEmailProps {
   pdfsUsed: number;
 }
 
-export default function ClassicOfferEmail({ 
-  name, 
-  pdfsUsed = 3
+export default function ClassicOfferEmail({
+  name,
+  pdfsUsed = 3,
 }: ClassicOfferEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>
-        🎁 Exclusive offer: Unlimited PDFs for just $5/month!
-      </Preview>
+      <Preview>🎁 Exclusive offer: Unlimited PDFs for just $5/month!</Preview>
       <Body style={main}>
         <Container style={container}>
           {/* Logo */}
@@ -36,7 +34,7 @@ export default function ClassicOfferEmail({
               src="https://ik.imagekit.io/gtnmxyt2d/servises%20store/K.png"
               width="140"
               height="140"
-              alt="kamkmPDF Logo"
+              alt="KamkmPDF Logo"
               style={logoImage}
             />
           </Section>
@@ -47,25 +45,24 @@ export default function ClassicOfferEmail({
           </Section>
 
           {/* Greeting */}
-          <Heading style={h1}>{name}, We Have a Special Offer for You! 💎</Heading>
+          <Heading style={h1}>
+            {name}, We Have a Special Offer for You! 💎
+          </Heading>
           <Text style={lead}>
-            You've generated {pdfsUsed} PDFs with us. We'd love to help you create even more!
+            You've generated {pdfsUsed} PDFs with us. We'd love to help you
+            create even more!
           </Text>
 
           {/* Offer Box */}
           <Section style={offerBox}>
-            <Text style={offerTitle}>
-              Classic Plan - Limited Time Offer
-            </Text>
+            <Text style={offerTitle}>Classic Plan - Limited Time Offer</Text>
             <Text style={offerPrice}>
               <span style={strikethrough}>$12/month</span>
               <br />
               <span style={bigPrice}>$5</span>
               <span style={perMonth}>/month</span>
             </Text>
-            <Text style={offerSavings}>
-              Save 58% - Exclusive for You!
-            </Text>
+            <Text style={offerSavings}>Save 58% - Exclusive for You!</Text>
           </Section>
 
           {/* What's Included */}
@@ -73,19 +70,33 @@ export default function ClassicOfferEmail({
             <strong>Here's what you get with Classic:</strong>
           </Text>
 
-          <Text style={listItem}>✅ <strong>50 PDFs per month</strong> (vs. 3 free)</Text>
-          <Text style={listItem}>✅ <strong>No watermarks</strong> on your documents</Text>
-          <Text style={listItem}>✅ <strong>Premium templates</strong> (10+ designs)</Text>
-          <Text style={listItem}>✅ <strong>Standard AI models</strong></Text>
-          <Text style={listItem}>✅ <strong>500 MB permanent storage</strong></Text>
-          <Text style={listItem}>✅ <strong>Version history</strong> (5 versions)</Text>
-          <Text style={listItem}>✅ <strong>Email support</strong> (48-72h response)</Text>
+          <Text style={listItem}>
+            ✅ <strong>50 PDFs per month</strong> (vs. 3 free)
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>No watermarks</strong> on your documents
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>Premium templates</strong> (10+ designs)
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>Standard AI models</strong>
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>500 MB permanent storage</strong>
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>Version history</strong> (5 versions)
+          </Text>
+          <Text style={listItem}>
+            ✅ <strong>Email support</strong> (48-72h response)
+          </Text>
 
           {/* Call-to-action */}
           <Section style={buttonContainer}>
             <Link
               style={button}
-              href="https://kamkmpdf.com/api/polar/create-checkout?tier=classic&offer=exclusive"
+              href="https://KamkmPDF.com/api/polar/create-checkout?tier=classic&offer=exclusive"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -102,14 +113,14 @@ export default function ClassicOfferEmail({
           {/* Comparison */}
           <Text style={comparisonText}>
             <strong>Why Classic is perfect for you:</strong>
-            <br /><br />
-            • You're already using kamkmPDF regularly
+            <br />
+            <br />
+            • You're already using KamkmPDF regularly
             <br />
             • You want to remove watermarks from your PDFs
             <br />
             • You need more than 3 PDFs per month
-            <br />
-            • You want premium features at an affordable price
+            <br />• You want premium features at an affordable price
           </Text>
 
           <Hr style={divider} />
@@ -118,12 +129,13 @@ export default function ClassicOfferEmail({
           <Text style={footerText}>
             Questions? Just reply to this email - we're here to help!
             <br />
-            <span style={{ fontWeight: "bold" }}>The kamkmPDF Team</span>
+            <span style={{ fontWeight: "bold" }}>The KamkmPDF Team</span>
           </Text>
 
           {/* Disclaimer */}
           <Text style={disclaimer}>
-            This is an exclusive offer for kamkmPDF users. Offer subject to availability and may be withdrawn at any time.
+            This is an exclusive offer for KamkmPDF users. Offer subject to
+            availability and may be withdrawn at any time.
           </Text>
         </Container>
       </Body>

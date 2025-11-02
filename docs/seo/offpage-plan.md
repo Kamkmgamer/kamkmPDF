@@ -31,17 +31,17 @@ Example writing sample: [link]
 We can include a code repo and diagrams. Open to your editorial guidance and canonical settings.
 
 Thanks,
-Team kamkmPDF
+Team KamkmPDF
 
 ### Integration co-marketing
 
-Subject: Integration guide: [Library] + kamkmPDF
+Subject: Integration guide: [Library] + KamkmPDF
 
 Hi [Name],
 
-We can build a sample repo and step-by-step guide that shows how to generate PDFs with [Library] and kamkmPDF. We'll host the repo and cross-link to your docs, and we'd love a mention in your integrations page.
+We can build a sample repo and step-by-step guide that shows how to generate PDFs with [Library] and KamkmPDF. We'll host the repo and cross-link to your docs, and we'd love a mention in your integrations page.
 
 Timeline: 1–2 weeks. Happy to coordinate on review.
 
 Thanks,
-Team kamkmPDF
+Team KamkmPDF

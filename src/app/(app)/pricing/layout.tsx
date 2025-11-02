@@ -5,12 +5,12 @@ import type { ReactNode } from "react";
 export const revalidate = 86400; // 24h ISR for marketing page
 
 export const metadata: Metadata = {
-  title: "Pricing | kamkmPDF",
+  title: "Pricing | KamkmPDF",
   description:
     "Simple, transparent pricing for AI-powered PDF generation and automation. Monthly and yearly plans. Start free.",
   alternates: { canonical: "/pricing" },
   openGraph: {
-    title: "Pricing | kamkmPDF",
+    title: "Pricing | KamkmPDF",
     description:
       "Simple, transparent pricing for AI-powered PDF generation and automation.",
     url: "/pricing",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pricing | kamkmPDF",
+    title: "Pricing | KamkmPDF",
     description:
       "Simple, transparent pricing for AI-powered PDF generation and automation.",
     images: ["/og/pricing.png"],

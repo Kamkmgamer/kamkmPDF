@@ -25,7 +25,7 @@ A Next.js application that turns PDF uploads into structured, reusable prompts. 
 1. **Clone and install**
 
    ```bash
-   git clone https://github.com/Kamkmgamer/kamkmPDF
+   git clone https://github.com/Kamkmgamer/KamkmPDF
    cd pdfprompt
    pnpm install
    ```

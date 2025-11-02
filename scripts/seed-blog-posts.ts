@@ -33,7 +33,7 @@ const blogPostsData = [
       <p>First, sign up for an account and navigate to your dashboard. Generate an API key from the API Keys section. Make sure to keep it secure!</p>
       
       <h3>2. Make Your First Request</h3>
-      <pre><code>curl -X POST https://api.kamkmpdf.com/v1/generate \\
+      <pre><code>curl -X POST https://api.KamkmPDF.com/v1/generate \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"prompt": "Create a professional invoice"}'</code></pre>
@@ -53,7 +53,7 @@ const blogPostsData = [
       <p>With our PDF API, you can integrate professional PDF generation into your Node.js applications in minutes. Start building today!</p>
     `,
     tags: ["API", "Node.js", "Tutorial", "Developer"],
-    seoTitle: "How to Generate PDFs from Node.js Using a PDF API | kamkmPDF",
+    seoTitle: "How to Generate PDFs from Node.js Using a PDF API | KamkmPDF",
     seoDescription:
       "Complete guide to integrating PDF generation into Node.js applications using our PDF API. Learn best practices and get started in minutes.",
   },
@@ -65,7 +65,7 @@ const blogPostsData = [
       <h2>Introduction</h2>
       <p>The landscape of PDF generation has been revolutionized by AI. No longer do you need to spend hours designing templates or writing code. AI tools can now generate professional PDFs from simple prompts.</p>
       
-      <h2>1. kamkmPDF</h2>
+      <h2>1. KamkmPDF</h2>
       <p>Our platform offers instant PDF generation with AI-powered precision. Simply describe what you need, and we'll create a beautifully formatted document.</p>
       
       <h2>2. Comparison with Traditional Tools</h2>
@@ -93,7 +93,7 @@ const blogPostsData = [
       <p>AI-powered PDF generation is the future of document creation. Choose a tool that fits your needs and start creating professional documents in seconds.</p>
     `,
     tags: ["AI", "Tools", "Comparison", "Productivity"],
-    seoTitle: "Top 7 AI Tools to Create Professional PDFs Instantly | kamkmPDF",
+    seoTitle: "Top 7 AI Tools to Create Professional PDFs Instantly | KamkmPDF",
     seoDescription:
       "Compare the best AI-powered PDF generation tools. Learn which features matter most and find the perfect tool for your needs.",
   },
@@ -138,7 +138,7 @@ const blogPostsData = [
       <p>Automating proposal generation with AI templates can transform your business workflow. Start automating today and focus on what matters most: closing deals.</p>
     `,
     tags: ["Automation", "Templates", "Business", "Productivity"],
-    seoTitle: "Automate Proposal PDFs with AI Templates | kamkmPDF",
+    seoTitle: "Automate Proposal PDFs with AI Templates | KamkmPDF",
     seoDescription:
       "Learn how to automate proposal creation with AI-powered templates. Save time and create professional proposals consistently.",
   },
@@ -183,7 +183,7 @@ const blogPostsData = [
       <p>With AI and template libraries, creating branded invoices is easier than ever. Professional invoices build trust and save time.</p>
     `,
     tags: ["Invoicing", "Branding", "Templates", "Business"],
-    seoTitle: "Build Branded Invoice PDFs with AI | kamkmPDF",
+    seoTitle: "Build Branded Invoice PDFs with AI | KamkmPDF",
     seoDescription:
       "Create professional, branded invoices in seconds using AI and our template library. Automate your invoicing process today.",
   },
@@ -237,7 +237,7 @@ const blogPostsData = [
       <p>Document automation is essential for scaling startups. Start automating today and focus on what matters: growing your business.</p>
     `,
     tags: ["Startups", "Automation", "Productivity", "Business"],
-    seoTitle: "Document Automation for Startups | kamkmPDF",
+    seoTitle: "Document Automation for Startups | KamkmPDF",
     seoDescription:
       "Learn how startups can automate document creation to scale operations efficiently. From prompts to polished PDFs in seconds.",
   },
@@ -294,7 +294,7 @@ const blogPostsData = [
         <li>Regularly review and update security measures</li>
       </ol>
       
-      <h2>How kamkmPDF Helps</h2>
+      <h2>How KamkmPDF Helps</h2>
       <p>Our platform is designed with GDPR compliance in mind:</p>
       <ul>
         <li>End-to-end encryption</li>
@@ -307,7 +307,7 @@ const blogPostsData = [
       <p>GDPR compliance is essential for any business handling personal data. Follow best practices and use compliant tools to protect your business and customers.</p>
     `,
     tags: ["GDPR", "Security", "Compliance", "Privacy"],
-    seoTitle: "GDPR-Compliant Document Storage: Best Practices | kamkmPDF",
+    seoTitle: "GDPR-Compliant Document Storage: Best Practices | KamkmPDF",
     seoDescription:
       "Complete guide to GDPR-compliant document storage. Learn best practices and use our checklist to ensure compliance.",
   },
@@ -333,7 +333,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   const { prompt } = await request.json();
   
-  const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
+  const response = await fetch('https://api.KamkmPDF.com/v1/generate', {
     method: 'POST',
     headers: {
       'Authorization': \`Bearer \${process.env.PDF_API_KEY}\`,
@@ -382,7 +382,7 @@ export default async function GeneratePage() {
       <p>Integrating PDF generation into Next.js is straightforward with our API. Start building today!</p>
     `,
     tags: ["Next.js", "API", "Tutorial", "Developer"],
-    seoTitle: "Generate PDFs from Next.js Using PDF API | kamkmPDF",
+    seoTitle: "Generate PDFs from Next.js Using PDF API | KamkmPDF",
     seoDescription:
       "Complete guide to integrating PDF generation into Next.js applications. Learn best practices and get started in minutes.",
   },
@@ -432,7 +432,7 @@ export default async function GeneratePage() {
         <li>ISO 27001 for information security</li>
       </ul>
       
-      <h2>How kamkmPDF Ensures Security</h2>
+      <h2>How KamkmPDF Ensures Security</h2>
       <p>Our platform includes:</p>
       <ul>
         <li>256-bit AES encryption</li>
@@ -446,7 +446,7 @@ export default async function GeneratePage() {
       <p>Secure document storage is essential for protecting sensitive information. Choose a solution that meets your security and compliance needs.</p>
     `,
     tags: ["Security", "Storage", "Compliance", "Best Practices"],
-    seoTitle: "Secure Cloud Document Storage Guide | kamkmPDF",
+    seoTitle: "Secure Cloud Document Storage Guide | KamkmPDF",
     seoDescription:
       "Learn about secure cloud document storage solutions. Understand encryption, access controls, and security best practices.",
   },
@@ -509,7 +509,7 @@ export default async function GeneratePage() {
       <p>Effective prompt engineering is key to getting the best results from AI PDF generation. Practice and refine your prompts to achieve optimal outcomes.</p>
     `,
     tags: ["AI", "Tips", "Tutorial", "Best Practices"],
-    seoTitle: "AI Prompt Engineering for PDF Generation | kamkmPDF",
+    seoTitle: "AI Prompt Engineering for PDF Generation | KamkmPDF",
     seoDescription:
       "Master prompt engineering for PDF generation. Learn tips and tricks to write effective prompts that produce the best results.",
   },
@@ -569,7 +569,7 @@ export default async function GeneratePage() {
       <p>AI-powered resume generation makes it easy to create professional, ATS-friendly resumes. Focus on your content while AI handles the formatting.</p>
     `,
     tags: ["Resume", "Career", "AI", "Productivity"],
-    seoTitle: "Create Professional Resumes with AI | kamkmPDF",
+    seoTitle: "Create Professional Resumes with AI | KamkmPDF",
     seoDescription:
       "Generate professional, ATS-friendly resumes in seconds using AI. Learn how to create resumes that stand out to employers.",
   },
@@ -621,7 +621,7 @@ export default async function GeneratePage() {
         <li>Content reviews</li>
       </ul>
       
-      <h2>How kamkmPDF Supports Collaboration</h2>
+      <h2>How KamkmPDF Supports Collaboration</h2>
       <p>Our platform includes:</p>
       <ul>
         <li>Team member management</li>
@@ -635,7 +635,7 @@ export default async function GeneratePage() {
       <p>Document collaboration tools are essential for modern teams. Choose a platform that fits your workflow and start collaborating more effectively.</p>
     `,
     tags: ["Collaboration", "Teams", "Productivity", "Business"],
-    seoTitle: "Document Collaboration Tools Guide | kamkmPDF",
+    seoTitle: "Document Collaboration Tools Guide | KamkmPDF",
     seoDescription:
       "Learn how document collaboration tools improve team productivity. Discover features that make working together seamless.",
   },
@@ -693,7 +693,7 @@ export default async function GeneratePage() {
       <p>Understanding and respecting rate limits ensures reliable API usage. Follow best practices to optimize your PDF generation workflow.</p>
     `,
     tags: ["API", "Best Practices", "Developer", "Performance"],
-    seoTitle: "API Rate Limits and Best Practices | kamkmPDF",
+    seoTitle: "API Rate Limits and Best Practices | KamkmPDF",
     seoDescription:
       "Understand API rate limits and learn best practices for efficient PDF generation. Optimize your API usage for better performance.",
   },
@@ -780,7 +780,7 @@ export default async function GeneratePage() {
       <p>Take time to compare PDF generation APIs before making a decision. Consider features, performance, pricing, and developer experience.</p>
     `,
     tags: ["API", "Comparison", "Developer", "Tools"],
-    seoTitle: "Comparing PDF Generation APIs | kamkmPDF",
+    seoTitle: "Comparing PDF Generation APIs | KamkmPDF",
     seoDescription:
       "Compare different PDF generation APIs and learn what features matter most. Make an informed decision for your project.",
   },
@@ -849,7 +849,7 @@ schedule('0 9 * * *', generateDailyReport);</code></pre>
       <p>Automating report generation saves time and ensures consistency. Start with simple reports and expand as needed.</p>
     `,
     tags: ["Automation", "Reports", "API", "Productivity"],
-    seoTitle: "Automate Report Generation with PDF APIs | kamkmPDF",
+    seoTitle: "Automate Report Generation with PDF APIs | KamkmPDF",
     seoDescription:
       "Learn how to automate report generation using PDF APIs. Create scheduled reports and integrate with your systems.",
   },
@@ -916,7 +916,7 @@ schedule('0 9 * * *', generateDailyReport);</code></pre>
       <p>A well-designed template library streamlines document creation and ensures consistency. Start building your library today.</p>
     `,
     tags: ["Templates", "Design", "Productivity", "Best Practices"],
-    seoTitle: "Building a PDF Template Library | kamkmPDF",
+    seoTitle: "Building a PDF Template Library | KamkmPDF",
     seoDescription:
       "Learn how to build a library of reusable PDF templates. Discover best practices for template design and management.",
   },
@@ -980,7 +980,7 @@ async function onOrderPlaced(order) {
       <p>Well-integrated PDF generation enhances your workflow. Plan carefully and implement gradually for best results.</p>
     `,
     tags: ["Integration", "Workflow", "API", "Best Practices"],
-    seoTitle: "Integrating PDF Generation into Your Workflow | kamkmPDF",
+    seoTitle: "Integrating PDF Generation into Your Workflow | KamkmPDF",
     seoDescription:
       "Learn how to integrate PDF generation into your existing workflows. Discover integration patterns and best practices.",
   },
@@ -1073,7 +1073,7 @@ Costs = Subscription + Usage Fees</code></pre>
       <p>A thorough cost-benefit analysis helps you choose the right PDF generation solution. Consider both direct and indirect costs.</p>
     `,
     tags: ["Business", "Cost Analysis", "ROI", "Decision Making"],
-    seoTitle: "Cost-Benefit Analysis of PDF Solutions | kamkmPDF",
+    seoTitle: "Cost-Benefit Analysis of PDF Solutions | KamkmPDF",
     seoDescription:
       "Analyze costs and benefits of PDF generation solutions. Make informed decisions based on your needs and budget.",
   },
@@ -1140,7 +1140,7 @@ Costs = Subscription + Usage Fees</code></pre>
         <li>Various PDF readers</li>
       </ul>
       
-      <h2>How kamkmPDF Helps</h2>
+      <h2>How KamkmPDF Helps</h2>
       <p>Our platform generates mobile-friendly PDFs by default:</p>
       <ul>
         <li>Optimized layouts</li>
@@ -1153,7 +1153,7 @@ Costs = Subscription + Usage Fees</code></pre>
       <p>Mobile-friendly PDFs are essential in today's mobile-first world. Follow best practices to ensure your PDFs work well on all devices.</p>
     `,
     tags: ["Mobile", "Best Practices", "Design", "UX"],
-    seoTitle: "Mobile-Friendly PDF Generation Best Practices | kamkmPDF",
+    seoTitle: "Mobile-Friendly PDF Generation Best Practices | KamkmPDF",
     seoDescription:
       "Learn how to generate mobile-friendly PDFs that look great on all devices. Discover best practices for mobile PDF creation.",
   },
@@ -1242,7 +1242,7 @@ export async function POST(request: Request) {
       <p>Webhooks enable efficient async PDF generation. Implement them correctly for scalable, reliable PDF workflows.</p>
     `,
     tags: ["Webhooks", "API", "Developer", "Best Practices"],
-    seoTitle: "Webhook Integration for PDF Generation | kamkmPDF",
+    seoTitle: "Webhook Integration for PDF Generation | KamkmPDF",
     seoDescription:
       "Complete guide to using webhooks for async PDF generation. Learn setup, security, and best practices.",
   },
@@ -1335,7 +1335,7 @@ export async function POST(request: Request) {
       <p>Scaling PDF generation requires planning and the right tools. Choose solutions that grow with your business.</p>
     `,
     tags: ["Scaling", "Enterprise", "Business", "Strategy"],
-    seoTitle: "Scaling PDF Generation: Startup to Enterprise | kamkmPDF",
+    seoTitle: "Scaling PDF Generation: Startup to Enterprise | KamkmPDF",
     seoDescription:
       "Learn how to scale PDF generation as your business grows. Understand challenges and solutions at each stage.",
   },
@@ -1368,7 +1368,9 @@ async function seed() {
       }
 
       const publishedDate = new Date();
-      publishedDate.setDate(publishedDate.getDate() - Math.floor(Math.random() * 60)); // Random date within last 60 days
+      publishedDate.setDate(
+        publishedDate.getDate() - Math.floor(Math.random() * 60),
+      ); // Random date within last 60 days
 
       await db.insert(blogPosts).values({
         id: nanoid(),
@@ -1381,7 +1383,7 @@ async function seed() {
         seoDescription: postData.seoDescription,
         status: "published",
         publishedAt: publishedDate,
-        author: "kamkmPDF Team",
+        author: "KamkmPDF Team",
       });
 
       created++;
@@ -1407,4 +1409,3 @@ seed()
     console.error("Seed failed:", error);
     process.exit(1);
   });
-

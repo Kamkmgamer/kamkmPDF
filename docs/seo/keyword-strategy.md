@@ -1,4 +1,4 @@
-# Keyword Strategy for kamkmPDF
+# Keyword Strategy for KamkmPDF
 
 Note: Validate volumes with Ahrefs/SEMrush/Ubersuggest for target geo. Intent codes: T=Transactional, C=Commercial, I=Informational.
 

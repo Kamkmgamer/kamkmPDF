@@ -2,7 +2,7 @@
 
 ## Overview
 
-The kamkmpdf onboarding experience provides a smooth, user-friendly introduction to new users visiting the dashboard for the first time. It guides them through the core features of the application in 4 simple steps.
+The KamkmPDF onboarding experience provides a smooth, user-friendly introduction to new users visiting the dashboard for the first time. It guides them through the core features of the application in 4 simple steps.
 
 ## Features
 

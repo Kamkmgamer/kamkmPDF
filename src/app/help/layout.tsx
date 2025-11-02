@@ -4,19 +4,19 @@ import Footer from "~/app/_components/Footer";
 export const revalidate = 86400; // 24h ISR for marketing page
 
 export const metadata: Metadata = {
-  title: "Help Center | kamkmPDF",
+  title: "Help Center | KamkmPDF",
   description:
     "Guides and tutorials: AI document creation, templates, API integration, and billing.",
   alternates: { canonical: "/help" },
   openGraph: {
-    title: "Help Center | kamkmPDF",
+    title: "Help Center | KamkmPDF",
     description: "Guides and tutorials",
     url: "/help",
     images: ["/og/help.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Help Center | kamkmPDF",
+    title: "Help Center | KamkmPDF",
     description: "Guides and tutorials",
     images: ["/og/help.png"],
   },

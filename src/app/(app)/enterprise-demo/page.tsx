@@ -47,9 +47,9 @@ export default function EnterpriseDemoPage() {
       });
 
       if (!response.ok) {
-        const errorData = (await response.json().catch(() => null)) as
-          | { error?: string }
-          | null;
+        const errorData = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
         throw new Error(errorData?.error ?? "Failed to submit request");
       }
 
@@ -84,7 +84,7 @@ export default function EnterpriseDemoPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl rounded-3xl border-2 border-purple-200/50 bg-white p-8 text-center shadow-2xl dark:border-purple-900/30 dark:bg-slate-900 lg:p-12"
+            className="w-full max-w-2xl rounded-3xl border-2 border-purple-200/50 bg-white p-8 text-center shadow-2xl lg:p-12 dark:border-purple-900/30 dark:bg-slate-900"
           >
             <motion.div
               initial={{ scale: 0 }}
@@ -186,9 +186,10 @@ export default function EnterpriseDemoPage() {
           <h1 className="mb-4 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-4xl font-black text-transparent lg:text-6xl">
             Schedule Your Enterprise Demo
           </h1>
-          <p className="mx-auto max-w-3xl text-lg text-gray-700 dark:text-gray-300 lg:text-xl">
-            Discover how kamkmPDF Enterprise can transform your organization&apos;s
-            PDF generation workflow with unlimited scale and dedicated support.
+          <p className="mx-auto max-w-3xl text-lg text-gray-700 lg:text-xl dark:text-gray-300">
+            Discover how KamkmPDF Enterprise can transform your
+            organization&apos;s PDF generation workflow with unlimited scale and
+            dedicated support.
           </p>
         </motion.div>
 
@@ -199,7 +200,7 @@ export default function EnterpriseDemoPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <div className="rounded-3xl border-2 border-purple-200/50 bg-white p-6 shadow-2xl dark:border-purple-900/30 dark:bg-slate-900 lg:p-8">
+            <div className="rounded-3xl border-2 border-purple-200/50 bg-white p-6 shadow-2xl lg:p-8 dark:border-purple-900/30 dark:bg-slate-900">
               <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
                 Tell us about your needs
               </h2>
@@ -221,7 +222,7 @@ export default function EnterpriseDemoPage() {
                       required
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
+                      className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
                       placeholder="John"
                     />
                   </div>
@@ -239,7 +240,7 @@ export default function EnterpriseDemoPage() {
                       required
                       value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
+                      className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
                       placeholder="Doe"
                     />
                   </div>
@@ -251,7 +252,7 @@ export default function EnterpriseDemoPage() {
                     htmlFor="email"
                     className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
                   >
-                    <Mail className="mb-1 mr-1 inline h-4 w-4" />
+                    <Mail className="mr-1 mb-1 inline h-4 w-4" />
                     Work Email *
                   </label>
                   <input
@@ -261,7 +262,7 @@ export default function EnterpriseDemoPage() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
+                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
                     placeholder="john.doe@company.com"
                   />
                 </div>
@@ -272,7 +273,7 @@ export default function EnterpriseDemoPage() {
                     htmlFor="phone"
                     className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
                   >
-                    <Phone className="mb-1 mr-1 inline h-4 w-4" />
+                    <Phone className="mr-1 mb-1 inline h-4 w-4" />
                     Phone Number
                   </label>
                   <input
@@ -281,7 +282,7 @@ export default function EnterpriseDemoPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
+                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
                     placeholder="+1 (555) 123-4567"
                   />
                 </div>
@@ -292,7 +293,7 @@ export default function EnterpriseDemoPage() {
                     htmlFor="company"
                     className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
                   >
-                    <Building2 className="mb-1 mr-1 inline h-4 w-4" />
+                    <Building2 className="mr-1 mb-1 inline h-4 w-4" />
                     Company Name *
                   </label>
                   <input
@@ -302,7 +303,7 @@ export default function EnterpriseDemoPage() {
                     required
                     value={formData.company}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
+                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
                     placeholder="Acme Corporation"
                   />
                 </div>
@@ -313,7 +314,7 @@ export default function EnterpriseDemoPage() {
                     htmlFor="companySize"
                     className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
                   >
-                    <Users className="mb-1 mr-1 inline h-4 w-4" />
+                    <Users className="mr-1 mb-1 inline h-4 w-4" />
                     Company Size *
                   </label>
                   <select
@@ -322,7 +323,7 @@ export default function EnterpriseDemoPage() {
                     required
                     value={formData.companySize}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
+                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
                   >
                     <option value="">Select company size</option>
                     <option value="1-50">1-50 employees</option>
@@ -347,7 +348,7 @@ export default function EnterpriseDemoPage() {
                     required
                     value={formData.role}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
+                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
                   >
                     <option value="">Select your role</option>
                     <option value="executive">C-Level / Executive</option>
@@ -365,7 +366,7 @@ export default function EnterpriseDemoPage() {
                     htmlFor="message"
                     className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
                   >
-                    <MessageSquare className="mb-1 mr-1 inline h-4 w-4" />
+                    <MessageSquare className="mr-1 mb-1 inline h-4 w-4" />
                     Tell us about your use case
                   </label>
                   <textarea
@@ -374,7 +375,7 @@ export default function EnterpriseDemoPage() {
                     rows={4}
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
+                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-gray-900 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none dark:border-gray-700 dark:bg-slate-800 dark:text-white dark:focus:border-purple-400"
                     placeholder="What are your PDF generation needs? How many PDFs do you generate monthly?"
                   />
                 </div>
@@ -416,7 +417,7 @@ export default function EnterpriseDemoPage() {
             className="space-y-6"
           >
             {/* What to Expect */}
-            <div className="rounded-3xl border-2 border-purple-200/50 bg-white p-6 shadow-xl dark:border-purple-900/30 dark:bg-slate-900 lg:p-8">
+            <div className="rounded-3xl border-2 border-purple-200/50 bg-white p-6 shadow-xl lg:p-8 dark:border-purple-900/30 dark:bg-slate-900">
               <h3 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white">
                 <Sparkles className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                 What to Expect
@@ -426,7 +427,7 @@ export default function EnterpriseDemoPage() {
                   {
                     title: "30-Minute Personalized Demo",
                     description:
-                      "See kamkmPDF Enterprise in action with examples tailored to your use case",
+                      "See KamkmPDF Enterprise in action with examples tailored to your use case",
                   },
                   {
                     title: "Custom Solution Design",
@@ -462,7 +463,7 @@ export default function EnterpriseDemoPage() {
             </div>
 
             {/* Enterprise Features */}
-            <div className="rounded-3xl border-2 border-purple-200/50 bg-gradient-to-br from-purple-50 to-pink-50 p-6 dark:border-purple-900/30 dark:from-purple-950/30 dark:to-pink-950/30 lg:p-8">
+            <div className="rounded-3xl border-2 border-purple-200/50 bg-gradient-to-br from-purple-50 to-pink-50 p-6 lg:p-8 dark:border-purple-900/30 dark:from-purple-950/30 dark:to-pink-950/30">
               <h3 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
                 Enterprise Features
               </h3>

@@ -51,7 +51,7 @@ export default function Home() {
   const createJob = api.jobs.create.useMutation();
   const { data: subscription } = api.subscription.getCurrent.useQuery(
     undefined,
-    { 
+    {
       enabled: isSignedIn ?? false,
       staleTime: 10 * 60 * 1000, // 10 minutes
       refetchOnWindowFocus: false,
@@ -126,16 +126,24 @@ ${prompt.trim()}`
         } else throw new Error("No job id returned");
       } else {
         // Handle text-only job
-        console.log("[page.tsx] Calling createJob mutation", { promptLength: finalPrompt.length });
+        console.log("[page.tsx] Calling createJob mutation", {
+          promptLength: finalPrompt.length,
+        });
         const job = await createJob.mutateAsync({ prompt: finalPrompt });
-        console.log("[page.tsx] Mutation result", { job, hasId: !!job?.id, jobKeys: job ? Object.keys(job) : [] });
+        console.log("[page.tsx] Mutation result", {
+          job,
+          hasId: !!job?.id,
+          jobKeys: job ? Object.keys(job) : [],
+        });
         if (!job) {
           console.error("[page.tsx] Job is null/undefined");
           throw new Error("Job creation returned no result. Please try again.");
         }
         if (!job.id) {
           console.error("[page.tsx] Job missing id", { job });
-          throw new Error("Job was created but no ID was returned. Please try again.");
+          throw new Error(
+            "Job was created but no ID was returned. Please try again.",
+          );
         }
         // Clear localStorage on successful submission
         localStorage.removeItem("home:prompt");
@@ -191,7 +199,7 @@ ${prompt.trim()}`
               <Sparkles className="h-7 w-7 text-blue-600 dark:text-blue-400" />
             </div>
             <h1 className="mb-1 text-xl font-bold text-gray-900 dark:text-white">
-              kamkmPDF
+              KamkmPDF
             </h1>
             <p className="text-xs text-gray-600 dark:text-gray-400">
               Create PDFs with AI
@@ -856,7 +864,7 @@ function SoftUpgradeCTA({ isSignedIn }: SoftUpgradeCTAProps) {
     <div className="mt-12 rounded-3xl border-2 border-blue-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 text-center shadow-xl dark:border-blue-800/50 dark:from-blue-950/30 dark:to-indigo-950/30">
       <div className="mx-auto max-w-2xl">
         <h3 className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-2xl font-bold text-transparent">
-          {isSignedIn ? "Enjoying kamkmPDF?" : "Ready for More?"}
+          {isSignedIn ? "Enjoying KamkmPDF?" : "Ready for More?"}
         </h3>
         <p className="mt-3 text-base text-gray-700 dark:text-gray-300">
           {isSignedIn

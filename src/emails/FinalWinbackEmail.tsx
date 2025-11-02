@@ -32,7 +32,7 @@ export default function FinalWinbackEmail({ name }: FinalWinbackEmailProps) {
               src="https://ik.imagekit.io/gtnmxyt2d/servises%20store/K.png"
               width="140"
               height="140"
-              alt="kamkmPDF Logo"
+              alt="KamkmPDF Logo"
               style={logoImage}
             />
           </Section>
@@ -43,19 +43,17 @@ export default function FinalWinbackEmail({ name }: FinalWinbackEmailProps) {
           </Section>
 
           {/* Greeting */}
-          <Heading style={h1}>{name}, Your Exclusive Offer Expires Soon! ⚠️</Heading>
+          <Heading style={h1}>
+            {name}, Your Exclusive Offer Expires Soon! ⚠️
+          </Heading>
           <Text style={lead}>
             This is your last chance to claim the $5/month Classic plan.
           </Text>
 
           {/* Countdown Box */}
           <Section style={countdownBox}>
-            <Text style={countdownTitle}>
-              ⏰ OFFER EXPIRES IN:
-            </Text>
-            <Text style={countdownTime}>
-              24 HOURS
-            </Text>
+            <Text style={countdownTitle}>⏰ OFFER EXPIRES IN:</Text>
+            <Text style={countdownTime}>24 HOURS</Text>
             <Text style={countdownSubtext}>
               After this, the offer is gone forever
             </Text>
@@ -67,9 +65,7 @@ export default function FinalWinbackEmail({ name }: FinalWinbackEmailProps) {
               <span style={bigPrice}>$5</span>
               <span style={perMonth}>/month</span>
             </Text>
-            <Text style={offerSavings}>
-              Classic Plan - 58% OFF
-            </Text>
+            <Text style={offerSavings}>Classic Plan - 58% OFF</Text>
           </Section>
 
           {/* Quick Benefits */}
@@ -112,7 +108,7 @@ export default function FinalWinbackEmail({ name }: FinalWinbackEmailProps) {
           <Section style={buttonContainer}>
             <Link
               style={button}
-              href="https://kamkmpdf.com/api/polar/create-checkout?tier=classic&offer=final"
+              href="https://KamkmPDF.com/api/polar/create-checkout?tier=classic&offer=final"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -156,13 +152,14 @@ export default function FinalWinbackEmail({ name }: FinalWinbackEmailProps) {
           <Text style={centerText}>
             <strong>Not interested?</strong>
             <br />
-            No problem! You can continue using the free plan with 3 PDFs per month.
+            No problem! You can continue using the free plan with 3 PDFs per
+            month.
           </Text>
 
           <Section style={buttonContainer}>
             <Link
               style={secondaryButton}
-              href="https://kamkmpdf.com/dashboard"
+              href="https://KamkmPDF.com/dashboard"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -176,12 +173,13 @@ export default function FinalWinbackEmail({ name }: FinalWinbackEmailProps) {
           <Text style={footerText}>
             This is the last email about this offer. We won't bother you again!
             <br />
-            <span style={{ fontWeight: "bold" }}>The kamkmPDF Team</span>
+            <span style={{ fontWeight: "bold" }}>The KamkmPDF Team</span>
           </Text>
 
           {/* Disclaimer */}
           <Text style={disclaimer}>
-            This exclusive offer expires in 24 hours. After that, the Classic plan will no longer be available at this price.
+            This exclusive offer expires in 24 hours. After that, the Classic
+            plan will no longer be available at this price.
           </Text>
         </Container>
       </Body>

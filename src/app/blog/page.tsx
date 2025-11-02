@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { Calendar, ArrowRight, Tag } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Blog - kamkmPDF",
+  title: "Blog - KamkmPDF",
   description:
     "Latest updates, tips, and insights about AI-powered PDF generation, document automation, and more.",
 };

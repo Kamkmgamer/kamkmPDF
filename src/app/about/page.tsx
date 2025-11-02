@@ -19,7 +19,7 @@ export default function AboutPage() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative container mx-auto px-6 py-32 text-center max-w-7xl">
+      <section className="relative container mx-auto max-w-7xl px-6 py-32 text-center">
         <motion.div
           className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -39,7 +39,7 @@ export default function AboutPage() {
         >
           About{" "}
           <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-sky-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-cyan-300 dark:to-sky-400">
-            kamkmPDF
+            KamkmPDF
           </span>
         </motion.h1>
         <motion.p
@@ -49,7 +49,7 @@ export default function AboutPage() {
           transition={{ delay: 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="mx-auto mt-8 max-w-3xl text-xl leading-relaxed text-slate-600 dark:text-slate-400"
         >
-          kamkmPDF makes PDF creation simple, fast, and delightful. Whether
+          KamkmPDF makes PDF creation simple, fast, and delightful. Whether
           you&apos;re an individual, a business, or a developer, our mission is
           to empower you to generate beautiful PDFs in seconds.
         </motion.p>
@@ -74,7 +74,7 @@ export default function AboutPage() {
             {
               icon: Users,
               title: "For Everyone",
-              desc: "From freelancers to enterprises, kamkmPDF scales with you.",
+              desc: "From freelancers to enterprises, KamkmPDF scales with you.",
               color: "from-blue-500 to-cyan-500",
             },
           ].map((item, i) => (
@@ -164,14 +164,14 @@ export default function AboutPage() {
         >
           <Image
             src="https://7g9d5wparu.ufs.sh/f/A10B13NxqwDP69Lcva5U4LiK8WdqGfsrem5jMacTwl1kQxhN"
-            alt="Khalil - Creator of kamkmPDF"
+            alt="Khalil - Creator of KamkmPDF"
             width={96}
             height={96}
             className="border-primary mx-auto rounded-full border-4"
           />
           <h3 className="mt-6 text-2xl font-semibold">Khalil (kamkm)</h3>
           <p className="text-muted-foreground mt-4">
-            I built kamkmPDF to make professional PDF generation simple,
+            I built KamkmPDF to make professional PDF generation simple,
             accessible, and fun. This is just the beginning.
           </p>
         </motion.div>
@@ -197,7 +197,7 @@ export default function AboutPage() {
                 Ready to create beautiful PDFs?
               </h2>
               <p className="mt-4 text-xl text-white/90">
-                Join thousands of creators and businesses using kamkmPDF today.
+                Join thousands of creators and businesses using KamkmPDF today.
               </p>
               <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
                 <motion.a

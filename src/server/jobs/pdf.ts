@@ -45,9 +45,9 @@ export async function generatePdfToPath(
     if (hasOpenRouterKey()) {
       const htmlBody = await generateHtmlFromPrompt({
         prompt: opts.prompt ?? "",
-        brandName: "Prompt‑to‑PDF",
+        brandName: "KamkmPDF",
       });
-      const htmlDoc = wrapHtmlDocument(htmlBody, "Prompt‑to‑PDF Document");
+      const htmlDoc = wrapHtmlDocument(htmlBody, "KamkmPDF Document");
       await htmlToPdfToPath(htmlDoc, filePath, {
         format: "A4",
         printBackground: true,
@@ -98,10 +98,7 @@ export async function generatePdfToPath(
         ${detectedLanguages.length > 0 ? `<p style="margin-top:8px; font-size: 10px; color: #666;">Detected languages: ${detectedLanguages.join(", ")}</p>` : ""}
       </main>
     `;
-    const htmlDoc = wrapHtmlDocument(
-      fallbackHtmlBody,
-      "Prompt‑to‑PDF Document",
-    );
+    const htmlDoc = wrapHtmlDocument(fallbackHtmlBody, "KamkmPDF Document");
     await htmlToPdfToPath(htmlDoc, filePath, {
       format: "A4",
       printBackground: true,
@@ -226,7 +223,7 @@ export async function generatePdfBuffer(opts: {
       `;
       const htmlDoc = wrapHtmlDocument(
         body,
-        "Prompt‑to‑PDF Document",
+        "KamkmPDF Document",
         opts.addWatermark ?? false,
       );
       const buf = await htmlToPdfToBuffer(htmlDoc, {
@@ -244,7 +241,7 @@ export async function generatePdfBuffer(opts: {
       await opts.onStage?.("Analyzing your request", 15);
       const htmlBodyRaw = await generateHtmlFromPrompt({
         prompt: opts.prompt ?? "",
-        brandName: "Prompt‑to‑PDF",
+        brandName: "KamkmPDF",
         tier: opts.tier,
       });
       await opts.onStage?.("Generating content", 40);
@@ -314,7 +311,7 @@ export async function generatePdfBuffer(opts: {
       }
       const htmlDoc = wrapHtmlDocument(
         body,
-        "Prompt‑to‑PDF Document",
+        "KamkmPDF Document",
         opts.addWatermark ?? false,
       );
       await opts.onStage?.("Formatting PDF", 70);
@@ -396,10 +393,7 @@ export async function generatePdfBuffer(opts: {
         // ignore
       }
     }
-    const htmlDoc = wrapHtmlDocument(
-      fallbackHtmlBody,
-      "Prompt‑to‑PDF Document",
-    );
+    const htmlDoc = wrapHtmlDocument(fallbackHtmlBody, "KamkmPDF Document");
     await opts.onStage?.("Formatting PDF", 70);
     const buf = await htmlToPdfToBuffer(htmlDoc, {
       format: "A4",

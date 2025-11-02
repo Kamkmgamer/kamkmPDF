@@ -1,7 +1,7 @@
 export async function GET() {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kamkmpdf.com";
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://KamkmPDF.com";
   const policy = [
-    "# LLMs crawl policy for kamkmPDF",
+    "# LLMs crawl policy for KamkmPDF",
     "",
     "# Mirrors key allow/disallow rules from robots.txt and points to sitemap",
     "",

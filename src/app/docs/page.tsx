@@ -7,9 +7,9 @@ import { Book, ChevronRight, Tag } from "lucide-react";
 type DocPage = RouterOutputs["documentation"]["getAll"][number];
 
 export const metadata: Metadata = {
-  title: "Documentation - kamkmPDF",
+  title: "Documentation - KamkmPDF",
   description:
-    "Complete documentation for kamkmPDF. Learn how to use our API, generate PDFs, and integrate PDF generation into your applications.",
+    "Complete documentation for KamkmPDF. Learn how to use our API, generate PDFs, and integrate PDF generation into your applications.",
 };
 
 export default async function DocumentationPage() {
@@ -51,7 +51,7 @@ export default async function DocumentationPage() {
               Documentation
             </h1>
             <p className="mx-auto max-w-2xl text-xl text-slate-600 dark:text-slate-400">
-              Everything you need to know about using kamkmPDF. From getting
+              Everything you need to know about using KamkmPDF. From getting
               started to advanced API usage.
             </p>
           </div>

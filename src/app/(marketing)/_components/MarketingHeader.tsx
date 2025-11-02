@@ -22,7 +22,7 @@ export default function MarketingHeader() {
           >
             <File className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-transparent">
-              kamkmPDF
+              KamkmPDF
             </span>
           </Link>
         </div>

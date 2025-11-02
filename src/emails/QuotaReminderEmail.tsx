@@ -20,17 +20,18 @@ interface QuotaReminderEmailProps {
   pdfsTotal: number;
 }
 
-export default function QuotaReminderEmail({ 
-  name, 
-  pdfsUsed = 2, 
+export default function QuotaReminderEmail({
+  name,
+  pdfsUsed = 2,
   pdfsRemaining = 1,
-  pdfsTotal = 3 
+  pdfsTotal = 3,
 }: QuotaReminderEmailProps) {
   return (
     <Html>
       <Head />
       <Preview>
-        You're almost out of PDFs! Only {String(pdfsRemaining)} remaining this month.
+        You're almost out of PDFs! Only {String(pdfsRemaining)} remaining this
+        month.
       </Preview>
       <Body style={main}>
         <Container style={container}>
@@ -40,46 +41,62 @@ export default function QuotaReminderEmail({
               src="https://ik.imagekit.io/gtnmxyt2d/servises%20store/K.png"
               width="140"
               height="140"
-              alt="kamkmPDF Logo"
+              alt="KamkmPDF Logo"
               style={logoImage}
             />
           </Section>
 
           {/* Greeting */}
           <Heading style={h1}>Hey {name}! 📊</Heading>
-          <Text style={lead}>
-            You're making great progress with kamkmPDF!
-          </Text>
+          <Text style={lead}>You're making great progress with KamkmPDF!</Text>
 
           {/* Usage Alert */}
           <Section style={warningBox}>
             <Text style={text}>
-              You're running low on PDFs! You've used {pdfsUsed} of your {pdfsTotal} monthly PDFs.
+              You're running low on PDFs! You've used {pdfsUsed} of your{" "}
+              {pdfsTotal} monthly PDFs.
             </Text>
             <Text style={text}>
-              Upgrade to <strong>Professional</strong> for 5,000 PDFs per month, or <strong>Pro+</strong> for 10,000 PDFs with AI watermark removal and priority processing!
+              Upgrade to <strong>Professional</strong> for 5,000 PDFs per month,
+              or <strong>Pro+</strong> for 10,000 PDFs with AI watermark removal
+              and priority processing!
             </Text>
             <Text style={text}>
-              Only <strong>{pdfsRemaining} PDF{pdfsRemaining !== 1 ? 's' : ''}</strong> remaining.
+              Only{" "}
+              <strong>
+                {pdfsRemaining} PDF{pdfsRemaining !== 1 ? "s" : ""}
+              </strong>{" "}
+              remaining.
             </Text>
           </Section>
 
           {/* Message */}
           <Text style={text}>
-            Don't let your momentum stop! Upgrade to <strong>Professional</strong> and get:
+            Don't let your momentum stop! Upgrade to{" "}
+            <strong>Professional</strong> and get:
           </Text>
 
-          <Text style={listItem}>✨ <strong>Unlimited PDF generation</strong></Text>
-          <Text style={listItem}>🚫 <strong>No watermarks</strong> on your documents</Text>
-          <Text style={listItem}>⚡ <strong>Premium AI models</strong> (GPT-4 class)</Text>
-          <Text style={listItem}>💾 <strong>2 GB permanent storage</strong></Text>
-          <Text style={listItem}>⏱️ <strong>60-second processing</strong> time</Text>
+          <Text style={listItem}>
+            ✨ <strong>Unlimited PDF generation</strong>
+          </Text>
+          <Text style={listItem}>
+            🚫 <strong>No watermarks</strong> on your documents
+          </Text>
+          <Text style={listItem}>
+            ⚡ <strong>Premium AI models</strong> (GPT-4 class)
+          </Text>
+          <Text style={listItem}>
+            💾 <strong>2 GB permanent storage</strong>
+          </Text>
+          <Text style={listItem}>
+            ⏱️ <strong>60-second processing</strong> time
+          </Text>
 
           {/* Call-to-action */}
           <Section style={buttonContainer}>
             <Link
               style={button}
-              href="https://kamkmpdf.com/pricing"
+              href="https://KamkmPDF.com/pricing"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -91,13 +108,14 @@ export default function QuotaReminderEmail({
 
           {/* Alternative */}
           <Text style={centerText}>
-            Not ready to upgrade? You can still use your remaining {pdfsRemaining} PDF{pdfsRemaining !== 1 ? 's' : ''}.
+            Not ready to upgrade? You can still use your remaining{" "}
+            {pdfsRemaining} PDF{pdfsRemaining !== 1 ? "s" : ""}.
           </Text>
 
           <Section style={buttonContainer}>
             <Link
               style={secondaryButton}
-              href="https://kamkmpdf.com/dashboard"
+              href="https://KamkmPDF.com/dashboard"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -111,12 +129,13 @@ export default function QuotaReminderEmail({
           <Text style={footerText}>
             Keep creating amazing PDFs!
             <br />
-            <span style={{ fontWeight: "bold" }}>The kamkmPDF Team</span>
+            <span style={{ fontWeight: "bold" }}>The KamkmPDF Team</span>
           </Text>
 
           {/* Disclaimer */}
           <Text style={disclaimer}>
-            Your quota resets at the beginning of each month. You can upgrade or purchase additional credits anytime.
+            Your quota resets at the beginning of each month. You can upgrade or
+            purchase additional credits anytime.
           </Text>
         </Container>
       </Body>

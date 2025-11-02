@@ -9,7 +9,7 @@ export default function PrivacyPage() {
     {
       title: "1. Introduction",
       content:
-        "At kamkmPDF, we value your privacy. This Privacy Policy explains how we collect, use, and protect your personal information when you use our platform.",
+        "At KamkmPDF, we value your privacy. This Privacy Policy explains how we collect, use, and protect your personal information when you use our platform.",
       icon: Shield,
     },
     {
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
     {
       title: "6. Cookies",
       content:
-        "kamkmPDF uses cookies to enhance your experience, analyze traffic, and improve our website. You can manage cookies in your browser settings.",
+        "KamkmPDF uses cookies to enhance your experience, analyze traffic, and improve our website. You can manage cookies in your browser settings.",
       icon: Eye,
     },
     {
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
     {
       title: "10. Contact Us",
       content:
-        "For questions about this Privacy Policy, please contact us at contact@kamkmpdf.com.",
+        "For questions about this Privacy Policy, please contact us at contact@KamkmPDF.com.",
       icon: Shield,
     },
   ];
@@ -73,13 +73,13 @@ export default function PrivacyPage() {
       {/* Decorative elements */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-blue-400/10 to-cyan-400/10 blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-sky-400/10 to-teal-400/10 blur-3xl" />
+        <div className="absolute right-1/4 bottom-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-sky-400/10 to-teal-400/10 blur-3xl" />
       </div>
 
-      <div className="relative container mx-auto px-6 py-32 max-w-6xl">
-        <div className="text-center mb-20">
+      <div className="relative container mx-auto max-w-6xl px-6 py-32">
+        <div className="mb-20 text-center">
           <motion.div
-            className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-100 dark:bg-blue-900/30 px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400"
+            className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -92,7 +92,7 @@ export default function PrivacyPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-6xl font-black tracking-tight text-slate-900 dark:text-white lg:text-7xl"
+            className="text-6xl font-black tracking-tight text-slate-900 lg:text-7xl dark:text-white"
           >
             Privacy Policy
           </motion.h1>
@@ -102,23 +102,28 @@ export default function PrivacyPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mx-auto mt-6 max-w-2xl text-xl text-slate-600 dark:text-slate-400"
           >
-            Your privacy matters to us. Learn how we protect and handle your data.
+            Your privacy matters to us. Learn how we protect and handle your
+            data.
           </motion.p>
         </div>
 
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           {sections.map((section, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 0.5,
+                delay: idx * 0.05,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               viewport={{ once: true }}
               className="group relative"
               whileHover={{ y: -4 }}
             >
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-sky-600 rounded-3xl opacity-0 blur transition duration-300 group-hover:opacity-20" />
-              <div className="relative rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-xl">
+              <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-blue-600 to-sky-600 opacity-0 blur transition duration-300 group-hover:opacity-20" />
+              <div className="relative rounded-3xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-700 dark:bg-slate-800">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
@@ -126,8 +131,10 @@ export default function PrivacyPage() {
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{section.title}</h2>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <h2 className="mb-3 text-xl font-bold text-slate-900 dark:text-white">
+                      {section.title}
+                    </h2>
+                    <p className="leading-relaxed text-slate-600 dark:text-slate-400">
                       {section.content}
                     </p>
                   </div>

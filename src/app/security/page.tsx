@@ -10,7 +10,7 @@ const fadeUp = {
 
 export default function SecurityPage() {
   return (
-    <main className="relative min-h-screen bg-background text-foreground">
+    <main className="bg-background text-foreground relative min-h-screen">
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-24 text-center">
         <motion.h1
@@ -20,14 +20,14 @@ export default function SecurityPage() {
           transition={{ delay: 0, duration: 0.6, ease: [0, 0, 0.2, 1] }}
           className="text-5xl font-bold tracking-tight"
         >
-          Security at <span className="text-primary">kamkmPDF</span>
+          Security at <span className="text-primary">KamkmPDF</span>
         </motion.h1>
         <motion.p
           initial="hidden"
           animate="visible"
           variants={fadeUp}
           transition={{ delay: 0.15, duration: 0.6, ease: [0, 0, 0.2, 1] }}
-          className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground"
+          className="text-muted-foreground mx-auto mt-6 max-w-2xl text-lg"
         >
           Your documents are safe with us. We take security seriously and
           implement enterprise-grade practices to protect your data.
@@ -55,17 +55,21 @@ export default function SecurityPage() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            transition={{ delay: i * 0.15, duration: 0.6, ease: [0, 0, 0.2, 1] }}
-            className="rounded-2xl bg-card p-8 shadow-lg transition hover:scale-[1.02]"
+            transition={{
+              delay: i * 0.15,
+              duration: 0.6,
+              ease: [0, 0, 0.2, 1],
+            }}
+            className="bg-card rounded-2xl p-8 shadow-lg transition hover:scale-[1.02]"
           >
-            <h3 className="text-xl font-semibold text-primary">{item.title}</h3>
-            <p className="mt-3 text-muted-foreground">{item.desc}</p>
+            <h3 className="text-primary text-xl font-semibold">{item.title}</h3>
+            <p className="text-muted-foreground mt-3">{item.desc}</p>
           </motion.div>
         ))}
       </section>
 
       {/* Security Features */}
-      <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-20">
+      <section className="from-primary/10 to-secondary/10 bg-gradient-to-r py-20">
         <div className="container mx-auto grid gap-12 px-6 md:grid-cols-2">
           {[
             {
@@ -91,13 +95,17 @@ export default function SecurityPage() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeUp}
-              transition={{ delay: i * 0.15, duration: 0.6, ease: [0, 0, 0.2, 1] }}
-              className="rounded-xl bg-background p-6 shadow-md"
+              transition={{
+                delay: i * 0.15,
+                duration: 0.6,
+                ease: [0, 0, 0.2, 1],
+              }}
+              className="bg-background rounded-xl p-6 shadow-md"
             >
-              <h4 className="text-lg font-semibold text-primary">
+              <h4 className="text-primary text-lg font-semibold">
                 {feature.heading}
               </h4>
-              <p className="mt-2 text-muted-foreground">{feature.text}</p>
+              <p className="text-muted-foreground mt-2">{feature.text}</p>
             </motion.div>
           ))}
         </div>
@@ -114,7 +122,7 @@ export default function SecurityPage() {
           className="mx-auto max-w-2xl"
         >
           <h2 className="text-3xl font-bold">Responsible Disclosure</h2>
-          <p className="mt-4 text-muted-foreground">
+          <p className="text-muted-foreground mt-4">
             If you believe you’ve found a security issue, please contact us at{" "}
             <a
               href="mailto:contact@khalil.mageed.net"
@@ -138,15 +146,15 @@ export default function SecurityPage() {
           className="container mx-auto text-center"
         >
           <h2 className="text-3xl font-bold">Your trust matters to us</h2>
-          <p className="mt-4 text-muted-foreground">
+          <p className="text-muted-foreground mt-4">
             That’s why we continuously invest in security and compliance.
           </p>
           <div className="mt-8 flex justify-center">
             <a
               href="/about"
-              className="rounded-xl bg-primary px-6 py-3 font-medium text-primary-foreground shadow-lg transition hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-6 py-3 font-medium shadow-lg transition"
             >
-              Learn more about kamkmPDF
+              Learn more about KamkmPDF
             </a>
           </div>
         </motion.div>

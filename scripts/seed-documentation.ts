@@ -21,14 +21,15 @@ function slugify(text: string): string {
 const documentationData = [
   // ==================== GETTING STARTED ====================
   {
-    title: "Introduction to kamkmPDF",
-    description: "Learn what kamkmPDF is and how it can help you generate PDFs quickly and easily.",
+    title: "Introduction to KamkmPDF",
+    description:
+      "Learn what KamkmPDF is and how it can help you generate PDFs quickly and easily.",
     category: "getting-started",
     section: "overview",
     order: 1,
     content: `
-      <h2>What is kamkmPDF?</h2>
-      <p>kamkmPDF is an AI-powered PDF generation platform that transforms natural language prompts into professional PDF documents. Whether you need invoices, reports, proposals, or any other document, kamkmPDF makes it simple.</p>
+      <h2>What is KamkmPDF?</h2>
+      <p>KamkmPDF is an AI-powered PDF generation platform that transforms natural language prompts into professional PDF documents. Whether you need invoices, reports, proposals, or any other document, KamkmPDF makes it simple.</p>
       
       <h2>Key Features</h2>
       <ul>
@@ -55,13 +56,14 @@ const documentationData = [
   },
   {
     title: "Quick Start Guide",
-    description: "Get up and running with kamkmPDF in 5 minutes. Create your first PDF document.",
+    description:
+      "Get up and running with KamkmPDF in 5 minutes. Create your first PDF document.",
     category: "getting-started",
     section: "overview",
     order: 2,
     content: `
       <h2>Create Your Account</h2>
-      <p>First, sign up for a free account at kamkmPDF. You'll get 3 free PDFs to get started.</p>
+      <p>First, sign up for a free account at KamkmPDF. You'll get 3 free PDFs to get started.</p>
       
       <h2>Generate Your First PDF</h2>
       <h3>Step 1: Navigate to Dashboard</h3>
@@ -89,7 +91,8 @@ const documentationData = [
   },
   {
     title: "Understanding Your Dashboard",
-    description: "Learn how to navigate your kamkmPDF dashboard and manage your PDFs.",
+    description:
+      "Learn how to navigate your KamkmPDF dashboard and manage your PDFs.",
     category: "getting-started",
     section: "overview",
     order: 3,
@@ -132,7 +135,8 @@ const documentationData = [
   },
   {
     title: "Account Setup and Settings",
-    description: "Configure your account settings, preferences, and subscription options.",
+    description:
+      "Configure your account settings, preferences, and subscription options.",
     category: "getting-started",
     section: "account",
     order: 1,
@@ -187,7 +191,8 @@ const documentationData = [
   },
   {
     title: "Free Tier vs Paid Plans",
-    description: "Compare features across different subscription tiers and choose the right plan for you.",
+    description:
+      "Compare features across different subscription tiers and choose the right plan for you.",
     category: "getting-started",
     section: "pricing",
     order: 1,
@@ -238,20 +243,21 @@ const documentationData = [
     `,
     tags: ["getting-started", "pricing", "plans"],
   },
-  
+
   // ==================== API REFERENCE ====================
   {
     title: "API Overview",
-    description: "Introduction to the kamkmPDF API. Learn how to integrate PDF generation into your applications.",
+    description:
+      "Introduction to the KamkmPDF API. Learn how to integrate PDF generation into your applications.",
     category: "api-reference",
     section: "overview",
     order: 1,
     content: `
       <h2>What is the API?</h2>
-      <p>The kamkmPDF API allows you to programmatically generate PDFs from your applications. Perfect for automation, integrations, and custom workflows.</p>
+      <p>The KamkmPDF API allows you to programmatically generate PDFs from your applications. Perfect for automation, integrations, and custom workflows.</p>
       
       <h2>Base URL</h2>
-      <pre><code>https://api.kamkmpdf.com/v1</code></pre>
+      <pre><code>https://api.KamkmPDF.com/v1</code></pre>
       
       <h2>Authentication</h2>
       <p>All API requests require authentication using an API key. Include your key in the Authorization header:</p>
@@ -296,7 +302,7 @@ const documentationData = [
       
       <h2>Using Your API Key</h2>
       <p>Include your API key in the Authorization header:</p>
-      <pre><code>curl -X POST https://api.kamkmpdf.com/v1/generate \\
+      <pre><code>curl -X POST https://api.KamkmPDF.com/v1/generate \\
   -H "Authorization: Bearer sk_live_your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{"prompt": "Create an invoice"}'</code></pre>
@@ -327,7 +333,8 @@ const documentationData = [
   },
   {
     title: "Generate PDF Endpoint",
-    description: "Learn how to use the PDF generation endpoint to create documents programmatically.",
+    description:
+      "Learn how to use the PDF generation endpoint to create documents programmatically.",
     category: "api-reference",
     section: "endpoints",
     order: 1,
@@ -364,7 +371,7 @@ const documentationData = [
 }</code></pre>
       
       <h2>Example Request</h2>
-      <pre><code>curl -X POST https://api.kamkmpdf.com/v1/generate \\
+      <pre><code>curl -X POST https://api.KamkmPDF.com/v1/generate \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -425,7 +432,7 @@ const documentationData = [
       <p>Poll this endpoint periodically until status is "completed" or "failed". Recommended polling interval: 2-5 seconds.</p>
       
       <h2>Example Request</h2>
-      <pre><code>curl https://api.kamkmpdf.com/v1/jobs/job_abc123 \\
+      <pre><code>curl https://api.KamkmPDF.com/v1/jobs/job_abc123 \\
   -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
       
       <h2>Using Webhooks</h2>
@@ -454,7 +461,7 @@ const documentationData = [
       <p>The job status response includes a <code>fileUrl</code> that can be used directly. This URL is signed and expires after 24 hours.</p>
       
       <h2>Example Request</h2>
-      <pre><code>curl https://api.kamkmpdf.com/v1/files/file_xyz789/download \\
+      <pre><code>curl https://api.KamkmPDF.com/v1/files/file_xyz789/download \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   --output invoice.pdf</code></pre>
       
@@ -475,7 +482,8 @@ const documentationData = [
   },
   {
     title: "Webhooks",
-    description: "Learn how to use webhooks for async PDF generation notifications.",
+    description:
+      "Learn how to use webhooks for async PDF generation notifications.",
     category: "api-reference",
     section: "webhooks",
     order: 1,
@@ -533,7 +541,8 @@ if (signature !== expected) {
   },
   {
     title: "Error Codes",
-    description: "Complete reference of API error codes and how to handle them.",
+    description:
+      "Complete reference of API error codes and how to handle them.",
     category: "api-reference",
     section: "errors",
     order: 1,
@@ -668,11 +677,12 @@ if (signature !== expected) {
     `,
     tags: ["api", "rate-limits", "best-practices"],
   },
-  
+
   // ==================== GUIDES ====================
   {
     title: "Creating Your First PDF",
-    description: "Step-by-step guide to creating your first PDF document with kamkmPDF.",
+    description:
+      "Step-by-step guide to creating your first PDF document with KamkmPDF.",
     category: "guides",
     section: "basics",
     order: 1,
@@ -714,7 +724,8 @@ if (signature !== expected) {
   },
   {
     title: "Writing Effective Prompts",
-    description: "Learn how to write prompts that produce the best PDF results.",
+    description:
+      "Learn how to write prompts that produce the best PDF results.",
     category: "guides",
     section: "prompts",
     order: 1,
@@ -771,7 +782,8 @@ if (signature !== expected) {
   },
   {
     title: "Using Templates",
-    description: "Learn how to use and customize PDF templates for consistent document creation.",
+    description:
+      "Learn how to use and customize PDF templates for consistent document creation.",
     category: "guides",
     section: "templates",
     order: 1,
@@ -830,7 +842,8 @@ if (signature !== expected) {
   },
   {
     title: "Custom Branding",
-    description: "Learn how to add your logo, colors, and branding to your PDFs.",
+    description:
+      "Learn how to add your logo, colors, and branding to your PDFs.",
     category: "guides",
     section: "branding",
     order: 1,
@@ -882,7 +895,7 @@ if (signature !== expected) {
     `,
     tags: ["guides", "branding", "customization"],
   },
-  
+
   // Continue with many more entries...
   // Due to length, I'll generate entries programmatically below
 ];
@@ -901,41 +914,69 @@ type DocEntry = {
 // Generate additional documentation entries programmatically
 function generateAdditionalDocs(): DocEntry[] {
   const additionalDocs: DocEntry[] = [];
-  
+
   // Integration guides (20 entries)
   const integrations = [
-    { name: "Node.js", lang: "javascript", code: "const axios = require('axios');" },
+    {
+      name: "Node.js",
+      lang: "javascript",
+      code: "const axios = require('axios');",
+    },
     { name: "Python", lang: "python", code: "import requests" },
     { name: "PHP", lang: "php", code: "$ch = curl_init();" },
     { name: "Ruby", lang: "ruby", code: "require 'net/http'" },
-    { name: "Go", lang: "go", code: "import \"net/http\"" },
+    { name: "Go", lang: "go", code: 'import "net/http"' },
     { name: "Java", lang: "java", code: "import java.net.http.*;" },
     { name: "C#", lang: "csharp", code: "using System.Net.Http;" },
     { name: "Swift", lang: "swift", code: "import Foundation" },
     { name: "Kotlin", lang: "kotlin", code: "import okhttp3.*" },
     { name: "Rust", lang: "rust", code: "use reqwest;" },
-    { name: "Next.js", lang: "javascript", code: "export async function handler()" },
-    { name: "React", lang: "javascript", code: "import { useState } from 'react';" },
+    {
+      name: "Next.js",
+      lang: "javascript",
+      code: "export async function handler()",
+    },
+    {
+      name: "React",
+      lang: "javascript",
+      code: "import { useState } from 'react';",
+    },
     { name: "Vue.js", lang: "javascript", code: "import axios from 'axios';" },
-    { name: "Angular", lang: "typescript", code: "import { HttpClient } from '@angular/common/http';" },
-    { name: "Express.js", lang: "javascript", code: "app.post('/generate', async (req, res) =>" },
-    { name: "Django", lang: "python", code: "from django.http import JsonResponse" },
+    {
+      name: "Angular",
+      lang: "typescript",
+      code: "import { HttpClient } from '@angular/common/http';",
+    },
+    {
+      name: "Express.js",
+      lang: "javascript",
+      code: "app.post('/generate', async (req, res) =>",
+    },
+    {
+      name: "Django",
+      lang: "python",
+      code: "from django.http import JsonResponse",
+    },
     { name: "Flask", lang: "python", code: "from flask import Flask, request" },
     { name: "Laravel", lang: "php", code: "use Illuminate\\Http\\Request;" },
-    { name: "Rails", lang: "ruby", code: "class ApiController < ApplicationController" },
+    {
+      name: "Rails",
+      lang: "ruby",
+      code: "class ApiController < ApplicationController",
+    },
     { name: "Zapier", lang: "javascript", code: "// Zapier integration code" },
   ];
-  
+
   integrations.forEach((integration, index) => {
     additionalDocs.push({
       title: `Integrating with ${integration.name}`,
-      description: `Learn how to integrate kamkmPDF API with ${integration.name} applications.`,
+      description: `Learn how to integrate KamkmPDF API with ${integration.name} applications.`,
       category: "integrations",
       section: "languages",
       order: index + 1,
       content: `
         <h2>${integration.name} Integration</h2>
-        <p>This guide shows you how to integrate kamkmPDF with ${integration.name} applications.</p>
+        <p>This guide shows you how to integrate KamkmPDF with ${integration.name} applications.</p>
         
         <h2>Installation</h2>
         <p>Install the required HTTP client library for ${integration.name}.</p>
@@ -943,7 +984,7 @@ function generateAdditionalDocs(): DocEntry[] {
         <h2>Basic Example</h2>
         <pre><code class="language-${integration.lang}">${integration.code}
 // Example code for ${integration.name}
-const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
+const response = await fetch('https://api.KamkmPDF.com/v1/generate', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -968,7 +1009,7 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
       tags: ["integrations", integration.name.toLowerCase(), "api"],
     });
   });
-  
+
   // Use case guides (15 entries)
   const useCases = [
     { name: "Invoicing", desc: "Automate invoice generation" },
@@ -987,7 +1028,7 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
     { name: "Vouchers", desc: "Create gift vouchers" },
     { name: "Menus", desc: "Generate restaurant menus" },
   ];
-  
+
   useCases.forEach((useCase, index) => {
     additionalDocs.push({
       title: `${useCase.name} Generation Guide`,
@@ -997,7 +1038,7 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
       order: index + 1,
       content: `
         <h2>Generating ${useCase.name}</h2>
-        <p>Learn how to generate ${useCase.name.toLowerCase()} documents with kamkmPDF.</p>
+        <p>Learn how to generate ${useCase.name.toLowerCase()} documents with KamkmPDF.</p>
         
         <h2>Example Prompt</h2>
         <pre><code>Create a professional ${useCase.name.toLowerCase()} with:
@@ -1020,7 +1061,7 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
       tags: ["guides", "use-cases", useCase.name.toLowerCase()],
     });
   });
-  
+
   // Advanced topics (25 entries)
   const advancedTopics = [
     "Bulk PDF Generation",
@@ -1049,20 +1090,20 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
     "Testing PDFs",
     "Quality Assurance",
   ];
-  
+
   advancedTopics.forEach((topic, index) => {
     additionalDocs.push({
       title: topic,
-      description: `Advanced guide on ${topic.toLowerCase()} with kamkmPDF.`,
+      description: `Advanced guide on ${topic.toLowerCase()} with KamkmPDF.`,
       category: "guides",
       section: "advanced",
       order: index + 1,
       content: `
         <h2>${topic}</h2>
-        <p>This guide covers advanced techniques for ${topic.toLowerCase()} with kamkmPDF.</p>
+        <p>This guide covers advanced techniques for ${topic.toLowerCase()} with KamkmPDF.</p>
         
         <h2>Overview</h2>
-        <p>Understanding ${topic.toLowerCase()} is essential for maximizing your use of kamkmPDF.</p>
+        <p>Understanding ${topic.toLowerCase()} is essential for maximizing your use of KamkmPDF.</p>
         
         <h2>Key Concepts</h2>
         <ul>
@@ -1081,7 +1122,7 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
       tags: ["guides", "advanced", topic.toLowerCase().replace(/\s+/g, "-")],
     });
   });
-  
+
   // Troubleshooting guides (20 entries)
   const troubleshooting = [
     "PDF Generation Fails",
@@ -1105,7 +1146,7 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
     "Missing Permissions",
     "Storage Full",
   ];
-  
+
   troubleshooting.forEach((issue, index) => {
     additionalDocs.push({
       title: `Troubleshooting: ${issue}`,
@@ -1139,7 +1180,7 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
       tags: ["troubleshooting", issue.toLowerCase().replace(/\s+/g, "-")],
     });
   });
-  
+
   // API method guides (20 entries)
   const apiMethods = [
     "POST /generate",
@@ -1163,7 +1204,7 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
     "DELETE /team/{id}",
     "GET /account",
   ];
-  
+
   apiMethods.forEach((method, index) => {
     const [verb, path] = method.split(" ");
     const safePath = path ?? "";
@@ -1198,7 +1239,7 @@ const response = await fetch('https://api.kamkmpdf.com/v1/generate', {
       tags: ["api", "reference", "endpoints"],
     });
   });
-  
+
   return additionalDocs;
 }
 
@@ -1242,7 +1283,7 @@ async function seed() {
         order: docData.order ?? 0,
         tags: docData.tags ?? [],
         status: "published",
-        author: "kamkmPDF Team",
+        author: "KamkmPDF Team",
       });
 
       created++;
@@ -1271,4 +1312,3 @@ seed()
     console.error("Seed failed:", error);
     process.exit(1);
   });
-

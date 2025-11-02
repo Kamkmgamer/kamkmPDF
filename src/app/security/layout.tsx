@@ -4,20 +4,20 @@ import Footer from "~/app/_components/Footer";
 export const revalidate = 86400; // 24h ISR for marketing page
 
 export const metadata: Metadata = {
-  title: "Security | kamkmPDF",
+  title: "Security | KamkmPDF",
   description:
     "Secure cloud document storage with encryption at rest and in transit, access controls, and audit logs.",
   alternates: { canonical: "/security" },
   openGraph: {
-    title: "Security | kamkmPDF",
-    description: "Security and compliance at kamkmPDF",
+    title: "Security | KamkmPDF",
+    description: "Security and compliance at KamkmPDF",
     url: "/security",
     images: ["/og/security.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Security | kamkmPDF",
-    description: "Security and compliance at kamkmPDF",
+    title: "Security | KamkmPDF",
+    description: "Security and compliance at KamkmPDF",
     images: ["/og/security.png"],
   },
 };

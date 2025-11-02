@@ -6,25 +6,25 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://kamkmpdf.com",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://KamkmPDF.com",
   ),
-  title: "kamkmPDF — AI PDF Generator & Document Automation",
+  title: "KamkmPDF — AI PDF Generator & Document Automation",
   description:
     "Generate professional PDFs with AI. Templates, branding, collaboration, and a developer-friendly PDF API. Start free.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   alternates: { canonical: "/" },
   openGraph: {
-    title: "kamkmPDF — AI PDF Generator & Document Automation",
+    title: "KamkmPDF — AI PDF Generator & Document Automation",
     description:
       "Generate professional PDFs with AI. Templates, branding, collaboration, and a developer-friendly PDF API.",
     url: "/",
-    siteName: "kamkmPDF",
+    siteName: "KamkmPDF",
     images: [
       {
         url: "/og/home.png",
         width: 1200,
         height: 630,
-        alt: "kamkmPDF - AI PDF Generator",
+        alt: "KamkmPDF - AI PDF Generator",
       },
     ],
     locale: "en_US",
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@kamkmpdf",
-    creator: "@kamkmpdf",
-    title: "kamkmPDF — AI PDF Generator & Document Automation",
+    site: "@KamkmPDF",
+    creator: "@KamkmPDF",
+    title: "KamkmPDF — AI PDF Generator & Document Automation",
     description: "Generate professional PDFs with AI.",
     images: ["/og/home.png"],
   },
@@ -78,15 +78,15 @@ export default function RootLayout({
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: "kamkmPDF",
-            url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://kamkmpdf.com",
+            name: "KamkmPDF",
+            url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://KamkmPDF.com",
             logo:
-              (process.env.NEXT_PUBLIC_SITE_URL ?? "https://kamkmpdf.com") +
+              (process.env.NEXT_PUBLIC_SITE_URL ?? "https://KamkmPDF.com") +
               "/favicon.ico",
             sameAs: [
-              "https://twitter.com/kamkmpdf",
-              "https://www.linkedin.com/company/kamkmpdf",
-              "https://github.com/Kamkmgamer/kamkmPDF",
+              "https://twitter.com/KamkmPDF",
+              "https://www.linkedin.com/company/KamkmPDF",
+              "https://github.com/Kamkmgamer/KamkmPDF",
             ],
           })}
         </Script>
@@ -99,7 +99,7 @@ export default function RootLayout({
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            name: "kamkmPDF",
+            name: "KamkmPDF",
             applicationCategory: "BusinessApplication",
             operatingSystem: "Web",
             offers: {
