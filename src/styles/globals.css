@@ -98,13 +98,13 @@
   --color-bg: #0b1220; /* page background */
   --color-surface: #0f1b2d; /* elevated surfaces/cards */
   --color-base: #0e1628; /* base panels */
-  --color-text-primary: #e8f1fb; /* bright text */
-  --color-text-muted: #9fb0c8; /* subdued text */
+  --color-text-primary: #f3f4f6; /* bright text - gray-100 */
+  --color-text-muted: #d1d5db; /* subdued but readable text - gray-300 */
   --color-primary: #38bdf8; /* sky-400/500 */
   --color-primary-700: #0ea5e9; /* for active/hover */
   --color-on-primary: #ffffff;
   --color-accent: #818cf8; /* indigo-400 */
-  --color-border: rgba(255, 255, 255, 0.08); /* subtle but visible */
+  --color-border: rgba(255, 255, 255, 0.2); /* visible borders */
 }
 
 /* Subtle decorative background overlay for dark mode */
@@ -131,4 +131,161 @@
       transparent 45%
     );
   background-repeat: no-repeat;
+}
+
+/* Clerk Component Contrast Improvements - OpenRouter Style */
+.dark [data-clerk-component],
+.dark .cl-component,
+[data-theme="dark"] [data-clerk-component],
+[data-theme="dark"] .cl-component {
+  /* Force bright text like OpenRouter */
+  color: white !important;
+}
+
+/* All text elements - force WHITE like OpenRouter */
+.dark [data-clerk-component] *,
+[data-theme="dark"] [data-clerk-component] * {
+  color: white !important;
+}
+
+/* Center all Clerk form text elements */
+.cl-headerTitle,
+.cl-headerSubtitle,
+.cl-formHeaderTitle,
+.cl-formHeaderSubtitle,
+.cl-header,
+.cl-formHeader {
+  text-align: center !important;
+}
+
+/* Labels and titles - PURE WHITE */
+.dark .cl-formFieldLabel,
+.dark .cl-headerTitle,
+.dark .cl-headerSubtitle,
+.dark .cl-formHeaderTitle,
+.dark .cl-formHeaderSubtitle,
+.dark .cl-socialButtonsBlockButtonText,
+.dark .cl-identityPreviewText,
+[data-theme="dark"] .cl-formFieldLabel,
+[data-theme="dark"] .cl-headerTitle,
+[data-theme="dark"] .cl-headerSubtitle,
+[data-theme="dark"] .cl-formHeaderTitle,
+[data-theme="dark"] .cl-formHeaderSubtitle,
+[data-theme="dark"] .cl-socialButtonsBlockButtonText,
+[data-theme="dark"] .cl-identityPreviewText {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Divider "or" text - WHITE like OpenRouter */
+.dark .cl-dividerText,
+[data-theme="dark"] .cl-dividerText {
+  color: white !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+/* Divider line - visible gray */
+.dark .cl-dividerLine,
+[data-theme="dark"] .cl-dividerLine {
+  background-color: rgb(115, 115, 115) !important;
+  opacity: 1 !important;
+}
+
+/* Footer text - bright */
+.dark .cl-footerActionText,
+[data-theme="dark"] .cl-footerActionText {
+  color: rgb(229, 231, 235) !important;
+  opacity: 1 !important;
+}
+
+/* Links - bright blue like OpenRouter */
+.dark .cl-footerActionLink,
+.dark .cl-formResendCodeLink,
+[data-theme="dark"] .cl-footerActionLink,
+[data-theme="dark"] .cl-formResendCodeLink {
+  color: rgb(107, 114, 255) !important;
+  opacity: 1 !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+}
+
+.dark .cl-footerActionLink:hover,
+[data-theme="dark"] .cl-footerActionLink:hover {
+  color: rgb(139, 145, 255) !important;
+}
+
+/* Input fields - visible borders and bright text */
+.dark .cl-formFieldInput,
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="text"],
+[data-theme="dark"] .cl-formFieldInput,
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] input[type="text"] {
+  border: 1px solid rgb(82, 82, 82) !important;
+  color: white !important;
+  background-color: rgb(26, 26, 26) !important;
+  opacity: 1 !important;
+}
+
+/* Placeholder text - readable gray */
+.dark .cl-formFieldInput::placeholder,
+.dark input::placeholder,
+[data-theme="dark"] .cl-formFieldInput::placeholder,
+[data-theme="dark"] input::placeholder {
+  color: rgb(163, 163, 163) !important;
+  opacity: 1 !important;
+}
+
+/* Social buttons - visible borders and bright text */
+.dark .cl-socialButtonsBlockButton,
+[data-theme="dark"] .cl-socialButtonsBlockButton {
+  border: 1px solid rgb(82, 82, 82) !important;
+  background-color: rgb(26, 26, 26) !important;
+  color: white !important;
+  opacity: 1 !important;
+}
+
+.dark .cl-socialButtonsBlockButton:hover,
+[data-theme="dark"] .cl-socialButtonsBlockButton:hover {
+  border-color: rgb(115, 115, 115) !important;
+  background-color: rgb(35, 35, 35) !important;
+}
+
+/* "Last used" text - readable */
+.dark .cl-identityPreviewEditButton,
+[data-theme="dark"] .cl-identityPreviewEditButton {
+  color: rgb(163, 163, 163) !important;
+  opacity: 1 !important;
+}
+
+/* Card background */
+.dark .cl-card,
+[data-theme="dark"] .cl-card {
+  background-color: rgb(26, 26, 26) !important;
+  border: 1px solid rgb(55, 55, 55) !important;
+}
+
+/* Buttons */
+.dark .cl-formButtonPrimary,
+[data-theme="dark"] .cl-formButtonPrimary {
+  background-color: rgb(107, 72, 255) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.dark .cl-formButtonPrimary:hover,
+[data-theme="dark"] .cl-formButtonPrimary:hover {
+  background-color: rgb(123, 92, 255) !important;
+}
+
+/* Badge - high contrast */
+.dark .cl-badge,
+[data-theme="dark"] .cl-badge {
+  background-color: rgb(255, 124, 0) !important;
+  color: white !important;
+  font-weight: 600 !important;
 }
