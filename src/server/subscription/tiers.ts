@@ -3,6 +3,10 @@
  * Defines pricing, quotas, features, and model access for each tier
  */
 
+import { db } from "~/server/db";
+import { aiModels } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
+
 export type SubscriptionTier =
   | "starter"
   | "classic"
@@ -11,7 +15,22 @@ export type SubscriptionTier =
   | "business"
   | "enterprise";
 
-export const modelsAgents: string[] = [
+/**
+ * Get active agent models from the database
+ * @returns Array of model IDs
+ */
+export async function getModelsAgents(): Promise<string[]> {
+  const models = await db
+    .select({ modelId: aiModels.modelId })
+    .from(aiModels)
+    .where(eq(aiModels.isActive, true))
+    .orderBy(aiModels.sortOrder);
+
+  return models.map((m) => m.modelId);
+}
+
+// Default models for fallback (used during initialization or if DB is unavailable)
+export const DEFAULT_MODELS_AGENTS: string[] = [
   "openai/gpt-oss-120b:free",
   "openai/gpt-oss-safeguard-120b",
   "alibaba/tongyi-deepresearch-30b-a3b:free",
@@ -93,7 +112,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "community",
       storageRetention: 30, // 30 days
     },
-    models: modelsAgents,
+    models: DEFAULT_MODELS_AGENTS,
   },
   classic: {
     id: "classic",
@@ -128,7 +147,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "email",
       storageRetention: -1, // permanent
     },
-    models: modelsAgents,
+    models: DEFAULT_MODELS_AGENTS,
   },
   professional: {
     id: "professional",
@@ -163,7 +182,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "email",
       storageRetention: -1, // permanent
     },
-    models: modelsAgents,
+    models: DEFAULT_MODELS_AGENTS,
   },
   pro_plus: {
     id: "pro_plus",
@@ -198,7 +217,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "priority", // Priority support
       storageRetention: -1, // permanent
     },
-    models: modelsAgents,
+    models: DEFAULT_MODELS_AGENTS,
   },
   business: {
     id: "business",
@@ -233,7 +252,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "priority",
       storageRetention: -1, // permanent
     },
-    models: modelsAgents,
+    models: DEFAULT_MODELS_AGENTS,
   },
   enterprise: {
     id: "enterprise",
@@ -268,7 +287,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       support: "dedicated",
       storageRetention: -1, // permanent
     },
-    models: modelsAgents,
+    models: DEFAULT_MODELS_AGENTS,
   },
 };
 
@@ -309,10 +328,25 @@ export function hasExceededQuota(
 }
 
 /**
- * Get models for a specific tier
+ * Get models for a specific tier (uses default models)
  */
 export function getModelsForTier(tier: SubscriptionTier): string[] {
   return getTierConfig(tier).models;
+}
+
+/**
+ * Get models for a specific tier from database (async)
+ * Falls back to default models if database query fails
+ */
+export async function getModelsForTierAsync(
+  tier: SubscriptionTier,
+): Promise<string[]> {
+  try {
+    return await getModelsAgents();
+  } catch (error) {
+    console.error("Failed to fetch models from database:", error);
+    return getTierConfig(tier).models;
+  }
 }
 
 /**

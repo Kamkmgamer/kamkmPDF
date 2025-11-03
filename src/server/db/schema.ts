@@ -271,7 +271,10 @@ export const emailCampaigns = createTable("email_campaign", (d) => ({
 // Email campaign events for tracking opens, clicks, conversions
 export const emailCampaignEvents = createTable("email_campaign_event", (d) => ({
   id: d.text().primaryKey(),
-  campaignId: d.text().references(() => emailCampaigns.id).notNull(),
+  campaignId: d
+    .text()
+    .references(() => emailCampaigns.id)
+    .notNull(),
   userId: d.text().notNull(),
   eventType: d.varchar({ length: 64 }).notNull(), // sent, opened, clicked, converted, unsubscribed
   eventData: d.jsonb().$type<{
@@ -317,7 +320,10 @@ export const referrals = createTable("referral", (d) => ({
 // Referral rewards history - tracks all credits earned from referrals
 export const referralRewards = createTable("referral_reward", (d) => ({
   id: d.text().primaryKey(),
-  referralId: d.text().references(() => referrals.id).notNull(),
+  referralId: d
+    .text()
+    .references(() => referrals.id)
+    .notNull(),
   userId: d.text().notNull(), // User who received the reward
   creditsAwarded: d.integer().notNull(), // Number of credits awarded (typically 50)
   createdAt: d
@@ -339,7 +345,10 @@ export const blogPosts = createTable(
     author: d.varchar({ length: 256 }), // Author name
     authorId: d.text(), // Optional reference to user who created the post
     status: d.varchar({ length: 32 }).default("published").notNull(), // draft, published, archived
-    tags: d.jsonb().$type<string[]>().default(sql`'[]'`), // Array of tags
+    tags: d
+      .jsonb()
+      .$type<string[]>()
+      .default(sql`'[]'`), // Array of tags
     seoTitle: d.varchar({ length: 512 }), // Custom SEO title
     seoDescription: d.text(), // Custom SEO meta description
     publishedAt: d.timestamp({ withTimezone: true }), // When the post was published
@@ -370,7 +379,10 @@ export const documentationPages = createTable(
     order: d.integer().default(0).notNull(), // Order within category/section
     parentId: d.text(), // Parent page ID for nested documentation
     status: d.varchar({ length: 32 }).default("published").notNull(), // draft, published, archived
-    tags: d.jsonb().$type<string[]>().default(sql`'[]'`), // Array of tags
+    tags: d
+      .jsonb()
+      .$type<string[]>()
+      .default(sql`'[]'`), // Array of tags
     seoTitle: d.varchar({ length: 512 }), // Custom SEO title
     seoDescription: d.text(), // Custom SEO meta description
     author: d.varchar({ length: 256 }), // Author name
@@ -387,5 +399,30 @@ export const documentationPages = createTable(
     statusIdx: index("doc_page_status_idx").on(table.status),
     parentIdx: index("doc_page_parent_idx").on(table.parentId),
     orderIdx: index("doc_page_order_idx").on(table.order),
+  }),
+);
+
+// AI Models table - stores available AI models/agents for different tiers
+export const aiModels = createTable(
+  "ai_model",
+  (d) => ({
+    id: d.text().primaryKey(),
+    modelId: d.varchar({ length: 256 }).notNull().unique(), // OpenRouter model ID (e.g., "openai/gpt-oss-120b:free")
+    name: d.varchar({ length: 256 }).notNull(), // Human-readable name
+    description: d.text(), // Model description
+    provider: d.varchar({ length: 128 }), // Provider name (e.g., "openai", "meta-llama")
+    isActive: d.boolean().default(true).notNull(), // Whether the model is currently available
+    isAgentModel: d.boolean().default(true).notNull(), // Whether this is an agent model
+    sortOrder: d.integer().default(0).notNull(), // Order for display
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  }),
+  (table) => ({
+    modelIdIdx: index("ai_model_model_id_idx").on(table.modelId),
+    isActiveIdx: index("ai_model_is_active_idx").on(table.isActive),
+    isAgentIdx: index("ai_model_is_agent_idx").on(table.isAgentModel),
   }),
 );

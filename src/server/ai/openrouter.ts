@@ -8,7 +8,7 @@ import {
   getLocalArabicFontFacesCss,
 } from "~/server/utils/multilingualText";
 import {
-  getModelsForTier,
+  getModelsForTierAsync,
   type SubscriptionTier,
 } from "~/server/subscription/tiers";
 import {
@@ -361,7 +361,7 @@ async function generateHtmlFromOpenRouter({
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean)
-    : getModelsForTier(tier);
+    : await getModelsForTierAsync(tier);
 
   const attemptErrors: string[] = [];
 
