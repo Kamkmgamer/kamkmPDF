@@ -36,7 +36,8 @@
     "test:db:cleanup": "tsx scripts/setup-test-db.ts cleanup",
     "coverage:badge": "tsx scripts/generate-coverage-badge.ts",
     "prepare": "husky",
-    "fonts:download": "node scripts/download-arabic-fonts.js"
+    "fonts:download": "node scripts/download-arabic-fonts.js",
+    "check:openrouter-accounts": "tsx scripts/check-openrouter-accounts.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.34.1",
