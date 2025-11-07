@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[husky] post-commit hook running..."
+
+if [ -n "${FAST_COMMIT:-}" ]; then
+  echo "[husky] You used FAST_COMMIT — running full checks in the background..."
+  (pnpm run check >/dev/null 2>&1 && echo "[husky] Background check passed ✅") \
+    || echo "[husky] Background check found issues ⚠️"
+else
+  echo "[husky] Normal commit completed ✅"
+fi

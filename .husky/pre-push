@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[husky] pre-push: running quality checks before push..."
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "[husky] pnpm not found in PATH. Aborting push." >&2
+  exit 1
+fi
+
+echo "[husky] Running pnpm run check..."
+pnpm run check
+
+echo "[husky] All checks passed. Proceeding with push ✅"
