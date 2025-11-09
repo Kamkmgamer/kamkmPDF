@@ -28,6 +28,8 @@ const db = drizzle(conn, { schema: { aiModels } });
 
 // Default models list
 const DEFAULT_MODELS_AGENTS: string[] = [
+  "openrouter/polaris-alpha",
+  "minimax/minimax-m2:free",
   "openai/gpt-oss-120b:free",
   "openai/gpt-oss-safeguard-120b",
   "alibaba/tongyi-deepresearch-30b-a3b:free",
