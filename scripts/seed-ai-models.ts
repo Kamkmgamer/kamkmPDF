@@ -13,6 +13,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { aiModels } from "../src/server/db/schema.js";
+import { eq } from "drizzle-orm";
 
 // Get DATABASE_URL from environment
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -35,7 +36,6 @@ const DEFAULT_MODELS_AGENTS: string[] = [
   "meta-llama/llama-4-scout:free",
   "meta-llama/llama-3.3-70b-instruct:free",
   "nousresearch/hermes-3-llama-3.1-405b:free",
-  "alibaba/tongyi-deepresearch-30b-a3b:free",
   "openai/gpt-oss-120b",
 ];
 
@@ -70,6 +70,20 @@ async function seedAiModels() {
   console.log("🌱 Seeding AI models...");
 
   try {
+    // First, deactivate broken models
+    const brokenModels = [
+      "openai/gpt-oss-120b:free",
+      "openai/gpt-oss-safeguard-120b",
+      "alibaba/tongyi-deepresearch-30b-a3b:free",
+    ];
+
+    for (const modelId of brokenModels) {
+      await db
+        .update(aiModels)
+        .set({ isActive: false })
+        .where(eq(aiModels.modelId, modelId));
+      console.log(`❌ Deactivated broken model: ${modelId}`);
+    }
     // Insert all default models
     for (let i = 0; i < DEFAULT_MODELS_AGENTS.length; i++) {
       const modelId = DEFAULT_MODELS_AGENTS[i];

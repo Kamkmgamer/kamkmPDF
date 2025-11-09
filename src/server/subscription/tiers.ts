@@ -38,7 +38,6 @@ export const DEFAULT_MODELS_AGENTS: string[] = [
   "meta-llama/llama-4-scout:free",
   "meta-llama/llama-3.3-70b-instruct:free",
   "nousresearch/hermes-3-llama-3.1-405b:free",
-  "alibaba/tongyi-deepresearch-30b-a3b:free",
   "openai/gpt-oss-120b",
 ];
 
