@@ -33,14 +33,12 @@ export async function getModelsAgents(): Promise<string[]> {
 export const DEFAULT_MODELS_AGENTS: string[] = [
   "openrouter/polaris-alpha",
   "minimax/minimax-m2:free",
-  "openai/gpt-oss-120b:free",
-  "openai/gpt-oss-safeguard-120b",
-  "alibaba/tongyi-deepresearch-30b-a3b:free",
   "qwen/qwen3-235b-a22b:free",
   "meta-llama/llama-4-maverick:free",
   "meta-llama/llama-4-scout:free",
   "meta-llama/llama-3.3-70b-instruct:free",
   "nousresearch/hermes-3-llama-3.1-405b:free",
+  "alibaba/tongyi-deepresearch-30b-a3b:free",
   "openai/gpt-oss-120b",
 ];
 
