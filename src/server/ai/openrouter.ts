@@ -62,21 +62,163 @@ export function hasOpenRouterKey(): boolean {
   return getAvailableApiKeys().length > 0;
 }
 
-// Track current key index for round-robin distribution
+// Key state management for rate limiting and cooldown
+interface KeyState {
+  requestCount: number;
+  lastResetTime: number;
+  consecutiveBadRequests: number;
+  cooldownUntil: number | null;
+}
+
+const keyStates = new Map<number, KeyState>();
+const DAILY_REQUEST_LIMIT = 50;
+const COOLDOWN_DURATION_MS = 60 * 60 * 1000; // 60 minutes
+const BAD_REQUEST_THRESHOLD = 3;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Track current key index for sequential distribution
 let currentKeyIndex = 0;
 
 /**
- * Gets the next API key using round-robin rotation for load distribution.
+ * Initialize or get key state
  */
-function getNextApiKey(keys: string[]): { key: string; index: number } {
+function getKeyState(keyIndex: number): KeyState {
+  if (!keyStates.has(keyIndex)) {
+    keyStates.set(keyIndex, {
+      requestCount: 0,
+      lastResetTime: Date.now(),
+      consecutiveBadRequests: 0,
+      cooldownUntil: null,
+    });
+  }
+  return keyStates.get(keyIndex)!;
+}
+
+/**
+ * Reset daily request count if 24 hours have passed
+ */
+function resetDailyCountIfNeeded(state: KeyState): void {
+  const now = Date.now();
+  if (now - state.lastResetTime >= DAY_MS) {
+    state.requestCount = 0;
+    state.lastResetTime = now;
+  }
+}
+
+/**
+ * Check if a key is available (not in cooldown and under rate limit)
+ */
+function isKeyAvailable(keyIndex: number): boolean {
+  const state = getKeyState(keyIndex);
+  const now = Date.now();
+
+  // Check cooldown
+  if (state.cooldownUntil && now < state.cooldownUntil) {
+    return false;
+  }
+
+  // Clear cooldown if expired
+  if (state.cooldownUntil && now >= state.cooldownUntil) {
+    state.cooldownUntil = null;
+    state.consecutiveBadRequests = 0;
+  }
+
+  // Reset daily count if needed
+  resetDailyCountIfNeeded(state);
+
+  // Check rate limit
+  return state.requestCount < DAILY_REQUEST_LIMIT;
+}
+
+/**
+ * Record a successful request
+ */
+function recordSuccessfulRequest(keyIndex: number): void {
+  const state = getKeyState(keyIndex);
+  resetDailyCountIfNeeded(state);
+  state.requestCount++;
+  state.consecutiveBadRequests = 0;
+
+  console.log(
+    `[openrouter] Key #${keyIndex}: ${state.requestCount}/${DAILY_REQUEST_LIMIT} requests used today`,
+  );
+}
+
+/**
+ * Record a bad request (400 status)
+ */
+function recordBadRequest(keyIndex: number): void {
+  const state = getKeyState(keyIndex);
+  resetDailyCountIfNeeded(state);
+  state.requestCount++;
+  state.consecutiveBadRequests++;
+
+  console.warn(
+    `[openrouter] Key #${keyIndex}: Bad request ${state.consecutiveBadRequests}/${BAD_REQUEST_THRESHOLD} (${state.requestCount}/${DAILY_REQUEST_LIMIT} requests used today)`,
+  );
+
+  // Apply cooldown if threshold reached
+  if (state.consecutiveBadRequests >= BAD_REQUEST_THRESHOLD) {
+    state.cooldownUntil = Date.now() + COOLDOWN_DURATION_MS;
+    console.warn(
+      `[openrouter] Key #${keyIndex}: Entering 60-minute cooldown after ${BAD_REQUEST_THRESHOLD} consecutive bad requests`,
+    );
+  }
+}
+
+/**
+ * Record other types of requests (rate limits, auth errors, etc.)
+ */
+function recordOtherRequest(keyIndex: number): void {
+  const state = getKeyState(keyIndex);
+  resetDailyCountIfNeeded(state);
+  state.requestCount++;
+  // Don't increment consecutive bad requests for non-400 errors
+
+  console.log(
+    `[openrouter] Key #${keyIndex}: ${state.requestCount}/${DAILY_REQUEST_LIMIT} requests used today`,
+  );
+}
+
+/**
+ * Gets the next available API key using sequential distribution.
+ * Respects rate limits and cooldowns.
+ */
+function getNextApiKey(keys: string[]): { key: string; index: number } | null {
   if (keys.length === 0) {
     throw new Error("No OpenRouter API keys configured");
   }
 
-  const index = currentKeyIndex % keys.length;
-  currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+  // Try to find an available key starting from current index
+  const startIndex = currentKeyIndex;
+  let attempts = 0;
 
-  return { key: keys[index]!, index };
+  while (attempts < keys.length) {
+    const index = currentKeyIndex % keys.length;
+    currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+    attempts++;
+
+    if (isKeyAvailable(index)) {
+      return { key: keys[index]!, index };
+    }
+
+    const state = getKeyState(index);
+    if (state.cooldownUntil && Date.now() < state.cooldownUntil) {
+      const remainingMinutes = Math.ceil(
+        (state.cooldownUntil - Date.now()) / (60 * 1000),
+      );
+      console.log(
+        `[openrouter] Key #${index}: In cooldown for ${remainingMinutes} more minutes`,
+      );
+    } else if (state.requestCount >= DAILY_REQUEST_LIMIT) {
+      console.log(
+        `[openrouter] Key #${index}: Daily limit reached (${state.requestCount}/${DAILY_REQUEST_LIMIT})`,
+      );
+    }
+  }
+
+  // No available keys
+  return null;
 }
 
 function extractHtmlFromContent(content: string): string {
@@ -371,7 +513,20 @@ async function generateHtmlFromOpenRouter({
     const triedKeys = new Set<number>();
 
     for (let keyAttempt = 0; keyAttempt < apiKeys.length; keyAttempt++) {
-      const { key: apiKey, index: keyIndex } = getNextApiKey(apiKeys);
+      const keyResult = getNextApiKey(apiKeys);
+
+      // No available keys
+      if (!keyResult) {
+        console.error(
+          `[openrouter] No available API keys for model ${currentModel} (all keys are rate-limited or in cooldown)`,
+        );
+        attemptErrors.push(
+          `Model ${currentModel} -> No available API keys (rate limits or cooldowns)`,
+        );
+        break;
+      }
+
+      const { key: apiKey, index: keyIndex } = keyResult;
 
       // Skip if we've already tried this key for this model
       if (triedKeys.has(keyIndex)) {
@@ -410,6 +565,9 @@ async function generateHtmlFromOpenRouter({
           const content: string = data?.choices?.[0]?.message?.content ?? "";
           if (content && content.trim().length > 0) {
             const extractedHtml = extractHtmlFromContent(content);
+
+            // Record successful request
+            recordSuccessfulRequest(keyIndex);
 
             // Log successful generation with key info
             console.log(
@@ -451,8 +609,16 @@ async function generateHtmlFromOpenRouter({
         // Check if error is key-related (rate limit, auth error) or model-related
         const text = await res.text().catch(() => "");
         const errorDetails = text?.slice(0, 500) ?? "No error details";
+        const isBadRequest = res.status === 400;
         const isKeyError =
           res.status === 401 || res.status === 429 || res.status === 403;
+
+        // Record the request based on error type
+        if (isBadRequest) {
+          recordBadRequest(keyIndex);
+        } else {
+          recordOtherRequest(keyIndex);
+        }
 
         console.error(
           `[openrouter] Model ${currentModel} failed with key #${keyIndex}:`,
@@ -463,8 +629,9 @@ async function generateHtmlFromOpenRouter({
             promptLength: prompt.length,
             tier,
             isKeyError,
+            isBadRequest,
             willRetryWithAnotherKey:
-              isKeyError && keyAttempt < apiKeys.length - 1,
+              (isKeyError || isBadRequest) && keyAttempt < apiKeys.length - 1,
           },
         );
 
@@ -472,8 +639,8 @@ async function generateHtmlFromOpenRouter({
           `Model ${currentModel} (key #${keyIndex}) -> ${res.status}: ${errorDetails}`,
         );
 
-        // If it's a key-related error and we have more keys, try the next one
-        if (isKeyError && keyAttempt < apiKeys.length - 1) {
+        // If it's a key-related error or bad request and we have more keys, try the next one
+        if ((isKeyError || isBadRequest) && keyAttempt < apiKeys.length - 1) {
           console.log(
             `[openrouter] Retrying model ${currentModel} with different key...`,
           );
